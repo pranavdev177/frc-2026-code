@@ -12,20 +12,31 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 public class LauncherSubsystem extends SubsystemBase {
-
+  private TalonFX launcherLeft = new TalonFX(53);
+  private TalonFX launcherRight = new TalonFX(54);
+  private SparkMax indexer = new SparkMax(50, MotorType.kBrushed);
+  private double launcherNonAutoMotorSpeed = 0;
 
   /** Creates a new ExampleSubsystem. */
   public LauncherSubsystem() {}
 
-  public void setSpeedShooter(double speed, double speed2, double speed3) {
+  public void setSpeedLauncher(double speed) {
+    launcherLeft.set(-speed);
+    launcherRight.set(speed);
+    if (speed == 0) {
+      indexer.set(0);
+    } else {
+      indexer.set(0.75);
+    }
   }
 
-  public void setSpeedIndexer(double speed) {
-    
+  public double getNonAutoMotorSpeed() {
+    return launcherNonAutoMotorSpeed;
   }
 
-  public void setSpeedIntake(double speed) {
-    
+  public void cycleMotorSpeed() {
+    launcherNonAutoMotorSpeed += 0.1;
+    launcherNonAutoMotorSpeed %= 1.0;
   }
 
   /**

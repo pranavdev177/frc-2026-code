@@ -27,8 +27,8 @@ public class IntakeSubsystem extends SubsystemBase {
   public IntakeSubsystem() {
     // Reset Encoder
     SparkMaxConfig config = new SparkMaxConfig();
-    config.encoder.positionConversionFactor(52.812);
-    config.closedLoop.pid(0.1, 0, 0);
+    config.encoder.positionConversionFactor(2.4);
+    config.closedLoop.pid(0.01, 0, 0);
     intakeAngle.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
     intakeAngleEncoder = intakeAngle.getEncoder();
     pidController = intakeAngle.getClosedLoopController();
@@ -41,6 +41,10 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public void setIntakeAngle(double angle) {
     pidController.setSetpoint(angle, ControlType.kPosition);
+  }
+
+  public void setIntakeAngleSpeed(double speed) {
+    intakeAngle.set(speed);
   }
   
   /**

@@ -22,9 +22,10 @@ import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.LauncherSubsystem;
 
 public class RobotContainer {
-    private double MaxSpeed = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
+    private double MaxSpeed = 1.5 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
 
     /* Setting up bindings for necessary control of the swerve drive platform */
@@ -43,15 +44,17 @@ public class RobotContainer {
 
     private final IntakeSubsystem intake = new IntakeSubsystem();
 
+    private final LauncherSubsystem launcher = new LauncherSubsystem();
+
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
-    public final Translation2d hubPosition = new Translation2d(-1, 0);
+    public final Translation2d hubPosition = new Translation2d(1, 0);
 
     private final PIDController headingPID = new PIDController(4.0, 0.1, 0.2);
 
     public RobotContainer() {
         configureBindings();
-        // set front of robot as front
+        // set front of robot as positive x
         drivetrain.seedFieldCentric();
         headingPID.enableContinuousInput(-Math.PI, Math.PI);
         headingPID.setTolerance(Math.toRadians(2));
@@ -76,56 +79,46 @@ public class RobotContainer {
             drivetrain.applyRequest(() -> idle).ignoringDisable(true)
         );
 
-        // joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
+        joystick.b().whileTrue(drivetrain.applyRequest(() -> brake));
+        /*
         joystick.b().whileTrue(drivetrain.applyRequest(() ->
-            point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
+            //point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
         ));
+        */
         joystick.x().toggleOnTrue(
             new StartEndCommand(
-                () -> intake.setIntakeAngle(30),
-                () -> intake.setIntakeAngle(0),
-                intake
+                () -> intake.setIntakeAngleSpeed(0.4),
+                () -> intake.setIntakeAngleSpeed(0)
             )
         );
-        joystick.a().toggleOnTrue(
+        joystick.leftTrigger().toggleOnTrue(
             new StartEndCommand(
-                () -> intake.setIntakeSpeed(0.4),
+                () -> intake.setIntakeSpeed(0.9),
                 () -> intake.setIntakeSpeed(0),
                 intake
             )
         );
-        // joystick.x().toggleOnTrue(
-        //     new StartEndCommand(
-        //         () -> indexer.setSpeedShooter(0.5),
-        //         () -> indexer.setSpeedShooter(0),
-        //         indexer
-        //     )
-        // );
-        // joystick.x().toggleOnTrue(
-        //     new StartEndCommand(
-        //         () -> indexer.setSpeedIntake(0.5),
-        //         () -> indexer.setSpeedIntake(0),
-        //         indexer
-        //     )
-        // );
-        joystick.rightBumper().whileTrue(
-    drivetrain.applyRequest(() -> {
-
-        Translation2d robotToTarget =
-            hubPosition.minus(drivetrain.getState().Pose.getTranslation());
-
-        Rotation2d targetAngle =
-            new Rotation2d(Math.atan2(robotToTarget.getY(), robotToTarget.getX()));
-
-        double rot = headingPID.calculate(
-            drivetrain.getState().Pose.getRotation().getRadians(),
-            targetAngle.getRadians()
+        joystick.rightTrigger().and(joystick.rightBumper().negate()).whileTrue(
+            Commands.run(() -> launcher.setSpeedLauncher(launcher.getNonAutoMotorSpeed()), launcher)
         );
-
-        return drive
-            .withVelocityX(-joystick.getLeftY() * MaxSpeed)
-            .withVelocityY(-joystick.getLeftX() * MaxSpeed)
-            .withRotationalRate(rot);
+        joystick.rightTrigger().whileFalse(
+            Commands.run(() -> launcher.setSpeedLauncher(0), launcher)
+        );
+        joystick.y().onTrue(
+            Commands.runOnce(() -> launcher.cycleMotorSpeed(), launcher)
+        );
+        joystick.rightBumper().whileTrue(
+            drivetrain.applyRequest(() -> {
+                Translation2d robotToTarget = hubPosition.minus(drivetrain.getState().Pose.getTranslation());
+                Rotation2d targetAngle = new Rotation2d(Math.atan2(robotToTarget.getY(), robotToTarget.getX()));
+                double rot = headingPID.calculate(
+                drivetrain.getState().Pose.getRotation().getRadians(),
+                targetAngle.getRadians()
+            );
+            return drive
+                .withVelocityX(-joystick.getLeftY() * MaxSpeed)
+                .withVelocityY(-joystick.getLeftX() * MaxSpeed)
+                .withRotationalRate(rot);
             })
         );
 
