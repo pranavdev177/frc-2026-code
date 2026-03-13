@@ -17,7 +17,7 @@ import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.ResetMode;
 import com.revrobotics.PersistMode;
 
-public class IntakeSubsystem extends SubsystemBase {
+public class IndexerSubsystem extends SubsystemBase {
   private SparkMax indexer = new SparkMax(50, MotorType.kBrushed);
   private int indexerState = 0;
 
@@ -29,16 +29,16 @@ public class IntakeSubsystem extends SubsystemBase {
     indexerState %= 3;
     switch (indexerState) {
     case 0:
-        indexer.set(0)
+        indexer.set(0);
         break;
     case 1:
-        indexer.set(1)
+        indexer.set(1);
         break;
     case 2:
-        indexer.set(-1)
+        indexer.set(-1);
         break;
     default:
-        indexer.set(0)
+        indexer.set(0);
         break;
     }
   }

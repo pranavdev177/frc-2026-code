@@ -22,11 +22,6 @@ public class LauncherSubsystem extends SubsystemBase {
   public void setSpeedLauncher(double speed) {
     launcherLeft.set(-speed);
     launcherRight.set(speed);
-    if (speed == 0) {
-      indexer.set(0);
-    } else {
-      indexer.set(0.75);
-    }
   }
 
   public double getNonAutoMotorSpeed() {
