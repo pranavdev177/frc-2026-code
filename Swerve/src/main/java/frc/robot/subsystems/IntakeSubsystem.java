@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.controller.ArmFeedforward;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -22,17 +24,28 @@ public class IntakeSubsystem extends SubsystemBase {
   public SparkMax intakeAngle = new SparkMax(52, MotorType.kBrushless);
   private SparkClosedLoopController pidController;
   public RelativeEncoder intakeAngleEncoder;
+  private ArmFeedforward feedforward = new ArmFeedforward(
+    0.0,   // kS
+    0.6,   // kG (gravity)
+    0.0,   // kV
+    0.0    // kA
+  );
+  // PID controller for position
+  private PIDController pid = new PIDController(5, 0, 0);
+  private double targetAngle = 0;
 
   /** Creates a new ExampleSubsystem. */
   public IntakeSubsystem() {
-    // Reset Encoder
     SparkMaxConfig config = new SparkMaxConfig();
     config.encoder.positionConversionFactor(2.4);
-    // Changed 0.5 to 1
-    config.closedLoop.pid(5, 0, 4);
-    intakeAngle.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+
+    intakeAngle.configure(
+        config,
+        ResetMode.kNoResetSafeParameters,
+        PersistMode.kNoPersistParameters
+    );
+
     intakeAngleEncoder = intakeAngle.getEncoder();
-    pidController = intakeAngle.getClosedLoopController();
     intakeAngleEncoder.setPosition(0);
   }
 
@@ -41,12 +54,20 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   public void setIntakeAngle(double angle) {
-    intakeSpin.set(0);
-    pidController.setSetpoint(angle, ControlType.kPosition);
-  }
 
-  public void setIntakeAngleSpeed(double speed) {
-    intakeAngle.set(speed);
+    double currentAngle = intakeAngleEncoder.getPosition();
+
+    double ff = feedforward.calculate(
+        Math.toRadians(currentAngle),
+        0
+    );
+
+    pidController.setReference(
+        angle,
+        ControlType.kPosition,
+        0,
+        ff
+    );
   }
   
   /**
@@ -75,7 +96,20 @@ public class IntakeSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
+    double currentAngle = intakeAngleEncoder.getPosition();
+
+    // PID correction
+    double pidOutput = pid.calculate(currentAngle, targetAngle);
+
+    // Feedforward to fight gravity
+    double ffOutput = feedforward.calculate(
+        Math.toRadians(currentAngle),
+        0
+    );
+
+    double output = pidOutput + ffOutput;
+
+    intakeAngle.setVoltage(output);
   }
 
   @Override
