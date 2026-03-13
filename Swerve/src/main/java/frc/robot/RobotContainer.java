@@ -12,6 +12,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -72,6 +73,8 @@ public class RobotContainer {
     public final Translation2d blueHubPosition = new Translation2d(4.612, 4.021);
     public final Translation2d redHubPosition = new Translation2d(11.901, 4.021);
 
+    public final Translation2d hubPosition = new Translation2d(2, 2);
+
 
 
     public RobotContainer() {
@@ -105,7 +108,7 @@ public class RobotContainer {
 
         joystick.x().toggleOnTrue(
             new StartEndCommand(
-                () -> intake.setIntakeAngleSpeed(0.35),
+                () -> intake.setIntakeAngleSpeed(1),
                 () -> intake.setIntakeAngle(0)
             )
         );
@@ -164,22 +167,56 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        // Simple drive forward auton
+        String selectedAuto = SmartDashboard.getString("Auto Selector", "None");
         final var idle = new SwerveRequest.Idle();
-        return Commands.sequence(
-            // Reset our field centric heading to match the robot
-            // facing away from our alliance station wall (0 deg).
-            drivetrain.runOnce(() -> drivetrain.seedFieldCentric(Rotation2d.kZero)),
-            // Then slowly drive forward (away from us) for 5 seconds.
-            drivetrain.applyRequest(() ->
-                drive.withVelocityX(0.5)
-                    .withVelocityY(0)
-                    .withRotationalRate(0)
-            )
-            .withTimeout(5.0),
-            // Finally idle for the rest of auton
-            drivetrain.applyRequest(() -> idle)
-        );
+
+        
+        switch (selectedAuto) {
+            case "Blue Left":
+                // Simple drive forward auton
+                return Commands.sequence(
+                    // Reset our field centric heading to match the robot
+                    // facing away from our alliance station wall (0 deg).
+                    drivetrain.runOnce(() -> drivetrain.seedFieldCentric(Rotation2d.kZero)),
+                    // Then slowly drive forward (away from us) for 5 seconds.
+                    drivetrain.applyRequest(() ->
+                        drive.withVelocityX(0.5)
+                            .withVelocityY(0)
+                            .withRotationalRate(0)
+                    )
+                    .withTimeout(5.0),
+                    // Finally idle for the rest of auton
+                    drivetrain.applyRequest(() -> idle)
+                );
+            case "Blue Middle":
+                // Simple drive forward auton
+                return Commands.sequence(
+                    // Reset our field centric heading to match the robot
+                    // facing away from our alliance station wall (0 deg).
+                    drivetrain.runOnce(() -> drivetrain.seedFieldCentric(Rotation2d.kZero)),
+                    // Then slowly drive forward (away from us) for 5 seconds.
+                    drivetrain.applyRequest(() ->
+                        drive.withVelocityX(0.5)
+                            .withVelocityY(0)
+                            .withRotationalRate(0)
+                    )
+                    .withTimeout(5.0),
+                    // Finally idle for the rest of auton
+                    drivetrain.applyRequest(() -> idle)
+                );
+            case "Blue Right":
+                return null;
+            case "Red Left":
+                return null;
+            case "Red Middle":
+                return null;
+            case "Red Right":
+                return null;
+            case "None":
+                return null;
+            default:
+                return null;
+        }
     }
     
 }
