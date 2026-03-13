@@ -51,14 +51,28 @@ public class RobotContainer {
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
-    // Left
-    // public final Translation2d hubPosition = new Translation2d(-2, 0);
+    /*
+     * Robot Initial Starting Points
+     */
 
-    // Middle
-    // public final Translation2d hubPosition = new Translation2d(0, 0);
+    // Blue
+    public final Translation2d blueRight = new Translation2d(3.519, 0.651);
+    public final Translation2d blueMiddle = new Translation2d(3.519, 4.021);
+    public final Translation2d blueLeft = new Translation2d(3.519, 7.392);
 
-    // Right
-    // public final Translation2d hubPosition = new Translation2d(-2, 0);
+    // Red
+    public final Translation2d redLeft = new Translation2d(12.893, 0.651);
+    public final Translation2d redMiddle = new Translation2d(12.893, 4.021);
+    public final Translation2d redRight = new Translation2d(12.893, 7.392);
+
+    /*
+     * Hub Positions
+     */
+
+    public final Translation2d blueHubPosition = new Translation2d(4.612, 4.021);
+    public final Translation2d redHubPosition = new Translation2d(11.901, 4.021);
+
+
 
     public RobotContainer() {
         configureBindings();
@@ -106,6 +120,12 @@ public class RobotContainer {
 
         joystick.rightTrigger().and(joystick.rightBumper().negate()).whileTrue(
             Commands.run(() -> launcher.setSpeedLauncher(launcher.getNonAutoMotorSpeed()), launcher)
+        );
+
+        joystick.rightTrigger().and(joystick.rightBumper()).whileTrue(
+            Commands.run(() ->  launcher.setSpeedLauncher(
+                launcher.launchVelocityToMotorSpeed(launcher.calculateLaunchVelocity(drivetrain, hubPosition))),
+                launcher)
         );
 
         joystick.rightTrigger().whileFalse(

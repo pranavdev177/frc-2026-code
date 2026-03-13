@@ -20,12 +20,17 @@ import org.photonvision.PhotonPoseEstimator;
 public class Robot extends TimedRobot {
     private Command m_autonomousCommand;
     private PhotonCamera rightCamera = new PhotonCamera("rightCamera");
+    private PhotonCamera leftCamera = new PhotonCamera("leftCamera");
     public static final AprilTagFieldLayout kTagLayout = AprilTagFieldLayout
                                     .loadField(AprilTagFields.kDefaultField);
     public static final Transform3d kRobotToRightCam = new Transform3d(
-        new Translation3d(0.324769, 0.335885, 0.182352), new Rotation3d(0, 0.821464, -0.819854)
+        new Translation3d(0.324769, -0.335885, 0.182352), new Rotation3d(0, 0.821464, -0.819854)
+    );
+    public static final Transform3d kRobotToLeftCam = new Transform3d(
+        new Translation3d(0.324769, 0.335885, 0.182352), new Rotation3d(0, 0.821464, 0.819854)
     );
     private PhotonPoseEstimator rightPhotonPoseEstimator = new PhotonPoseEstimator(kTagLayout, kRobotToRightCam);
+    private PhotonPoseEstimator leftPhotonPoseEstimator = new PhotonPoseEstimator(kTagLayout, kRobotToLeftCam);
     private final RobotContainer m_robotContainer;
 
     /* log and replay timestamp and joystick data */
@@ -59,7 +64,24 @@ public class Robot extends TimedRobot {
             }
         }
 
-        System.out.println(m_robotContainer.drivetrain.getState().Pose.getTranslation().getX());
+        var lResults = leftCamera.getAllUnreadResults();
+        for (var result : lResults) {
+            if ((result != null) && (result.hasTargets())) {
+                var leftVisionEst = leftPhotonPoseEstimator.estimateCoprocMultiTagPose(result);
+                if (leftVisionEst.isEmpty()) {
+                    leftVisionEst = leftPhotonPoseEstimator.estimateLowestAmbiguityPose(result);
+                }
+                if (leftVisionEst.isPresent()) {
+                    var est = leftVisionEst.get();
+                    m_robotContainer.drivetrain.addVisionMeasurement(
+                        est.estimatedPose.toPose2d(),
+                        est.timestampSeconds
+                    );
+                }
+            }
+        }
+
+        //System.out.println(m_robotContainer.drivetrain.getState().Pose.getTranslation().getX());
 
         CommandScheduler.getInstance().run(); 
     }

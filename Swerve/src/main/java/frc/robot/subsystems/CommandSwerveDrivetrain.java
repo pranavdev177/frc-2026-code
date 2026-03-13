@@ -68,7 +68,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         double vx = speeds.vxMetersPerSecond;
         double vy = speeds.vyMetersPerSecond;
         double vxPrime = vx * Math.cos(offsetAngle) + vy * Math.sin(offsetAngle);
-        double vyPrime = vx * Math.sin(offsetAngle) + vy * Math.cos(offsetAngle);
+        double vyPrime = -vx * Math.sin(offsetAngle) + vy * Math.cos(offsetAngle);
         double timeToHub = relativeHubDistance / (launchVelocity * Math.cos(launcherAngle) + vxPrime);
         double yPrimeMiss = timeToHub * vyPrime;
         offsetAngle = Math.atan2(yPrimeMiss, relativeHubDistance);
