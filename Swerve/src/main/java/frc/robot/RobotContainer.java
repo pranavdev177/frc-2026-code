@@ -51,7 +51,14 @@ public class RobotContainer {
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
-    public final Translation2d hubPosition = new Translation2d(-2, 0);
+    // Left
+    // public final Translation2d hubPosition = new Translation2d(-2, 0);
+
+    // Middle
+    // public final Translation2d hubPosition = new Translation2d(0, 0);
+
+    // Right
+    // public final Translation2d hubPosition = new Translation2d(-2, 0);
 
     public RobotContainer() {
         configureBindings();
@@ -114,10 +121,13 @@ public class RobotContainer {
         );
 
         joystick.rightBumper().whileTrue(
-            drivetrain.applyRequest(() -> drive.withVelocityX(-joystick.getLeftY() * MaxSpeed)
-            .withVelocityY(-joystick.getLeftX() * MaxSpeed)
-            .withRotationalRate(drivetrain.calculateAutoAimRot(hubPosition))
-            )
+            drivetrain.applyRequest(() -> {
+                double vl = launcher.calculateLaunchVelocity(drivetrain, hubPosition);
+
+                return drive.withVelocityX(-joystick.getLeftY() * MaxSpeed)
+                .withVelocityY(-joystick.getLeftX() * MaxSpeed)
+                .withRotationalRate(drivetrain.calculateAutoAimRot(hubPosition, vl));
+            })
         );
 
         // Run SysId routines when holding back/start and X/Y.

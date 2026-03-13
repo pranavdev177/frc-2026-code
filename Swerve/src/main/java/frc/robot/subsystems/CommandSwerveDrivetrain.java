@@ -16,6 +16,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -52,14 +53,33 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private final SwerveRequest.SysIdSwerveSteerGains m_steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
     private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
     private final PIDController headingPID = new PIDController(5.0, 0.1, 0.2);
-    private Rotation2d targetAngle;
-    
 
-    public double calculateAutoAimRot(Translation2d hubPosition) {
+    private Rotation2d targetAngle;
+    private double offsetAngle;
+    public final double launcherAngle = 1.317724;
+
+    public double calculateAutoAimRot(Translation2d hubPosition, double launchVelocity) {
         Translation2d robotToTarget = hubPosition.minus(getState().Pose.getTranslation());
+        double relativeHubDistance = robotToTarget.getY() * robotToTarget.getY() 
+                                    + robotToTarget.getX() * robotToTarget.getX();
+        relativeHubDistance = Math.sqrt(relativeHubDistance);
+        var state = getState();
+        ChassisSpeeds speeds = state.Speeds;
+        double vx = speeds.vxMetersPerSecond;
+        double vy = speeds.vyMetersPerSecond;
+        double vxPrime = vx * Math.cos(offsetAngle) + vy * Math.sin(offsetAngle);
+        double vyPrime = vx * Math.sin(offsetAngle) + vy * Math.cos(offsetAngle);
+        double timeToHub = relativeHubDistance / (launchVelocity * Math.cos(launcherAngle) + vxPrime);
+        double yPrimeMiss = timeToHub * vyPrime;
+        offsetAngle = Math.atan2(yPrimeMiss, relativeHubDistance);
+
         targetAngle = new Rotation2d(Math.atan2(robotToTarget.getY(), robotToTarget.getX()));
-        double rot = headingPID.calculate(getState().Pose.getRotation().getRadians(), targetAngle.getRadians());
+        double rot = headingPID.calculate(getState().Pose.getRotation().getRadians(), targetAngle.getRadians() - offsetAngle);
         return rot;
+    }
+
+    public double getOffsetAngle() {
+        return offsetAngle;
     }
 
     /* SysId routine for characterizing translation. This is used to find PID gains for the drive motors. */
