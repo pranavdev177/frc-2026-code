@@ -46,6 +46,8 @@ public class RobotContainer {
 
     private final LauncherSubsystem launcher = new LauncherSubsystem();
 
+    private final IndexerSubsystem indexer = new IndexerSubsystem();
+
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
     public final Translation2d hubPosition = new Translation2d(-2, 0);
@@ -104,6 +106,10 @@ public class RobotContainer {
 
         joystick.y().onTrue(
             Commands.runOnce(() -> launcher.cycleMotorSpeed(), launcher)
+        );
+
+        joystick.a().onTrue(
+            Commands.runOnce(() -> indexer.cycleIndexerState(), indexer)
         );
 
         joystick.rightBumper().whileTrue(

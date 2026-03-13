@@ -14,7 +14,6 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 public class LauncherSubsystem extends SubsystemBase {
   private TalonFX launcherLeft = new TalonFX(53);
   private TalonFX launcherRight = new TalonFX(54);
-  private SparkMax indexer = new SparkMax(50, MotorType.kBrushed);
   private double launcherNonAutoMotorSpeed = 0;
 
   /** Creates a new ExampleSubsystem. */
