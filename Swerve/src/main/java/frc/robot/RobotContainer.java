@@ -48,16 +48,10 @@ public class RobotContainer {
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
-    public final Translation2d hubPosition = new Translation2d(1, 0);
-
-    private final PIDController headingPID = new PIDController(4.0, 0.1, 0.2);
+    public final Translation2d hubPosition = new Translation2d(-2, 0);
 
     public RobotContainer() {
         configureBindings();
-        // set front of robot as positive x
-        drivetrain.seedFieldCentric();
-        headingPID.enableContinuousInput(-Math.PI, Math.PI);
-        headingPID.setTolerance(Math.toRadians(2));
     }
 
     private void configureBindings() {
@@ -80,46 +74,43 @@ public class RobotContainer {
         );
 
         joystick.b().whileTrue(drivetrain.applyRequest(() -> brake));
-        /*
-        joystick.b().whileTrue(drivetrain.applyRequest(() ->
-            //point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
-        ));
-        */
+        
+        joystick.x().onFalse(
+            Commands.runOnce(() -> intake.intakeAngleEncoder.setPosition(0))
+        );
+
         joystick.x().toggleOnTrue(
             new StartEndCommand(
-                () -> intake.setIntakeAngleSpeed(0.4),
-                () -> intake.setIntakeAngleSpeed(0)
+                () -> intake.setIntakeAngleSpeed(0.35),
+                () -> intake.setIntakeAngle(0)
             )
         );
+
         joystick.leftTrigger().toggleOnTrue(
             new StartEndCommand(
-                () -> intake.setIntakeSpeed(0.9),
+                () -> intake.setIntakeSpeed(1),
                 () -> intake.setIntakeSpeed(0),
                 intake
             )
         );
+
         joystick.rightTrigger().and(joystick.rightBumper().negate()).whileTrue(
             Commands.run(() -> launcher.setSpeedLauncher(launcher.getNonAutoMotorSpeed()), launcher)
         );
+
         joystick.rightTrigger().whileFalse(
             Commands.run(() -> launcher.setSpeedLauncher(0), launcher)
         );
+
         joystick.y().onTrue(
             Commands.runOnce(() -> launcher.cycleMotorSpeed(), launcher)
         );
+
         joystick.rightBumper().whileTrue(
-            drivetrain.applyRequest(() -> {
-                Translation2d robotToTarget = hubPosition.minus(drivetrain.getState().Pose.getTranslation());
-                Rotation2d targetAngle = new Rotation2d(Math.atan2(robotToTarget.getY(), robotToTarget.getX()));
-                double rot = headingPID.calculate(
-                drivetrain.getState().Pose.getRotation().getRadians(),
-                targetAngle.getRadians()
-            );
-            return drive
-                .withVelocityX(-joystick.getLeftY() * MaxSpeed)
-                .withVelocityY(-joystick.getLeftX() * MaxSpeed)
-                .withRotationalRate(rot);
-            })
+            drivetrain.applyRequest(() -> drive.withVelocityX(-joystick.getLeftY() * MaxSpeed)
+            .withVelocityY(-joystick.getLeftX() * MaxSpeed)
+            .withRotationalRate(drivetrain.calculateAutoAimRot(hubPosition))
+            )
         );
 
         // Run SysId routines when holding back/start and X/Y.

@@ -35,8 +35,12 @@ public class LauncherSubsystem extends SubsystemBase {
   }
 
   public void cycleMotorSpeed() {
-    launcherNonAutoMotorSpeed += 0.1;
+    launcherNonAutoMotorSpeed += 0.2;
     launcherNonAutoMotorSpeed %= 1.0;
+  }
+
+  public double launcherVelocityToMotorSpeed(double vl) {
+    return -0.706 + 1.33 * vl + -0.245 * vl * vl;
   }
 
   /**

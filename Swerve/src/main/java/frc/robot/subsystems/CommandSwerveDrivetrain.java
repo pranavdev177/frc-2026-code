@@ -12,8 +12,10 @@ import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -49,10 +51,16 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private final SwerveRequest.SysIdSwerveTranslation m_translationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
     private final SwerveRequest.SysIdSwerveSteerGains m_steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
     private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
+    private final PIDController headingPID = new PIDController(5.0, 0.1, 0.2);
+    private Rotation2d targetAngle;
+    
 
-    private double targetAngle = 0;
-
-    //public Rotation2D calculateAutoAimRot()
+    public double calculateAutoAimRot(Translation2d hubPosition) {
+        Translation2d robotToTarget = hubPosition.minus(getState().Pose.getTranslation());
+        targetAngle = new Rotation2d(Math.atan2(robotToTarget.getY(), robotToTarget.getX()));
+        double rot = headingPID.calculate(getState().Pose.getRotation().getRadians(), targetAngle.getRadians());
+        return rot;
+    }
 
     /* SysId routine for characterizing translation. This is used to find PID gains for the drive motors. */
     private final SysIdRoutine m_sysIdRoutineTranslation = new SysIdRoutine(
@@ -134,6 +142,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if (Utils.isSimulation()) {
             startSimThread();
         }
+        headingPID.enableContinuousInput(-Math.PI, Math.PI);
+        headingPID.setTolerance(Math.toRadians(2));
     }
 
     /**
@@ -158,6 +168,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if (Utils.isSimulation()) {
             startSimThread();
         }
+        headingPID.enableContinuousInput(-Math.PI, Math.PI);
+        headingPID.setTolerance(Math.toRadians(2));
     }
 
     /**
@@ -190,6 +202,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if (Utils.isSimulation()) {
             startSimThread();
         }
+        headingPID.enableContinuousInput(-Math.PI, Math.PI);
+        headingPID.setTolerance(Math.toRadians(2));
     }
 
     /**

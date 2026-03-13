@@ -18,17 +18,17 @@ import com.revrobotics.ResetMode;
 import com.revrobotics.PersistMode;
 
 public class IntakeSubsystem extends SubsystemBase {
-  private SparkMax intakeSpin = new SparkMax(51, MotorType.kBrushed);
-  private SparkMax intakeAngle = new SparkMax(52, MotorType.kBrushless);
+  public SparkMax intakeSpin = new SparkMax(51, MotorType.kBrushed);
+  public SparkMax intakeAngle = new SparkMax(52, MotorType.kBrushless);
   private SparkClosedLoopController pidController;
-  private RelativeEncoder intakeAngleEncoder;
+  public RelativeEncoder intakeAngleEncoder;
 
   /** Creates a new ExampleSubsystem. */
   public IntakeSubsystem() {
     // Reset Encoder
     SparkMaxConfig config = new SparkMaxConfig();
     config.encoder.positionConversionFactor(2.4);
-    config.closedLoop.pid(0.01, 0, 0);
+    config.closedLoop.pid(0.5, 0, 0);
     intakeAngle.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
     intakeAngleEncoder = intakeAngle.getEncoder();
     pidController = intakeAngle.getClosedLoopController();
@@ -40,6 +40,7 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   public void setIntakeAngle(double angle) {
+    intakeSpin.set(0);
     pidController.setSetpoint(angle, ControlType.kPosition);
   }
 
