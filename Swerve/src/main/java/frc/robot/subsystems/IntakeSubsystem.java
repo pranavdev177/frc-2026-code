@@ -14,30 +14,32 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.ResetMode;
 import com.revrobotics.PersistMode;
 
 public class IntakeSubsystem extends SubsystemBase {
+
   public SparkMax intakeSpin = new SparkMax(51, MotorType.kBrushed);
   public SparkMax intakeAngle = new SparkMax(52, MotorType.kBrushless);
+
   private SparkClosedLoopController pidController;
   public RelativeEncoder intakeAngleEncoder;
-  private ArmFeedforward feedforward = new ArmFeedforward(
-    0.0,   // kS
-    0.6,   // kG (gravity)
-    0.0,   // kV
-    0.0    // kA
-  );
-  // PID controller for position
-  private PIDController pid = new PIDController(5, 0, 0);
-  private double targetAngle = 0;
 
   /** Creates a new ExampleSubsystem. */
   public IntakeSubsystem() {
+
+    // Reset Encoder
     SparkMaxConfig config = new SparkMaxConfig();
+
     config.encoder.positionConversionFactor(2.4);
+
+    // Changed 0.5 to 1
+    config.closedLoop.pid(5, 0, 4);
+
+    config.idleMode(IdleMode.kBrake);
 
     intakeAngle.configure(
         config,
@@ -46,28 +48,29 @@ public class IntakeSubsystem extends SubsystemBase {
     );
 
     intakeAngleEncoder = intakeAngle.getEncoder();
+    pidController = intakeAngle.getClosedLoopController();
+
     intakeAngleEncoder.setPosition(0);
   }
 
   public void setIntakeSpeed(double speed) {
     intakeSpin.set(speed);
+    /* 
+    if (speed > 0) {
+      intakeAngle.set(0.5);
+    } else {
+      intakeAngle.set(0);
+    }
+    */
+  }
+
+  public void setIntakeAngleSpeed(double speed) {
+    intakeAngle.set(speed);
   }
 
   public void setIntakeAngle(double angle) {
-
-    double currentAngle = intakeAngleEncoder.getPosition();
-
-    double ff = feedforward.calculate(
-        Math.toRadians(currentAngle),
-        0
-    );
-
-    pidController.setReference(
-        angle,
-        ControlType.kPosition,
-        0,
-        ff
-    );
+    intakeSpin.set(0);
+    pidController.setSetpoint(angle, ControlType.kPosition);
   }
   
   /**
@@ -96,20 +99,6 @@ public class IntakeSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    double currentAngle = intakeAngleEncoder.getPosition();
-
-    // PID correction
-    double pidOutput = pid.calculate(currentAngle, targetAngle);
-
-    // Feedforward to fight gravity
-    double ffOutput = feedforward.calculate(
-        Math.toRadians(currentAngle),
-        0
-    );
-
-    double output = pidOutput + ffOutput;
-
-    intakeAngle.setVoltage(output);
   }
 
   @Override

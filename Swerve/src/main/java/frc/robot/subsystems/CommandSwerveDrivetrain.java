@@ -74,7 +74,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         offsetAngle = Math.atan2(yPrimeMiss, relativeHubDistance);
 
         targetAngle = new Rotation2d(Math.atan2(robotToTarget.getY(), robotToTarget.getX()));
-        double rot = headingPID.calculate(getState().Pose.getRotation().getRadians(), targetAngle.getRadians() - offsetAngle);
+        double rot = headingPID.calculate(getState().Pose.getRotation().getRadians(), targetAngle.getRadians());
         return rot;
     }
 
