@@ -11,6 +11,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -73,7 +74,7 @@ public class RobotContainer {
     public final Translation2d blueHubPosition = new Translation2d(4.612, 4.021);
     public final Translation2d redHubPosition = new Translation2d(11.901, 4.021);
 
-    public final Translation2d hubPosition = redHubPosition;
+    public Translation2d hubPosition = redHubPosition;
 
     public RobotContainer() {
         configureBindings();
@@ -123,11 +124,13 @@ public class RobotContainer {
             Commands.run(() -> launcher.setSpeedLauncher(launcher.getNonAutoMotorSpeed()), launcher)
         );
 
+        /* 
         joystick.rightTrigger().and(joystick.rightBumper()).whileTrue(
             Commands.run(() ->  launcher.setSpeedLauncher(
                 launcher.launchVelocityToMotorSpeed(launcher.calculateLaunchVelocity(drivetrain, hubPosition))),
                 launcher)
         );
+        */
 
         joystick.rightTrigger().whileFalse(
             Commands.run(() -> launcher.setSpeedLauncher(0), launcher)
@@ -166,21 +169,98 @@ public class RobotContainer {
 
     public Command getAutonomousCommand() {
         // Simple drive forward auton
+        String selectedAuto = SmartDashboard.getString("Auto Selector", "None");
         final var idle = new SwerveRequest.Idle();
-        return Commands.sequence(
-            // Reset our field centric heading to match the robot
-            // facing away from our alliance station wall (0 deg).
-            drivetrain.runOnce(() -> drivetrain.seedFieldCentric(Rotation2d.kZero)),
-            // Then slowly drive forward (away from us) for 5 seconds.
-            drivetrain.applyRequest(() ->
-                drive.withVelocityX(0.5)
-                    .withVelocityY(0)
-                    .withRotationalRate(0)
-            )
-            .withTimeout(5.0),
-            // Finally idle for the rest of auton
-            drivetrain.applyRequest(() -> idle)
-        );
+        switch (selectedAuto) {
+            case "Blue Left":
+                Pose2d bl = new Pose2d(blueLeft, Rotation2d.fromDegrees(0));
+                hubPosition = blueHubPosition;
+                return Commands.sequence(
+                    drivetrain.runOnce(() -> drivetrain.seedFieldCentric(Rotation2d.kZero)),
+                    drivetrain.runOnce(() -> drivetrain.resetPose(bl)),
+                    drivetrain.applyRequest(() ->
+                        drive.withVelocityX(0.5)
+                            .withVelocityY(0)
+                            .withRotationalRate(0)
+                    )
+                    .withTimeout(5.0),
+                    drivetrain.applyRequest(() -> idle)
+                );
+            case "Blue Middle":
+                Pose2d bm = new Pose2d(blueMiddle, Rotation2d.fromDegrees(0));
+                hubPosition = blueHubPosition;
+                return Commands.sequence(
+                    drivetrain.runOnce(() -> drivetrain.seedFieldCentric(Rotation2d.kZero)),
+                    drivetrain.runOnce(() -> drivetrain.resetPose(bm)),
+                    drivetrain.applyRequest(() ->
+                        drive.withVelocityX(0.5)
+                            .withVelocityY(0)
+                            .withRotationalRate(0)
+                    )
+                    .withTimeout(5.0),
+                    drivetrain.applyRequest(() -> idle)
+                );
+            case "Blue Right":
+                Pose2d br = new Pose2d(blueRight, Rotation2d.fromDegrees(0));
+                hubPosition = blueHubPosition;
+                return Commands.sequence(
+                    drivetrain.runOnce(() -> drivetrain.seedFieldCentric(Rotation2d.kZero)),
+                    drivetrain.runOnce(() -> drivetrain.resetPose(br)),
+                    drivetrain.applyRequest(() ->
+                        drive.withVelocityX(0.5)
+                            .withVelocityY(0)
+                            .withRotationalRate(0)
+                    )
+                    .withTimeout(5.0),
+                    drivetrain.applyRequest(() -> idle)
+                );
+            case "Red Left":
+                Pose2d rl = new Pose2d(redLeft, Rotation2d.fromDegrees(180));
+                hubPosition = redHubPosition;
+                return Commands.sequence(
+                    drivetrain.runOnce(() -> drivetrain.seedFieldCentric(Rotation2d.kZero)),
+                    drivetrain.runOnce(() -> drivetrain.resetPose(rl)),
+                    drivetrain.applyRequest(() ->
+                        drive.withVelocityX(0.5)
+                            .withVelocityY(0)
+                            .withRotationalRate(0)
+                    )
+                    .withTimeout(5.0),
+                    drivetrain.applyRequest(() -> idle)
+                );
+            case "Red Middle":
+                Pose2d rm = new Pose2d(redMiddle, Rotation2d.fromDegrees(180));
+                hubPosition = redHubPosition;
+                return Commands.sequence(
+                    drivetrain.runOnce(() -> drivetrain.seedFieldCentric(Rotation2d.kZero)),
+                    drivetrain.runOnce(() -> drivetrain.resetPose(rm)),
+                    drivetrain.applyRequest(() ->
+                        drive.withVelocityX(0.5)
+                            .withVelocityY(0)
+                            .withRotationalRate(0)
+                    )
+                    .withTimeout(5.0),
+                    drivetrain.applyRequest(() -> idle)
+                );
+            case "Red Right":
+                Pose2d rr = new Pose2d(redRight, Rotation2d.fromDegrees(180));
+                hubPosition = redHubPosition;
+                return Commands.sequence(
+                    drivetrain.runOnce(() -> drivetrain.seedFieldCentric(Rotation2d.kZero)),
+                    drivetrain.runOnce(() -> drivetrain.resetPose(rr)),
+                    drivetrain.applyRequest(() ->
+                        drive.withVelocityX(0.5)
+                            .withVelocityY(0)
+                            .withRotationalRate(0)
+                    )
+                    .withTimeout(5.0),
+                    drivetrain.applyRequest(() -> idle)
+                );
+            case "None":
+                return null;
+            default:
+                return null;
+        }
     }
     
 }

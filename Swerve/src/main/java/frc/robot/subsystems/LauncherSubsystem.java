@@ -9,6 +9,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -16,6 +17,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 public class LauncherSubsystem extends SubsystemBase {
   private TalonFX launcherLeft = new TalonFX(53);
   private TalonFX launcherRight = new TalonFX(54);
+  private final VelocityVoltage velocityRequest = new VelocityVoltage(0);
   private double launcherNonAutoMotorSpeed = 0;
   private double launchVelocity = 0;
   public final double launcherAngle = 1.317724;
@@ -38,8 +40,29 @@ public class LauncherSubsystem extends SubsystemBase {
     launcherNonAutoMotorSpeed %= 1.0;
   }
 
+  /*
   public double launchVelocityToMotorSpeed(double vl) {
     return -0.706 + 1.33 * vl + -0.245 * vl * vl;
+  }
+  */
+
+    public double velocityToLauncherPercent(double velocity) {
+
+    double wheelDiameter = 0.1016; // 4in
+    double gearRatio = 1.0;
+    double freeSpeed = 6000.0;
+
+    // real-world shooter efficiency factor
+    double tuningFactor = 2.1;
+
+    double wheelRadius = wheelDiameter / 2.0;
+
+    double wheelRPM = (60 * velocity) / (2 * Math.PI * wheelRadius);
+    double motorRPM = wheelRPM * gearRatio;
+
+    double percent = (motorRPM / freeSpeed) * tuningFactor;
+
+    return Math.max(-1.0, Math.min(1.0, percent));
   }
 
   public double calculateLaunchVelocity(CommandSwerveDrivetrain drivetrain, Translation2d hubPosition) {
