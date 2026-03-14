@@ -59,6 +59,7 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
         m_timeAndJoystickReplay.update();
 
+        /* 
         var rResults = rightCamera.getAllUnreadResults();
         for (var result : rResults) {
             if ((result != null) && (result.hasTargets())) {
@@ -92,6 +93,7 @@ public class Robot extends TimedRobot {
                 }
             }
         }
+        */
 
         CommandScheduler.getInstance().run(); 
     }
@@ -121,9 +123,11 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
+        /*
         m_robotContainer.drivetrain.seedFieldCentric();
         Pose2d initial = new Pose2d(m_robotContainer.redRight, Rotation2d.fromDegrees(180));
         m_robotContainer.drivetrain.resetPose(initial);
+         */
         if (m_autonomousCommand != null) {
             CommandScheduler.getInstance().cancel(m_autonomousCommand);
         }

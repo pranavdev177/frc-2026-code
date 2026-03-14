@@ -100,28 +100,45 @@ public class RobotContainer {
         );
 
         joystick.b().whileTrue(drivetrain.applyRequest(() -> brake));
+
+        // Intake Clamp (Hold)
         
-        joystick.x().onFalse(
-            Commands.runOnce(() -> intake.intakeAngleEncoder.setPosition(0))
+        joystick.x().whileFalse(
+            Commands.run(() -> intake.setIntakeAngleSpeed(1), intake)
         );
 
-        joystick.x().toggleOnTrue(
+        joystick.x().whileFalse(
+            Commands.run(() -> intake.setIntakeAngleSpeed(1), intake)
+        );
+
+        // Intake Spin (toggle)
+
+        joystick.leftTrigger().toggleOnTrue(
             new StartEndCommand(
-                () -> intake.setIntakeAngleSpeed(1),
-                () -> intake.setIntakeAngleSpeed(0)
+                () -> intake.setIntakeSpeed(1),
+                () -> intake.setIntakeSpeed(0)
             )
-        );
-
-        joystick.leftTrigger().whileTrue(
-            Commands.run(() -> intake.setIntakeSpeed(1))
         );
 
         joystick.leftTrigger().whileFalse(
             Commands.run(() -> intake.setIntakeSpeed(0))
         );
 
-        joystick.rightTrigger().and(joystick.rightBumper().negate()).whileTrue(
-            Commands.run(() -> launcher.setSpeedLauncher(launcher.getNonAutoMotorSpeed()), launcher)
+        // Shoot (hold)
+
+        joystick.rightTrigger().whileTrue(
+            Commands.sequence(
+                Commands.runOnce(() -> launcher.setSpeedLauncher(1)),
+                Commands.waitSeconds(3),
+                Commands.runOnce(() -> indexer.setIndexerSpeed(1))
+            )
+        );
+
+        joystick.rightTrigger().whileFalse(
+            Commands.sequence(
+                Commands.runOnce(() -> launcher.setSpeedLauncher(0)),
+                Commands.runOnce(() -> indexer.setIndexerSpeed(0))
+            )
         );
 
         /* 
@@ -131,10 +148,6 @@ public class RobotContainer {
                 launcher)
         );
         */
-
-        joystick.rightTrigger().whileFalse(
-            Commands.run(() -> launcher.setSpeedLauncher(0), launcher)
-        );
 
         joystick.y().onTrue(
             Commands.runOnce(() -> launcher.cycleMotorSpeed(), launcher)
@@ -224,32 +237,67 @@ public class RobotContainer {
                     intake.runOnce(() -> intake.setIntakeAngleSpeed(0)),
                     
                     // Shoot preloaded balls
-                    indexer.runOnce(() -> indexer.setIndexerSpeed(1)),
-
                     drivetrain.applyRequest(() -> {
-                        return drive.withVelocityX(0d)
+                        return drive.withVelocityX(0)
                         .withVelocityY(0)
                         .withRotationalRate(drivetrain.calculateAutoAimRot(
                             hubPosition, launcher.calculateLaunchVelocity(drivetrain, hubPosition)
                             ));
                     }).withTimeout(3),
 
-                    launcher.runOnce(() -> launcher.setSpeedLauncher(
-                            launcher.launchVelocityToMotorSpeed(
-                                launcher.calculateLaunchVelocity(drivetrain, blueHubPosition)
-                            )
-                        )
+                    launcher.runOnce(() -> launcher.setSpeedLauncher(1)
                     ),
                     
                     drivetrain.applyRequest(() -> {
-                        return drive.withVelocityX(0d)
+                        return drive.withVelocityX(0)
                         .withVelocityY(0)
                         .withRotationalRate(0);
-                    }).withTimeout(6),
+                    }).withTimeout(4),
+
+                    indexer.runOnce(() -> indexer.setIndexerSpeed(1)),
+
+                    drivetrain.applyRequest(() -> {
+                        return drive.withVelocityX(0)
+                        .withVelocityY(0)
+                        .withRotationalRate(0);
+                    }).withTimeout(4),
 
                     launcher.runOnce(() -> launcher.setSpeedLauncher(0)),
+                    indexer.runOnce(() -> indexer.setIndexerSpeed(0)),
 
-                    // -pi/3 radians
+                    // Rotate to face forward
+                    drivetrain.applyRequest(() -> {
+                        return drive.withVelocityX(0)
+                        .withVelocityY(0)
+                        .withRotationalRate(-1.047);
+                    }).withTimeout(1),
+
+                    // Clear the trench
+                    drivetrain.applyRequest(() -> {
+                        return drive.withVelocityX(1.75)
+                        .withVelocityY(0)
+                        .withRotationalRate(0);
+                    }).withTimeout(2),
+
+                    // Rotate toward balls
+                    drivetrain.applyRequest(() -> {
+                        return drive.withVelocityX(0)
+                        .withVelocityY(0)
+                        .withRotationalRate(-1.571);
+                    }).withTimeout(1),
+
+                    // Turn on intake, clamp it, and move into balls
+                    intake.runOnce(() -> intake.setIntakeAngleSpeed(0.5)),
+                    intake.runOnce(() -> intake.setIntakeSpeed(1)),
+                    drivetrain.applyRequest(() -> {
+                        return drive.withVelocityX(0)
+                        .withVelocityY(1.6855)
+                        .withRotationalRate(0);
+                    }).withTimeout(2),
+
+                    // Off and idle for the rest of auton
+                    intake.runOnce(() -> intake.setIntakeAngleSpeed(0)),
+                    intake.runOnce(() -> intake.setIntakeSpeed(0)),
                     drivetrain.applyRequest(() -> idle)
                 );
             case "Red Left":
@@ -286,12 +334,82 @@ public class RobotContainer {
                 return Commands.sequence(
                     drivetrain.runOnce(() -> drivetrain.seedFieldCentric(Rotation2d.kZero)),
                     drivetrain.runOnce(() -> drivetrain.resetPose(rr)),
+
+                    // Jerk to release intake
+                    intake.runOnce(() -> intake.setIntakeAngleSpeed(1)),
                     drivetrain.applyRequest(() ->
-                        drive.withVelocityX(0.5)
+                        drive.withVelocityX(-1.5)
                             .withVelocityY(0)
                             .withRotationalRate(0)
                     )
-                    .withTimeout(5.0),
+                    .withTimeout(1.0),
+                    drivetrain.applyRequest(() ->
+                        drive.withVelocityX(1.5)
+                            .withVelocityY(0)
+                            .withRotationalRate(0)
+                    )
+                    .withTimeout(1.0),
+                    intake.runOnce(() -> intake.setIntakeAngleSpeed(0)),
+                    
+                    // Shoot preloaded balls
+                    indexer.runOnce(() -> indexer.setIndexerSpeed(1)),
+
+                    drivetrain.applyRequest(() -> {
+                        return drive.withVelocityX(0d)
+                        .withVelocityY(0)
+                        .withRotationalRate(drivetrain.calculateAutoAimRot(
+                            hubPosition, launcher.calculateLaunchVelocity(drivetrain, hubPosition)
+                            ));
+                    }).withTimeout(3),
+
+                    launcher.runOnce(() -> launcher.setSpeedLauncher(
+                            launcher.launchVelocityToMotorSpeed(
+                                launcher.calculateLaunchVelocity(drivetrain, blueHubPosition)
+                            )
+                        )
+                    ),
+                    
+                    drivetrain.applyRequest(() -> {
+                        return drive.withVelocityX(0)
+                        .withVelocityY(0)
+                        .withRotationalRate(0);
+                    }).withTimeout(6),
+
+                    launcher.runOnce(() -> launcher.setSpeedLauncher(0)),
+
+                    // Rotate to face forward
+                    drivetrain.applyRequest(() -> {
+                        return drive.withVelocityX(0)
+                        .withVelocityY(0)
+                        .withRotationalRate(-1.047);
+                    }).withTimeout(1),
+
+                    // Clear the trench
+                    drivetrain.applyRequest(() -> {
+                        return drive.withVelocityX(1.75)
+                        .withVelocityY(0)
+                        .withRotationalRate(0);
+                    }).withTimeout(2),
+
+                    // Rotate toward balls
+                    drivetrain.applyRequest(() -> {
+                        return drive.withVelocityX(0)
+                        .withVelocityY(0)
+                        .withRotationalRate(-1.571);
+                    }).withTimeout(1),
+
+                    // Turn on intake, clamp it, and move into balls
+                    intake.runOnce(() -> intake.setIntakeAngleSpeed(0.5)),
+                    intake.runOnce(() -> intake.setIntakeSpeed(1)),
+                    drivetrain.applyRequest(() -> {
+                        return drive.withVelocityX(0)
+                        .withVelocityY(1.6855)
+                        .withRotationalRate(0);
+                    }).withTimeout(2),
+
+                    // Off and idle for the rest of auton
+                    intake.runOnce(() -> intake.setIntakeAngleSpeed(0)),
+                    intake.runOnce(() -> intake.setIntakeSpeed(0)),
                     drivetrain.applyRequest(() -> idle)
                 );
             case "None":
