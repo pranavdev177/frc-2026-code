@@ -43,6 +43,30 @@ public class LauncherSubsystem extends SubsystemBase {
   }
 
   public double calculateLaunchVelocity(CommandSwerveDrivetrain drivetrain, Translation2d hubPosition) {
+    Translation2d robotToTarget = hubPosition.minus(drivetrain.getState().Pose.getTranslation());
+    double relativeHubDistance = robotToTarget.getY() * robotToTarget.getY() 
+                                    + robotToTarget.getX() * robotToTarget.getX();
+    relativeHubDistance = Math.sqrt(relativeHubDistance);
+    double g = 9.81;
+    double theta = Math.toRadians(75.5);
+
+    if (relativeHubDistance * Math.tan(theta) <= relativeHubHeight) {
+      return 0;
+    }
+
+    double x = relativeHubDistance;
+    // Hub Height
+    double y = 2.148;
+
+    double velocity = Math.sqrt(
+        (g * x * x) /
+        (2 * Math.pow(Math.cos(theta), 2) * (x * Math.tan(theta) - y))
+    );
+    return velocity;
+  }
+
+  /* 
+  public double calculateLaunchVelocity(CommandSwerveDrivetrain drivetrain, Translation2d hubPosition) {
     double offsetAngle = drivetrain.getOffsetAngle();
     Translation2d robotToTarget = hubPosition.minus(drivetrain.getState().Pose.getTranslation());
     double relativeHubDistance = robotToTarget.getY() * robotToTarget.getY() 
@@ -66,6 +90,7 @@ public class LauncherSubsystem extends SubsystemBase {
 
     return launchVelocity;
   }
+  */
 
   /**
    * Example command factory method.

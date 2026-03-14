@@ -10,6 +10,7 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -105,7 +106,7 @@ public class RobotContainer {
 
         joystick.x().toggleOnTrue(
             new StartEndCommand(
-                () -> intake.setIntakeAngleSpeed(0.5),
+                () -> intake.setIntakeAngleSpeed(1),
                 () -> intake.setIntakeAngleSpeed(0)
             )
         );

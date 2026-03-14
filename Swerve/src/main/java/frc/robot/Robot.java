@@ -6,6 +6,8 @@ package frc.robot;
 
 import com.ctre.phoenix6.HootAutoReplay;
 
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -33,6 +35,9 @@ public class Robot extends TimedRobot {
     );
     private PhotonPoseEstimator rightPhotonPoseEstimator = new PhotonPoseEstimator(kTagLayout, kRobotToRightCam);
     private PhotonPoseEstimator leftPhotonPoseEstimator = new PhotonPoseEstimator(kTagLayout, kRobotToLeftCam);
+
+    private final SendableChooser<String> autoChooser = new SendableChooser<>();
+
     private final RobotContainer m_robotContainer;
 
     /* log and replay timestamp and joystick data */
@@ -43,6 +48,11 @@ public class Robot extends TimedRobot {
     public Robot() {
         m_robotContainer = new RobotContainer();
         m_robotContainer.drivetrain.seedFieldCentric();
+
+        SmartDashboard.putStringArray(
+            "Auto List",
+            new String[] {"Blue Left", "Blue Middle", "Blue Right", "Right Left", "Right Middle", "Right Right", "None"}
+        );
     }
 
     @Override
@@ -83,8 +93,6 @@ public class Robot extends TimedRobot {
             }
         }
 
-        //System.out.println(m_robotContainer.drivetrain.getState().Pose.getTranslation().getX());
-
         CommandScheduler.getInstance().run(); 
     }
 
@@ -99,7 +107,6 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
-        m_robotContainer.drivetrain.seedFieldCentric();
         m_autonomousCommand = m_robotContainer.getAutonomousCommand();
         if (m_autonomousCommand != null) {
             CommandScheduler.getInstance().schedule(m_autonomousCommand);
