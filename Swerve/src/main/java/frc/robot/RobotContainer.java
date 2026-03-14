@@ -206,12 +206,50 @@ public class RobotContainer {
                 return Commands.sequence(
                     drivetrain.runOnce(() -> drivetrain.seedFieldCentric(Rotation2d.kZero)),
                     drivetrain.runOnce(() -> drivetrain.resetPose(br)),
+
+                    // Jerk to release intake
+                    intake.runOnce(() -> intake.setIntakeAngleSpeed(1)),
                     drivetrain.applyRequest(() ->
-                        drive.withVelocityX(0.5)
+                        drive.withVelocityX(-1.5)
                             .withVelocityY(0)
                             .withRotationalRate(0)
                     )
-                    .withTimeout(5.0),
+                    .withTimeout(1.0),
+                    drivetrain.applyRequest(() ->
+                        drive.withVelocityX(1.5)
+                            .withVelocityY(0)
+                            .withRotationalRate(0)
+                    )
+                    .withTimeout(1.0),
+                    intake.runOnce(() -> intake.setIntakeAngleSpeed(0)),
+                    
+                    // Shoot preloaded balls
+                    indexer.runOnce(() -> indexer.setIndexerSpeed(1)),
+
+                    drivetrain.applyRequest(() -> {
+                        return drive.withVelocityX(0d)
+                        .withVelocityY(0)
+                        .withRotationalRate(drivetrain.calculateAutoAimRot(
+                            hubPosition, launcher.calculateLaunchVelocity(drivetrain, hubPosition)
+                            ));
+                    }).withTimeout(3),
+
+                    launcher.runOnce(() -> launcher.setSpeedLauncher(
+                            launcher.launchVelocityToMotorSpeed(
+                                launcher.calculateLaunchVelocity(drivetrain, blueHubPosition)
+                            )
+                        )
+                    ),
+                    
+                    drivetrain.applyRequest(() -> {
+                        return drive.withVelocityX(0d)
+                        .withVelocityY(0)
+                        .withRotationalRate(0);
+                    }).withTimeout(6),
+
+                    launcher.runOnce(() -> launcher.setSpeedLauncher(0)),
+
+                    // -pi/3 radians
                     drivetrain.applyRequest(() -> idle)
                 );
             case "Red Left":

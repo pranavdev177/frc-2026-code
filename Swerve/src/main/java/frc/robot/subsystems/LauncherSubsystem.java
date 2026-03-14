@@ -40,11 +40,11 @@ public class LauncherSubsystem extends SubsystemBase {
     launcherNonAutoMotorSpeed %= 1.0;
   }
 
-  /*
+  
   public double launchVelocityToMotorSpeed(double vl) {
-    return -0.706 + 1.33 * vl + -0.245 * vl * vl;
+    return 0.12 + 0.075 * vl;
   }
-  */
+  
 
     public double velocityToLauncherPercent(double velocity) {
 

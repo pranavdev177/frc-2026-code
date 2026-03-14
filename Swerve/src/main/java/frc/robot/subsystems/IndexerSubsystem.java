@@ -42,6 +42,10 @@ public class IndexerSubsystem extends SubsystemBase {
         break;
     }
   }
+
+  public void setIndexerSpeed(double speed) {
+    indexer.set(speed);
+  }
   
   /**
    * Example command factory method.
