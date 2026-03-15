@@ -9,44 +9,64 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 public class LauncherSubsystem extends SubsystemBase {
-  private TalonFX launcherLeft = new TalonFX(53);
-  private TalonFX launcherRight = new TalonFX(54);
-  private final VelocityVoltage velocityRequest = new VelocityVoltage(0);
-  private double launcherNonAutoMotorSpeed = 0;
+  private TalonFX launcherMain = new TalonFX(53);
+  private TalonFX launcherFeed = new TalonFX(54);
+  private VelocityVoltage velocityRequest = new VelocityVoltage(0);
   private double launchVelocity = 0;
   public final double launcherAngle = 1.317724;
   public final double relativeHubHeight = 2.148;
 
   /** Creates a new ExampleSubsystem. */
-  public LauncherSubsystem() {}
+  public LauncherSubsystem() {
+    // PID + feedforward values
+        Slot0Configs slot0 = new Slot0Configs();
+        slot0.kP = 0.1;
+        slot0.kI = 0.0;
+        slot0.kD = 0.0;
+
+        slot0.kV = 0.12; // feedforward
+        slot0.kS = 0.2;
+
+        launcherMain.getConfigurator().apply(slot0);
+  }
 
   public void setSpeedLauncher(double speed) {
-    launcherLeft.set(-speed);
-    launcherRight.set(speed);
+    launcherMain.set(-speed);
+    launcherFeed.set(speed);
   }
 
-  public double getNonAutoMotorSpeed() {
-    return launcherNonAutoMotorSpeed;
+  public void setSpeedLauncherMain(double speed) {
+    launcherMain.set(-speed);
   }
 
-  public void cycleMotorSpeed() {
-    launcherNonAutoMotorSpeed += 0.2;
-    launcherNonAutoMotorSpeed %= 1.0;
+  public void setSpeedLauncherFeed(double speed) {
+    launcherFeed.set(speed);
   }
 
-  
   public double launchVelocityToMotorSpeed(double vl) {
     return 0.12 + 0.075 * vl;
   }
+
+  public void setRPM(double rpm) {
+      double rps = rpm / 60.0; // TalonFX uses rotations per second
+
+      launcherMain.setControl(new VelocityVoltage(-rps));
+  }
+
+  public void stop() {
+      launcherMain.set(0);
+      launcherFeed.set(0);
+  }
   
 
-    public double velocityToLauncherPercent(double velocity) {
+  public double velocityToLauncherPercent(double velocity) {
 
     double wheelDiameter = 0.1016; // 4in
     double gearRatio = 1.0;

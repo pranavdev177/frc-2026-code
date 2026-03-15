@@ -198,14 +198,30 @@ public class RobotContainer {
                 Pose2d bl = new Pose2d(blueLeft, Rotation2d.fromDegrees(0));
                 hubPosition = blueHubPosition;
                 return Commands.sequence(
+                    // Intialize Positions
                     drivetrain.runOnce(() -> drivetrain.seedFieldCentric(Rotation2d.kZero)),
                     drivetrain.runOnce(() -> drivetrain.resetPose(bl)),
-                    drivetrain.applyRequest(() ->
-                        drive.withVelocityX(0.5)
-                            .withVelocityY(0)
-                            .withRotationalRate(0)
-                    )
-                    .withTimeout(5.0),
+
+                    // Auto Aim
+                    drivetrain.applyRequest(() -> {
+                        return drive.withVelocityX(0)
+                        .withVelocityY(0)
+                        .withRotationalRate(drivetrain.calculateAutoAimRot(
+                            hubPosition, launcher.calculateLaunchVelocity(drivetrain, hubPosition)
+                            ));
+                    }).withTimeout(3),
+
+                    // Shoot pre-loaded balls for 12 seconds
+                    launcher.runOnce(() -> launcher.setSpeedLauncher(1)),
+                    
+                    drivetrain.applyRequest(() -> {
+                        return drive.withVelocityX(0)
+                        .withVelocityY(0)
+                        .withRotationalRate(0);
+                    }).withTimeout(12),
+
+                    // Off and idle for the rest of auton
+                    launcher.runOnce(() -> launcher.setSpeedLauncher(0)),
                     drivetrain.applyRequest(() -> idle)
                 );
             case "Blue Middle":
@@ -226,26 +242,20 @@ public class RobotContainer {
                 Pose2d br = new Pose2d(blueRight, Rotation2d.fromDegrees(0));
                 hubPosition = blueHubPosition;
                 return Commands.sequence(
+                    // Initialize position
                     drivetrain.runOnce(() -> drivetrain.seedFieldCentric(Rotation2d.kZero)),
                     drivetrain.runOnce(() -> drivetrain.resetPose(br)),
 
-                    // Jerk to release intake
-                    //intake.runOnce(() -> intake.setIntakeAngleSpeed(1)),
-                    drivetrain.applyRequest(() ->
-                        drive.withVelocityX(-1.5)
-                            .withVelocityY(0)
-                            .withRotationalRate(0)
-                    )
-                    .withTimeout(1.0),
-                    drivetrain.applyRequest(() ->
-                        drive.withVelocityX(1.5)
-                            .withVelocityY(0)
-                            .withRotationalRate(0)
-                    )
-                    .withTimeout(1.0),
-                    //intake.runOnce(() -> intake.setIntakeAngleSpeed(0)),
+                    // Go back to human output in 2 seconds
+                    drivetrain.applyRequest(() -> {
+                        return drive.withVelocityX(-1.5)
+                        .withVelocityY(0)
+                        .withRotationalRate(0);
+                    }).withTimeout(2),
                     
-                    // Shoot preloaded balls
+                    // Spin up the launcher while the robot auto aims for 3 seconds
+                    launcher.runOnce(() -> launcher.setSpeedLauncher(1)),
+
                     drivetrain.applyRequest(() -> {
                         return drive.withVelocityX(0)
                         .withVelocityY(0)
@@ -254,59 +264,15 @@ public class RobotContainer {
                             ));
                     }).withTimeout(3),
 
-                    launcher.runOnce(() -> launcher.setSpeedLauncher(1)
-                    ),
-                    
+                    // Humans dump balls in to the hopper while the bot is auto-aimed for 12 seconds
                     drivetrain.applyRequest(() -> {
                         return drive.withVelocityX(0)
                         .withVelocityY(0)
                         .withRotationalRate(0);
-                    }).withTimeout(4),
-
-                    //indexer.runOnce(() -> indexer.setIndexerSpeed(1)),
-
-                    drivetrain.applyRequest(() -> {
-                        return drive.withVelocityX(0)
-                        .withVelocityY(0)
-                        .withRotationalRate(0);
-                    }).withTimeout(4),
-
-                    launcher.runOnce(() -> launcher.setSpeedLauncher(0)),
-                    //indexer.runOnce(() -> indexer.setIndexerSpeed(0)),
-
-                    // Rotate to face forward
-                    drivetrain.applyRequest(() -> {
-                        return drive.withVelocityX(0)
-                        .withVelocityY(0)
-                        .withRotationalRate(-1.047);
-                    }).withTimeout(1),
-
-                    // Clear the trench
-                    drivetrain.applyRequest(() -> {
-                        return drive.withVelocityX(1.75)
-                        .withVelocityY(0)
-                        .withRotationalRate(0);
-                    }).withTimeout(2),
-
-                    // Rotate toward balls
-                    drivetrain.applyRequest(() -> {
-                        return drive.withVelocityX(0)
-                        .withVelocityY(0)
-                        .withRotationalRate(-1.571);
-                    }).withTimeout(1),
-
-                    // Turn on intake, clamp it, and move into balls
-                    //intake.runOnce(() -> intake.setIntakeAngleSpeed(0.5)),
-                    //intake.runOnce(() -> intake.setIntakeSpeed(1)),
-                    drivetrain.applyRequest(() -> {
-                        return drive.withVelocityX(0)
-                        .withVelocityY(1.6855)
-                        .withRotationalRate(0);
-                    }).withTimeout(2),
+                    }).withTimeout(12),
 
                     // Off and idle for the rest of auton
-                    //intake.runOnce(() -> intake.setIntakeAngleSpeed(0)),
-                    //intake.runOnce(() -> intake.setIntakeSpeed(0)),
+                    launcher.runOnce(() -> launcher.setSpeedLauncher(0)),
                     drivetrain.applyRequest(() -> idle)
                 );
             case "Red Left":
