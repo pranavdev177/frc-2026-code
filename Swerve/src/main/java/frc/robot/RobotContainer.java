@@ -133,15 +133,30 @@ public class RobotContainer {
 
         joystick.rightTrigger().onTrue(
             Commands.sequence(
-                Commands.runOnce(() -> launcher.setSpeedLauncher(1))
+                Commands.runOnce(() -> launcher.setSpeedLauncherMain(0.7))
                 //Commands.waitSeconds(3),
                 //Commands.runOnce(() -> indexer.setIndexerSpeed(1))
             )
         );
 
-        joystick.rightTrigger().whileFalse(
+        joystick.rightTrigger().onFalse(
             Commands.sequence(
-                Commands.runOnce(() -> launcher.setSpeedLauncher(0))
+                Commands.runOnce(() -> launcher.setSpeedLauncherMain(0))
+                //Commands.runOnce(() -> indexer.setIndexerSpeed(0))
+            )
+        );
+
+        joystick.leftTrigger().onTrue(
+            Commands.sequence(
+                Commands.runOnce(() -> launcher.setSpeedLauncherFeed(0.7))
+                //Commands.waitSeconds(3),
+                //Commands.runOnce(() -> indexer.setIndexerSpeed(1))
+            )
+        );
+
+        joystick.leftTrigger().onFalse(
+            Commands.sequence(
+                Commands.runOnce(() -> launcher.setSpeedLauncherFeed(0))
                 //Commands.runOnce(() -> indexer.setIndexerSpeed(0))
             )
         );
@@ -191,7 +206,7 @@ public class RobotContainer {
 
     public Command getAutonomousCommand() {
         // Simple drive forward auton
-        String selectedAuto = SmartDashboard.getString("Auto Selector", "None");
+        String selectedAuto = "Blue Middle";
         final var idle = new SwerveRequest.Idle();
         switch (selectedAuto) {
             case "Blue Left":
@@ -212,7 +227,15 @@ public class RobotContainer {
                     }).withTimeout(3),
 
                     // Shoot pre-loaded balls for 12 seconds
-                    launcher.runOnce(() -> launcher.setSpeedLauncher(1)),
+                    launcher.runOnce(() -> launcher.setSpeedLauncherMain(0.75)),
+
+                    drivetrain.applyRequest(() -> {
+                        return drive.withVelocityX(0)
+                        .withVelocityY(0)
+                        .withRotationalRate(0);
+                    }).withTimeout(2),
+
+                    launcher.runOnce(() -> launcher.setSpeedLauncherFeed(0.75)),
                     
                     drivetrain.applyRequest(() -> {
                         return drive.withVelocityX(0)
@@ -230,12 +253,27 @@ public class RobotContainer {
                 return Commands.sequence(
                     drivetrain.runOnce(() -> drivetrain.seedFieldCentric(Rotation2d.kZero)),
                     drivetrain.runOnce(() -> drivetrain.resetPose(bm)),
-                    drivetrain.applyRequest(() ->
-                        drive.withVelocityX(0.5)
-                            .withVelocityY(0)
-                            .withRotationalRate(0)
-                    )
-                    .withTimeout(5.0),
+
+                    // Spin up the launcher for 3 seconds
+                    launcher.runOnce(() -> launcher.setSpeedLauncherMain(0.72)),
+
+                    drivetrain.applyRequest(() -> {
+                        return drive.withVelocityX(0)
+                        .withVelocityY(0)
+                        .withRotationalRate(0);
+                    }).withTimeout(3),
+
+                    // Shoot Balls for 15 seconds
+                    launcher.runOnce(() -> launcher.setSpeedLauncherFeed(0.72)),
+
+                    drivetrain.applyRequest(() -> {
+                        return drive.withVelocityX(0)
+                        .withVelocityY(0)
+                        .withRotationalRate(0);
+                    }).withTimeout(15),
+
+                    // Off and idle for the rest of auton
+                    launcher.runOnce(() -> launcher.setSpeedLauncher(0)),
                     drivetrain.applyRequest(() -> idle)
                 );
             case "Blue Right":
@@ -248,13 +286,13 @@ public class RobotContainer {
 
                     // Go back to human output in 2 seconds
                     drivetrain.applyRequest(() -> {
-                        return drive.withVelocityX(-1.5)
+                        return drive.withVelocityX(1.5)
                         .withVelocityY(0)
                         .withRotationalRate(0);
                     }).withTimeout(2),
                     
                     // Spin up the launcher while the robot auto aims for 3 seconds
-                    launcher.runOnce(() -> launcher.setSpeedLauncher(1)),
+                    launcher.runOnce(() -> launcher.setSpeedLauncherMain(0.92)),
 
                     drivetrain.applyRequest(() -> {
                         return drive.withVelocityX(0)
@@ -263,6 +301,8 @@ public class RobotContainer {
                             hubPosition, launcher.calculateLaunchVelocity(drivetrain, hubPosition)
                             ));
                     }).withTimeout(3),
+
+                    launcher.runOnce(() -> launcher.setSpeedLauncherFeed(0.92)),
 
                     // Humans dump balls in to the hopper while the bot is auto-aimed for 12 seconds
                     drivetrain.applyRequest(() -> {
