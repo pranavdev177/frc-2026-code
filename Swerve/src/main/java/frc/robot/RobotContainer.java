@@ -206,7 +206,7 @@ public class RobotContainer {
 
     public Command getAutonomousCommand() {
         // Simple drive forward auton
-        String selectedAuto = "Blue Middle";
+        String selectedAuto = SmartDashboard.getString("Auto Selector", "None");
         final var idle = new SwerveRequest.Idle();
         switch (selectedAuto) {
             case "Blue Left":
