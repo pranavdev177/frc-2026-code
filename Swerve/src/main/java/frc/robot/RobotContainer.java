@@ -53,7 +53,7 @@ public class RobotContainer {
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
-    private final double initSpeed = 0.7;
+    private double initSpeed = 0.7;
 
     /*
      * Robot Initial Starting Points
@@ -176,6 +176,14 @@ public class RobotContainer {
             Commands.runOnce(() -> launcher.cycleMotorSpeed(), launcher)
         );
         */
+
+        // Button for incrementing speed
+
+        joystick.y().onTrue(Commands.runOnce(() -> {
+            initSpeed += 0.01;
+            System.out.println(initSpeed);
+            })
+        );
 
         /* 
         joystick.a().onTrue(
