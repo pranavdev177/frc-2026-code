@@ -1,0 +1,55 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BlueMiddle-BlueShootingPos"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ShootFuel"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BlueShootingPos-BlueFeeder"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ShootFuel"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BlueFeeder-RightNuetral"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "TurnOnIntake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "RightNuetral-MiddleNuetral"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

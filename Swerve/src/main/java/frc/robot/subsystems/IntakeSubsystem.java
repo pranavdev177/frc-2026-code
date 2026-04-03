@@ -24,11 +24,8 @@ import com.revrobotics.PersistMode;
 
 public class IntakeSubsystem extends SubsystemBase {
 
-  //public SparkMax intakeSpin = new SparkMax(51, MotorType.kBrushed);
+  public SparkMax intakeSpin = new SparkMax(51, MotorType.kBrushed);
   //public SparkMax intakeAngle = new SparkMax(52, MotorType.kBrushless);
-  private TalonFX intakeSpin = new TalonFX(51);
-  private TalonFX intakeAngle = new TalonFX(52);
-  private VelocityVoltage velocityRequest = new VelocityVoltage(0);
 
   //private SparkClosedLoopController pidController;
   //public RelativeEncoder intakeAngleEncoder;
@@ -81,15 +78,19 @@ public class IntakeSubsystem extends SubsystemBase {
     */
   }
 
+  /* 
   public void setIntakeAngleSpeed(double speed) {
     intakeAngle.set(speed);
   }
+  */
 
+  /* 
   public void setIntakeAngle(double angle) {
     intakeSpin.set(0);
     //pidController.setSetpoint(angle, ControlType.kPosition);
   }
-
+  */
+  
   /**
    * Example command factory method.
    *

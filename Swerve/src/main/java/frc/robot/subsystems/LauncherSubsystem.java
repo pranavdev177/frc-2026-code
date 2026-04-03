@@ -26,15 +26,15 @@ public class LauncherSubsystem extends SubsystemBase {
   /** Creates a new ExampleSubsystem. */
   public LauncherSubsystem() {
     // PID + feedforward values
-        Slot0Configs slot0 = new Slot0Configs();
-        slot0.kP = 0.1;
-        slot0.kI = 0.0;
-        slot0.kD = 0.0;
+    Slot0Configs slot0 = new Slot0Configs();
+    slot0.kP = 0.1;
+    slot0.kI = 0.0;
+    slot0.kD = 0.0;
 
-        slot0.kV = 0.12; // feedforward
-        slot0.kS = 0.2;
+    slot0.kV = 0.12; // feedforward
+    slot0.kS = 0.2;
 
-        launcherMain.getConfigurator().apply(slot0);
+    launcherMain.getConfigurator().apply(slot0);
   }
 
   public void setSpeedLauncher(double speed) {
@@ -63,6 +63,14 @@ public class LauncherSubsystem extends SubsystemBase {
   public void stop() {
       launcherMain.set(0);
       launcherFeed.set(0);
+  }
+
+  public boolean isLauncherActive() {
+    return Math.abs(launcherMain.get()) > 0.05;
+  }
+
+  public boolean isLauncherFeederActive() {
+    return Math.abs(launcherFeed.get()) > 0.05;
   }
   
 
