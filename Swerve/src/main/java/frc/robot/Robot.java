@@ -85,9 +85,9 @@ public class Robot extends TimedRobot {
                 if (visionEst.isPresent())
                 {
                     var est = visionEst.get();
-                    m_robotContainer.drivertrain.addVisionMeasurement(
-                        est.estmatedPose.toPose2d(),
-                        est.tiemstampSeconds
+                    m_robotContainer.drivetrain.addVisionMeasurement(
+                        est.estimatedPose.toPose2d(),
+                        est.timestampSeconds
                     );
                 }
             }

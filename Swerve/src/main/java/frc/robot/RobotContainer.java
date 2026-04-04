@@ -75,6 +75,7 @@ public class RobotContainer {
     // MUST be from highest to lowest
     private int[] roundEndTimes = {140, 105, 80, 55, 30, 0};
     private SendableChooser<String> m_chooser = new SendableChooser<String>();
+    private SendableChooser<String> m_chooserColor = new SendableChooser<String>();
     private final Field2d field = new Field2d();
 
     /*
@@ -192,6 +193,21 @@ public class RobotContainer {
         m_chooser.addOption("ExampleAuto", "ExampleAuto");
 
         SmartDashboard.putData("Auto Selector", m_chooser);
+
+        // Color Chooser
+        m_chooserColor.setDefaultOption("Red", "Red");
+        m_chooserColor.addOption("Red", "Red");
+        m_chooserColor.addOption("Blue", "Blue");
+
+        SmartDashboard.putData("Color Selector", m_chooserColor);
+
+        if (m_chooserColor.getSelected().equals("Red"))
+        {
+            hubPosition = redHubPosition;
+        } else
+        {
+            hubPosition = blueHubPosition;
+        }
 
         // Other Features
         SmartDashboard.putNumber("Voltage", RobotController.getBatteryVoltage());
