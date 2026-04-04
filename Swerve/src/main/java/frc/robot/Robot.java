@@ -14,6 +14,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -38,6 +40,8 @@ public class Robot extends TimedRobot {
 
     private final SendableChooser<String> autoChooser = new SendableChooser<>();
 
+    PowerDistribution pdh = new PowerDistribution(1, ModuleType.kRev);
+
     private final RobotContainer m_robotContainer;
 
     /* log and replay timestamp and joystick data */
@@ -48,16 +52,18 @@ public class Robot extends TimedRobot {
     public Robot() {
         m_robotContainer = new RobotContainer();
         m_robotContainer.drivetrain.seedFieldCentric();
+        pdh.setSwitchableChannel(true);
 
-        SmartDashboard.putStringArray(
+        /*SmartDashboard.putStringArray(
             "Auto List",
             new String[] {"Blue Left", "Blue Middle", "Blue Right", "Right Left", "Right Middle", "Right Right", "None"}
-        );
+        );*/
     }
 
     @Override
     public void robotPeriodic() {
         m_timeAndJoystickReplay.update();
+        m_robotContainer.updateSmartDashboard();
 
         /* 
         var rResults = rightCamera.getAllUnreadResults();
@@ -142,10 +148,13 @@ public class Robot extends TimedRobot {
     @Override
     public void testInit() {
         CommandScheduler.getInstance().cancelAll();
+        /*m_robotContainer.PathOnTheFly().schedule();*/
     }
 
     @Override
-    public void testPeriodic() {}
+    public void testPeriodic() {
+        CommandScheduler.getInstance().run();
+    }
 
     @Override
     public void testExit() {}

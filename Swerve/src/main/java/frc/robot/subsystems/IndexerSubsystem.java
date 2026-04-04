@@ -46,6 +46,10 @@ public class IndexerSubsystem extends SubsystemBase {
   public void setIndexerSpeed(double speed) {
     indexer.set(speed);
   }
+
+  public boolean isIndexerActive() {
+    return Math.abs(indexer.get()) > 0.05;
+  }
   
   /**
    * Example command factory method.

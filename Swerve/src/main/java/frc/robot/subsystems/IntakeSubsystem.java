@@ -8,6 +8,8 @@ import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -35,6 +37,10 @@ public class IntakeSubsystem extends SubsystemBase {
 
   /** Creates a new ExampleSubsystem. */
   public IntakeSubsystem() {
+    CurrentLimitsConfigs configs = new CurrentLimitsConfigs();
+    configs.StatorCurrentLimitEnable = true;
+    configs.StatorCurrentLimit = 30;
+    intakeSpin.getConfigurator().apply(configs);
     /*
     // Reset Encoder
     SparkMaxConfig config = new SparkMaxConfig();
@@ -59,13 +65,12 @@ public class IntakeSubsystem extends SubsystemBase {
      */
 
     Slot0Configs slot0 = new Slot0Configs();
-    slot0.kP = 0.1;
+    slot0.kP = 0.0;
     slot0.kI = 0.0;
     slot0.kD = 0.0;
 
     slot0.kV = 0.12; // feedforward
     slot0.kS = 0.2;
-
     intakeAngle.getConfigurator().apply(slot0);
 
   }
@@ -81,6 +86,10 @@ public class IntakeSubsystem extends SubsystemBase {
     */
   }
 
+  public boolean isIntakeActive() {
+    return Math.abs(intakeSpin.get()) > 0.05;
+  }
+
   public void setIntakeAngleSpeed(double speed) {
     intakeAngle.set(speed);
   }
@@ -89,7 +98,7 @@ public class IntakeSubsystem extends SubsystemBase {
     intakeSpin.set(0);
     //pidController.setSetpoint(angle, ControlType.kPosition);
   }
-
+  
   /**
    * Example command factory method.
    *

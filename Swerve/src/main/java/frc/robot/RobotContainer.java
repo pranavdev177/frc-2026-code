@@ -8,12 +8,26 @@ import static edu.wpi.first.units.Units.*;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.events.EventTrigger;
+import com.pathplanner.lib.path.EventMarker;
+import com.pathplanner.lib.path.PathConstraints;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -21,15 +35,19 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 
+
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LauncherSubsystem;
 
+
 public class RobotContainer {
-    private double MaxSpeed = 1.5 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
+    private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
+
+    private double LauncherSpeed = 0.6;
 
     /* Setting up bindings for necessary control of the swerve drive platform */
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
@@ -53,7 +71,11 @@ public class RobotContainer {
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
-    private double initSpeed = 0.7;
+    private Timer timer = new Timer();
+    // MUST be from highest to lowest
+    private int[] roundEndTimes = {140, 105, 80, 55, 30, 0};
+    private SendableChooser<String> m_chooser = new SendableChooser<String>();
+    private final Field2d field = new Field2d();
 
     /*
      * Robot Initial Starting Points
@@ -80,11 +102,135 @@ public class RobotContainer {
 
     public RobotContainer() {
         configureBindings();
+        setupPathplannerCommands();
+
+        SmartDashboard.putData("Field", field);
+
+        timer.reset();
+        timer.start();
+    }
+
+    private void setupPathplannerCommands() {
+        NamedCommands.registerCommand("ShootFuel", ShootFuel(5, 0.6));
+        NamedCommands.registerCommand("ShootFuelFar", ShootFuel(5, 1));
+        NamedCommands.registerCommand("ShootFuelLong", ShootFuel(8, 0.8));
+        NamedCommands.registerCommand("TurnOnIntake",  Commands.sequence(                  
+            /*Commands.runOnce(() -> intake.setIntakeSpeed(1)),
+            Commands.runOnce(() -> indexer.setIndexerSpeed(-1))*/
+        ));
+
+        NamedCommands.registerCommand("TurnOffIntake",  Commands.sequence(                  
+            Commands.runOnce(() -> intake.setIntakeSpeed(0)),
+            Commands.runOnce(() -> indexer.setIndexerSpeed(0))
+        ));
+
+        new EventTrigger("DropIntake").onTrue(Commands.sequence(
+            Commands.runOnce(() -> intake.setIntakeAngle(1), intake).withTimeout(2)
+        ));
+        
+        new EventTrigger("TurnOnLauncherShooter").onTrue(Commands.sequence(
+            Commands.runOnce(() -> launcher.setSpeedLauncherMain(0.7))
+        ));
+    }
+
+    /*public Command PathOnTheFly() {
+        Pose2d namedPoint = new Pose2d(3.0, 2.0, Rotation2d.fromDegrees(0));
+        return AutoBuilder.pathfindToPose(
+            namedPoint,
+            new PathConstraints(3.0, 3.0, 2 * Math.PI, 4 * Math.PI),
+            0.0
+        );
+    }*/
+
+    private Command ShootFuel(double seconds, double launcherSpeed) {
+        /*if (!launcher.isLauncherActive()) {
+            return Commands.sequence(
+                Commands.runOnce(() -> launcher.setSpeedLauncherMain(0.7)),
+                Commands.waitSeconds(2),
+                Commands.runOnce(() -> indexer.setIndexerSpeed(1)),
+                Commands.runOnce(() -> launcher.setSpeedLauncherFeed(0.7)),
+                Commands.waitSeconds(seconds),
+                Commands.runOnce(() -> launcher.setSpeedLauncher(0)),
+                Commands.runOnce(() -> indexer.setIndexerSpeed(0))
+            );
+        }*/
+
+        return Commands.sequence(
+            //Commands.runOnce(() -> indexer.setIndexerSpeed(-1)),
+            Commands.runOnce(() -> launcher.setSpeedLauncher(launcherSpeed)),
+            Commands.waitSeconds(seconds),
+            Commands.runOnce(() -> launcher.setSpeedLauncher(0)),
+            Commands.runOnce(() -> indexer.setIndexerSpeed(0))
+        );
+    }
+
+    public void updateSmartDashboard() {
+        // Boolean values for all subsystems
+        SmartDashboard.putBoolean("Shooter Active", launcher.isLauncherActive());
+        SmartDashboard.putBoolean("Shooter Feeder Active", launcher.isLauncherFeederActive());
+        SmartDashboard.putBoolean("Indexer Active", indexer.isIndexerActive());
+        SmartDashboard.putBoolean("Intake Active", intake.isIntakeActive());
+
+        // Match time and round time
+        double matchTimeLeft =  DriverStation.getMatchTime() > 0 ? 
+            DriverStation.getMatchTime() :  160 - timer.get();
+
+        if (matchTimeLeft < 0)
+            matchTimeLeft = 0;
+
+        double roundTimeLeft = getRoundTimeLeft(matchTimeLeft);
+
+        SmartDashboard.putNumber("Match Time", matchTimeLeft);
+        SmartDashboard.putNumber("Round Time", roundTimeLeft);
+
+        // Auton Options Selection
+        m_chooser.setDefaultOption("MiddleAutoR", "MiddleAutoR");
+        m_chooser.addOption("RightAuto", "RightAuto");
+        m_chooser.addOption("LeftAuto", "LeftAuto");
+        m_chooser.addOption("MiddleAutoR", "MiddleAutoR");
+        m_chooser.addOption("MiddleAutoL", "MiddleAutoL");
+        m_chooser.addOption("ExampleAuto", "ExampleAuto");
+
+        SmartDashboard.putData("Auto Selector", m_chooser);
+
+        // Other Features
+        SmartDashboard.putNumber("Voltage", RobotController.getBatteryVoltage());
+        SmartDashboard.putNumber("Max Speed", MaxSpeed);
+        SmartDashboard.putNumber("Launcher Speed", LauncherSpeed);
+        field.setRobotPose(drivetrain.getState().Pose);
+    }
+
+    private double getRoundTimeLeft(double matchTimeLeft) {
+        double nextThreshold = 0;
+        for (double t: roundEndTimes) {
+            if (matchTimeLeft >= t) {
+                nextThreshold = t;
+                break;
+            }
+        }
+
+        return matchTimeLeft - nextThreshold;
+    }
+
+    private void cycleSwerveSpeed() {
+        MaxSpeed += 0.5;
+
+        if (MaxSpeed > 4.5)
+            MaxSpeed = 2.5;
+    }
+
+    private void cycleLauncherSpeed() {
+        LauncherSpeed += 0.2;
+
+        if (LauncherSpeed > 1)
+            LauncherSpeed = 0.6;
     }
 
     private void configureBindings() {
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
+
+        // Movement
         drivetrain.setDefaultCommand(
             // Drivetrain will execute this command periodically
             drivetrain.applyRequest(() ->
@@ -101,10 +247,22 @@ public class RobotContainer {
             drivetrain.applyRequest(() -> idle).ignoringDisable(true)
         );
 
+
+        // Intake Pivot Down
+        /*joystick.x().whileTrue(
+            Commands.run(() -> intake.setIntakeAngleSpeed(1), intake)
+        );*/
+
+        // Intake Pivot Up
+        joystick.leftBumper().whileTrue(
+            Commands.run(() -> intake.setIntakeAngleSpeed(-1), intake)
+        );
+
+        // Brake
         joystick.b().whileTrue(drivetrain.applyRequest(() -> brake));
 
         // Intake Clamp (Hold)
-        /*
+        /* 
         joystick.x().whileFalse(
             Commands.run(() -> intake.setIntakeAngleSpeed(1), intake)
         );
@@ -112,56 +270,75 @@ public class RobotContainer {
         joystick.x().whileFalse(
             Commands.run(() -> intake.setIntakeAngleSpeed(1), intake)
         );
-         */
+        */
+
+        // cycle launcher speed 
+        joystick.a().onTrue(
+            Commands.sequence(
+                Commands.runOnce(() -> cycleLauncherSpeed(), launcher)
+            )
+        );
 
         // Intake Spin (toggle)
-
-        /* 
         joystick.leftTrigger().toggleOnTrue(
             new StartEndCommand(
-                () -> intake.setIntakeSpeed(1),
-                () -> intake.setIntakeSpeed(0)
+                () -> {
+                    intake.setIntakeSpeed(1);
+                    indexer.setIndexerSpeed(-1);
+                },
+                () -> { 
+                    intake.setIntakeSpeed(0);
+                    indexer.setIndexerSpeed(0);
+                }
             )
         );
-        */
 
-        /*
-        joystick.leftTrigger().whileFalse(
-            Commands.run(() -> intake.setIntakeSpeed(0))
-        );
-        */
+        //joystick.leftTrigger().whileFalse(
+        //    Commands.run(() -> intake.setIntakeSpeed(0))
+        //);
 
         // Shoot (hold)
-
-        joystick.rightTrigger().onTrue(
+        
+        // Launcher Main
+        joystick.rightTrigger().whileTrue(
             Commands.sequence(
-                Commands.runOnce(() -> launcher.setSpeedLauncherMain(initSpeed))
-                //Commands.waitSeconds(3),
-                //Commands.runOnce(() -> indexer.setIndexerSpeed(1))
+                Commands.runOnce(() -> launcher.setSpeedLauncherMain(LauncherSpeed)),
+                Commands.waitSeconds(2),
+                Commands.runOnce(() -> launcher.setSpeedLauncherFeed(LauncherSpeed)),
+                Commands.runOnce(() -> indexer.setIndexerSpeed(-1))
             )
         );
-
+        
         joystick.rightTrigger().onFalse(
             Commands.sequence(
-                Commands.runOnce(() -> launcher.setSpeedLauncherMain(0))
-                //Commands.runOnce(() -> indexer.setIndexerSpeed(0))
+                Commands.runOnce(() -> launcher.setSpeedLauncher(0)),
+                Commands.runOnce(() -> indexer.setIndexerSpeed(0))
             )
         );
 
-        joystick.leftTrigger().onTrue(
+        // Launcher Feeder
+        /*joystick.rightBumper().whileTrue(
             Commands.sequence(
-                Commands.runOnce(() -> launcher.setSpeedLauncherFeed(initSpeed))
-                //Commands.waitSeconds(3),
-                //Commands.runOnce(() -> indexer.setIndexerSpeed(1))
+                Commands.runOnce(() -> launcher.setSpeedLauncherFeed(LauncherSpeed)),
+                Commands.waitSeconds(2),
+                Commands.runOnce(() -> indexer.setIndexerSpeed(1))
             )
         );
 
-        joystick.leftTrigger().onFalse(
+        joystick.rightBumper().onFalse(
+            Commands.sequence(
+                Commands.runOnce(() -> launcher.setSpeedLauncherFeed(0)),
+                Commands.runOnce(() -> indexer.setIndexerSpeed(0))
+            )
+        ); */
+
+
+        /* joystick.leftTrigger().onFalse(
             Commands.sequence(
                 Commands.runOnce(() -> launcher.setSpeedLauncherFeed(0))
                 //Commands.runOnce(() -> indexer.setIndexerSpeed(0))
             )
-        );
+        ); */
 
         /* 
         joystick.rightTrigger().and(joystick.rightBumper()).whileTrue(
@@ -171,18 +348,9 @@ public class RobotContainer {
         );
         */
 
-        /*
+        
         joystick.y().onTrue(
-            Commands.runOnce(() -> launcher.cycleMotorSpeed(), launcher)
-        );
-        */
-
-        // Button for incrementing speed
-
-        joystick.y().onTrue(Commands.runOnce(() -> {
-            initSpeed += 0.01;
-            System.out.println(initSpeed);
-            })
+            Commands.runOnce(() -> cycleSwerveSpeed())
         );
 
         /* 
@@ -191,7 +359,7 @@ public class RobotContainer {
         );
         */
 
-        joystick.rightBumper().whileTrue(
+        /* joystick.rightBumper().whileTrue(
             drivetrain.applyRequest(() -> {
                 double vl = launcher.calculateLaunchVelocity(drivetrain, hubPosition);
 
@@ -199,7 +367,7 @@ public class RobotContainer {
                 .withVelocityY(-joystick.getLeftX() * MaxSpeed)
                 .withRotationalRate(drivetrain.calculateAutoAimRot(hubPosition, vl));
             })
-        );
+        ); */
 
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
@@ -208,15 +376,17 @@ public class RobotContainer {
         joystick.start().and(joystick.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
         joystick.start().and(joystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
-        // Reset the field-centric heading on left bumper press.
-        joystick.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
+        // Reset the field-centric heading on right bumper press.
+        joystick.rightBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
         drivetrain.registerTelemetry(logger::telemeterize);
     }
 
     public Command getAutonomousCommand() {
         // Simple drive forward auton
-        String selectedAuto = SmartDashboard.getString("Auto Selector", "None");
+        return new PathPlannerAuto(m_chooser.getSelected());
+        
+        /*String selectedAuto = "Blue Right";
         final var idle = new SwerveRequest.Idle();
         switch (selectedAuto) {
             case "Blue Left":
@@ -442,7 +612,7 @@ public class RobotContainer {
                 return drivetrain.applyRequest(() -> idle);
             default:
                 return null;
-        }
-    }
+        } */
+    } 
     
 }
