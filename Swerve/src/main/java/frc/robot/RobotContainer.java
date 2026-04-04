@@ -47,6 +47,8 @@ public class RobotContainer {
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
 
+    private double LauncherSpeed = 0.6;
+
     /* Setting up bindings for necessary control of the swerve drive platform */
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
             .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
@@ -109,10 +111,12 @@ public class RobotContainer {
     }
 
     private void setupPathplannerCommands() {
-        NamedCommands.registerCommand("ShootFuel", ShootFuel());
+        NamedCommands.registerCommand("ShootFuel", ShootFuel(5, 0.6));
+        NamedCommands.registerCommand("ShootFuelFar", ShootFuel(5, 1));
+        NamedCommands.registerCommand("ShootFuelLong", ShootFuel(8, 0.8));
         NamedCommands.registerCommand("TurnOnIntake",  Commands.sequence(                  
-            Commands.runOnce(() -> intake.setIntakeSpeed(1)),
-            Commands.runOnce(() -> indexer.setIndexerSpeed(-1))
+            /*Commands.runOnce(() -> intake.setIntakeSpeed(1)),
+            Commands.runOnce(() -> indexer.setIndexerSpeed(-1))*/
         ));
 
         NamedCommands.registerCommand("TurnOffIntake",  Commands.sequence(                  
@@ -120,8 +124,8 @@ public class RobotContainer {
             Commands.runOnce(() -> indexer.setIndexerSpeed(0))
         ));
 
-        NamedCommands.registerCommand("DropIntake", Commands.sequence(
-
+        new EventTrigger("DropIntake").onTrue(Commands.sequence(
+            Commands.runOnce(() -> intake.setIntakeAngle(1), intake).withTimeout(2)
         ));
         
         new EventTrigger("TurnOnLauncherShooter").onTrue(Commands.sequence(
@@ -138,23 +142,23 @@ public class RobotContainer {
         );
     }*/
 
-    private Command ShootFuel() {
-        if (launcher.isLauncherActive()) {
+    private Command ShootFuel(double seconds, double launcherSpeed) {
+        /*if (!launcher.isLauncherActive()) {
             return Commands.sequence(
                 Commands.runOnce(() -> launcher.setSpeedLauncherMain(0.7)),
                 Commands.waitSeconds(2),
                 Commands.runOnce(() -> indexer.setIndexerSpeed(1)),
                 Commands.runOnce(() -> launcher.setSpeedLauncherFeed(0.7)),
-                Commands.waitSeconds(2),
+                Commands.waitSeconds(seconds),
                 Commands.runOnce(() -> launcher.setSpeedLauncher(0)),
                 Commands.runOnce(() -> indexer.setIndexerSpeed(0))
             );
-        }
+        }*/
 
         return Commands.sequence(
-            Commands.runOnce(() -> indexer.setIndexerSpeed(1)),
-            Commands.runOnce(() -> launcher.setSpeedLauncherFeed(0.7)),
-            Commands.waitSeconds(2),
+            //Commands.runOnce(() -> indexer.setIndexerSpeed(-1)),
+            Commands.runOnce(() -> launcher.setSpeedLauncher(launcherSpeed)),
+            Commands.waitSeconds(seconds),
             Commands.runOnce(() -> launcher.setSpeedLauncher(0)),
             Commands.runOnce(() -> indexer.setIndexerSpeed(0))
         );
@@ -180,9 +184,11 @@ public class RobotContainer {
         SmartDashboard.putNumber("Round Time", roundTimeLeft);
 
         // Auton Options Selection
-        m_chooser.setDefaultOption("ExampleAuto", "ExampleAuto");
+        m_chooser.setDefaultOption("MiddleAutoR", "MiddleAutoR");
+        m_chooser.addOption("RightAuto", "RightAuto");
         m_chooser.addOption("LeftAuto", "LeftAuto");
-        m_chooser.addOption("MiddleAuto", "MiddleAuto");
+        m_chooser.addOption("MiddleAutoR", "MiddleAutoR");
+        m_chooser.addOption("MiddleAutoL", "MiddleAutoL");
         m_chooser.addOption("ExampleAuto", "ExampleAuto");
 
         SmartDashboard.putData("Auto Selector", m_chooser);
@@ -190,6 +196,7 @@ public class RobotContainer {
         // Other Features
         SmartDashboard.putNumber("Voltage", RobotController.getBatteryVoltage());
         SmartDashboard.putNumber("Max Speed", MaxSpeed);
+        SmartDashboard.putNumber("Launcher Speed", LauncherSpeed);
         field.setRobotPose(drivetrain.getState().Pose);
     }
 
@@ -210,6 +217,13 @@ public class RobotContainer {
 
         if (MaxSpeed > 4.5)
             MaxSpeed = 2.5;
+    }
+
+    private void cycleLauncherSpeed() {
+        LauncherSpeed += 0.2;
+
+        if (LauncherSpeed > 1)
+            LauncherSpeed = 0.6;
     }
 
     private void configureBindings() {
@@ -235,9 +249,9 @@ public class RobotContainer {
 
 
         // Intake Pivot Down
-        joystick.x().whileTrue(
+        /*joystick.x().whileTrue(
             Commands.run(() -> intake.setIntakeAngleSpeed(1), intake)
-        );
+        );*/
 
         // Intake Pivot Up
         joystick.leftBumper().whileTrue(
@@ -258,6 +272,13 @@ public class RobotContainer {
         );
         */
 
+        // cycle launcher speed 
+        joystick.a().onTrue(
+            Commands.sequence(
+                Commands.runOnce(() -> cycleLauncherSpeed(), launcher)
+            )
+        );
+
         // Intake Spin (toggle)
         joystick.leftTrigger().toggleOnTrue(
             new StartEndCommand(
@@ -272,19 +293,19 @@ public class RobotContainer {
             )
         );
 
-        /*joystick.leftTrigger().whileFalse(
-            Commands.run(() -> intake.setIntakeSpeed(0))
-        ); */
+        //joystick.leftTrigger().whileFalse(
+        //    Commands.run(() -> intake.setIntakeSpeed(0))
+        //);
 
         // Shoot (hold)
         
         // Launcher Main
         joystick.rightTrigger().whileTrue(
             Commands.sequence(
-                Commands.runOnce(() -> launcher.setSpeedLauncherMain(0.7)),
+                Commands.runOnce(() -> launcher.setSpeedLauncherMain(LauncherSpeed)),
                 Commands.waitSeconds(2),
-                Commands.runOnce(() -> launcher.setSpeedLauncherFeed(0.7)),
-                Commands.runOnce(() -> indexer.setIndexerSpeed(1))
+                Commands.runOnce(() -> launcher.setSpeedLauncherFeed(LauncherSpeed)),
+                Commands.runOnce(() -> indexer.setIndexerSpeed(-1))
             )
         );
         
@@ -298,7 +319,7 @@ public class RobotContainer {
         // Launcher Feeder
         /*joystick.rightBumper().whileTrue(
             Commands.sequence(
-                Commands.runOnce(() -> launcher.setSpeedLauncherFeed(0.7)),
+                Commands.runOnce(() -> launcher.setSpeedLauncherFeed(LauncherSpeed)),
                 Commands.waitSeconds(2),
                 Commands.runOnce(() -> indexer.setIndexerSpeed(1))
             )

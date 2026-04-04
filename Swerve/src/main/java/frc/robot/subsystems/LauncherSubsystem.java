@@ -23,6 +23,7 @@ public class LauncherSubsystem extends SubsystemBase {
   public final double launcherAngle = 1.317724;
   public final double relativeHubHeight = 2.148;
 
+
   /** Creates a new ExampleSubsystem. */
   public LauncherSubsystem() {
     // PID + feedforward values
@@ -38,16 +39,16 @@ public class LauncherSubsystem extends SubsystemBase {
   }
 
   public void setSpeedLauncher(double speed) {
-    launcherMain.set(-speed);
-    launcherFeed.set(speed);
+    launcherMain.set(speed);
+    launcherFeed.set(-speed);
   }
 
   public void setSpeedLauncherMain(double speed) {
-    launcherMain.set(-speed);
+    launcherMain.set(speed);
   }
 
   public void setSpeedLauncherFeed(double speed) {
-    launcherFeed.set(speed);
+    launcherFeed.set(-speed);
   }
 
   public double launchVelocityToMotorSpeed(double vl) {

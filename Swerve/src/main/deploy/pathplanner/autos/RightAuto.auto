@@ -5,15 +5,21 @@
     "data": {
       "commands": [
         {
+          "type": "path",
+          "data": {
+            "pathName": "BlueRight-RightShootingPos"
+          }
+        },
+        {
           "type": "named",
           "data": {
-            "name": "ShootFuel"
+            "name": "ShootFuelFar"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "BlueRight-RightNuetral"
+            "pathName": "RightShootingPos-RightNuetral"
           }
         },
         {
@@ -37,7 +43,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "MiddleNuetral-BlueRight"
+            "pathName": "MiddleNuetral-RightShootingPos"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ShootFuelLong"
           }
         }
       ]

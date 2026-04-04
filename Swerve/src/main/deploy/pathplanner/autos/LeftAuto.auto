@@ -7,37 +7,55 @@
         {
           "type": "path",
           "data": {
-            "pathName": "BlueLeft-BlueShootingPos"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "ShootFuel"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "BlueShootingPos-BlueFeeder"
+            "pathName": "BlueLeft-LeftShootingPos"
           }
         },
         {
           "type": "wait",
           "data": {
-            "waitTime": 4.0
+            "waitTime": 1.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ShootFuelFar"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "BlueFeeder-RightNuetral"
+            "pathName": "LeftShootingPos-LeftNuetral"
           }
         },
         {
           "type": "named",
           "data": {
             "name": "TurnOnIntake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "LeftNuetral-MiddleNuetral"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "TurnOffIntake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "MiddleNuetral-LeftShootingPos"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ShootFuelLong"
           }
         }
       ]
