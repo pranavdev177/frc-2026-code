@@ -31,8 +31,8 @@ public class Robot extends TimedRobot {
     public static final AprilTagFieldLayout kTagLayout = AprilTagFieldLayout
                                     .loadField(AprilTagFields.kDefaultField);
     public static final Transform3d kRobotToCam = new Transform3d(
-        new Translation3d(),
-        new Rotation3d()
+        new Translation3d(13.75, 1.0625, 2.25),
+        new Rotation3d(0,  0.821464, 0)
     );
     //public static final Transform3d kRobotToRightCam = new Transform3d(
     //    new Translation3d(0.324769, -0.335885, 0.182352), new Rotation3d(0, 0.821464, -0.819854)
