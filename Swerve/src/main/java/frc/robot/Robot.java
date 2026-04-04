@@ -25,18 +25,25 @@ import edu.wpi.first.math.geometry.Pose2d;
 
 public class Robot extends TimedRobot {
     private Command m_autonomousCommand;
-    private PhotonCamera rightCamera = new PhotonCamera("rightCamera");
-    private PhotonCamera leftCamera = new PhotonCamera("leftCamera");
+    private PhotonCamera cam = new PhotonCamera("Arducam");
+    //private PhotonCamera rightCamera = new PhotonCamera("rightCamera");
+    //private PhotonCamera leftCamera = new PhotonCamera("leftCamera");
     public static final AprilTagFieldLayout kTagLayout = AprilTagFieldLayout
                                     .loadField(AprilTagFields.kDefaultField);
-    public static final Transform3d kRobotToRightCam = new Transform3d(
-        new Translation3d(0.324769, -0.335885, 0.182352), new Rotation3d(0, 0.821464, -0.819854)
+    public static final Transform3d kRobotToCam = new Transform3d(
+        new Translation3d(),
+        new Rotation3d()
     );
-    public static final Transform3d kRobotToLeftCam = new Transform3d(
-        new Translation3d(0.324769, 0.335885, 0.182352), new Rotation3d(0, 0.821464, 0.819854)
-    );
-    private PhotonPoseEstimator rightPhotonPoseEstimator = new PhotonPoseEstimator(kTagLayout, kRobotToRightCam);
-    private PhotonPoseEstimator leftPhotonPoseEstimator = new PhotonPoseEstimator(kTagLayout, kRobotToLeftCam);
+    //public static final Transform3d kRobotToRightCam = new Transform3d(
+    //    new Translation3d(0.324769, -0.335885, 0.182352), new Rotation3d(0, 0.821464, -0.819854)
+    //);
+    //public static final Transform3d kRobotToLeftCam = new Transform3d(
+    //    new Translation3d(0.324769, 0.335885, 0.182352), new Rotation3d(0, 0.821464, 0.819854)
+    //);
+
+    private PhotonPoseEstimator camPhotonPoseEstimator = new PhotonPoseEstimator(kTagLayout, kRobotToCam);
+    //private PhotonPoseEstimator rightPhotonPoseEstimator = new PhotonPoseEstimator(kTagLayout, kRobotToRightCam);
+    //private PhotonPoseEstimator leftPhotonPoseEstimator = new PhotonPoseEstimator(kTagLayout, kRobotToLeftCam);
 
     private final SendableChooser<String> autoChooser = new SendableChooser<>();
 
@@ -64,6 +71,27 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
         m_timeAndJoystickReplay.update();
         m_robotContainer.updateSmartDashboard();
+
+        var results = cam.getAllUnreadResults();
+        for (var result : results)
+        {
+            if ((result != null) && (result.hasTargets()))
+            {
+                var visionEst = camPhotonPoseEstimator.estimateCoprocMultiTagPose(result);
+                if (visionEst.isEmpty())
+                {
+                    visionEst = camPhotonPoseEstimator.estimateLowestAmbiguityPose(result);
+                }
+                if (visionEst.isPresent())
+                {
+                    var est = visionEst.get();
+                    m_robotContainer.drivertrain.addVisionMeasurement(
+                        est.estmatedPose.toPose2d(),
+                        est.tiemstampSeconds
+                    );
+                }
+            }
+        }
 
         /* 
         var rResults = rightCamera.getAllUnreadResults();
