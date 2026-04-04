@@ -114,6 +114,7 @@ public class RobotContainer {
     private void setupPathplannerCommands() {
         NamedCommands.registerCommand("ShootFuel", ShootFuel(5, 0.6));
         NamedCommands.registerCommand("ShootFuelFar", ShootFuel(5, 1));
+        NamedCommands.registerCommand("ShootFuelKeepingOn", ShootFuelKeepingOn(3, 0.6));
         NamedCommands.registerCommand("ShootFuelLong", ShootFuel(8, 0.8));
         NamedCommands.registerCommand("TurnOnIntake",  Commands.sequence(                  
             /*Commands.runOnce(() -> intake.setIntakeSpeed(1)),
@@ -162,6 +163,27 @@ public class RobotContainer {
             Commands.waitSeconds(seconds),
             Commands.runOnce(() -> launcher.setSpeedLauncher(0)),
             Commands.runOnce(() -> indexer.setIndexerSpeed(0))
+        );
+    }
+
+    
+    private Command ShootFuelKeepingOn(double seconds, double launcherSpeed) {
+        /*if (!launcher.isLauncherActive()) {
+            return Commands.sequence(
+                Commands.runOnce(() -> launcher.setSpeedLauncherMain(0.7)),
+                Commands.waitSeconds(2),
+                Commands.runOnce(() -> indexer.setIndexerSpeed(1)),
+                Commands.runOnce(() -> launcher.setSpeedLauncherFeed(0.7)),
+                Commands.waitSeconds(seconds),
+                Commands.runOnce(() -> launcher.setSpeedLauncher(0)),
+                Commands.runOnce(() -> indexer.setIndexerSpeed(0))
+            );
+        }*/
+
+        return Commands.sequence(
+            //Commands.runOnce(() -> indexer.setIndexerSpeed(-1)),
+            Commands.runOnce(() -> launcher.setSpeedLauncher(launcherSpeed)),
+            Commands.waitSeconds(seconds)
         );
     }
 

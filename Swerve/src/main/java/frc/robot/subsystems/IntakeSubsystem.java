@@ -65,18 +65,19 @@ public class IntakeSubsystem extends SubsystemBase {
      */
 
     Slot0Configs slot0 = new Slot0Configs();
-    slot0.kP = 0.0;
+    slot0.kP = 1;
     slot0.kI = 0.0;
     slot0.kD = 0.0;
 
-    slot0.kV = 0.12; // feedforward
+    slot0.kV = 0.5; // feedforward ----------------------------------------------------------------------------------------------------------------------------------------------------------1q
     slot0.kS = 0.2;
-    intakeAngle.getConfigurator().apply(slot0);
+    // intakeAngle.getConfigurator().apply(slot0);
+    intakeSpin.getConfigurator().apply(slot0);
 
   }
 
   public void setIntakeSpeed(double speed) {
-    intakeSpin.set(speed);
+    intakeSpin.set(-speed);
     /* 
     if (speed > 0) {
       intakeAngle.set(0.5);
@@ -87,15 +88,15 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   public boolean isIntakeActive() {
-    return Math.abs(intakeSpin.get()) > 0.05;
+    return Math.abs(intakeSpin.get()) < 0.05;
   }
 
   public void setIntakeAngleSpeed(double speed) {
-    intakeAngle.set(speed);
+    //intakeAngle.set(speed);
   }
 
   public void setIntakeAngle(double angle) {
-    intakeSpin.set(0);
+    //intakeSpin.set(0);
     //pidController.setSetpoint(angle, ControlType.kPosition);
   }
   

@@ -19,6 +19,24 @@
         {
           "type": "named",
           "data": {
+            "name": "ShootFuelKeepingOn"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BlueShootingPos-Back"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Back-BlueShootingPos"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "ShootFuel"
           }
         },
@@ -44,18 +62,6 @@
           "type": "named",
           "data": {
             "name": "TurnOffIntake"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "MiddleNuetral-RightShootingPos"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "ShootFuel"
           }
         }
       ]
