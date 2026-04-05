@@ -35,26 +35,27 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 
-
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LauncherSubsystem;
 
+import frc.robot.Constants;
+
 
 public class RobotContainer {
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
-    private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
+    private double MaxAngularRate = RotationsPerSecond.of(Constants.Drive.MAX_ANGULAR_RATE_RPS).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
 
-    private double LauncherSpeed = 0.6;
+    private double LauncherSpeed = Constants.Launcher.DEFAULT_SPEED;
 
     /* Setting up bindings for necessary control of the swerve drive platform */
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-            .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
+            .withDeadband(MaxSpeed * Constants.Drive.DEADBAND_PERCENT).withRotationalDeadband(MaxAngularRate * Constants.Drive.DEADBAND_PERCENT) // Add a 10% deadband
             .withDriveRequestType(DriveRequestType.Velocity); // Use open-loop control for drive motors
     private final SwerveRequest.FieldCentricFacingAngle autoAimDrive = new SwerveRequest.FieldCentricFacingAngle()
-            .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
+            .withDeadband(MaxSpeed * Constants.Drive.DEADBAND_PERCENT).withRotationalDeadband(MaxAngularRate * Constants.Drive.DEADBAND_PERCENT) // Add a 10% deadband
             .withDriveRequestType(DriveRequestType.Velocity).withHeadingPID(5, 0.1, 0.7);
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
@@ -73,7 +74,7 @@ public class RobotContainer {
 
     private Timer timer = new Timer();
     // MUST be from highest to lowest
-    private int[] roundEndTimes = {140, 105, 80, 55, 30, 0};
+    private int[] roundEndTimes = Constants.Match.ROUND_END_TIMES;
     private SendableChooser<String> m_chooser = new SendableChooser<String>();
     private SendableChooser<String> m_chooserColor = new SendableChooser<String>();
     private final Field2d field = new Field2d();
@@ -102,23 +103,22 @@ public class RobotContainer {
     public Translation2d hubPosition = redHubPosition;
 
     public RobotContainer() {
+        InitializeSmartDashboard();
         configureBindings();
         setupPathplannerCommands();
-
-        SmartDashboard.putData("Field", field);
 
         timer.reset();
         timer.start();
     }
 
     private void setupPathplannerCommands() {
-        NamedCommands.registerCommand("ShootFuel", ShootFuel(5, 0.6));
-        NamedCommands.registerCommand("ShootFuelFar", ShootFuel(5, 1));
-        NamedCommands.registerCommand("ShootFuelKeepingOn", ShootFuelKeepingOn(3, 0.6));
-        NamedCommands.registerCommand("ShootFuelLong", ShootFuel(8, 0.8));
+        NamedCommands.registerCommand("ShootFuel", ShootFuel(5, Constants.Launcher.SHORT_SHOOT_AUTO_SPEED));
+        NamedCommands.registerCommand("ShootFuelFar", ShootFuel(5, Constants.Launcher.LONG_SHOOT_AUTO_SPEED));
+        NamedCommands.registerCommand("ShootFuelKeepingOn", ShootFuelKeepingOn(3, Constants.Launcher.SHORT_SHOOT_AUTO_SPEED));
+        NamedCommands.registerCommand("ShootFuelLong", ShootFuel(8, Constants.Launcher.LONG_SHOOT_AUTO_SPEED));
         NamedCommands.registerCommand("TurnOnIntake",  Commands.sequence(                  
-            /*Commands.runOnce(() -> intake.setIntakeSpeed(1)),
-            Commands.runOnce(() -> indexer.setIndexerSpeed(-1))*/
+            Commands.runOnce(() -> intake.setIntakeSpeed(Constants.Intake.INTAKE_SPEED))
+            //Commands.runOnce(() -> indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED))
         ));
 
         NamedCommands.registerCommand("TurnOffIntake",  Commands.sequence(                  
@@ -145,46 +145,44 @@ public class RobotContainer {
     }*/
 
     private Command ShootFuel(double seconds, double launcherSpeed) {
-        /*if (!launcher.isLauncherActive()) {
-            return Commands.sequence(
-                Commands.runOnce(() -> launcher.setSpeedLauncherMain(0.7)),
-                Commands.waitSeconds(2),
-                Commands.runOnce(() -> indexer.setIndexerSpeed(1)),
-                Commands.runOnce(() -> launcher.setSpeedLauncherFeed(0.7)),
-                Commands.waitSeconds(seconds),
-                Commands.runOnce(() -> launcher.setSpeedLauncher(0)),
-                Commands.runOnce(() -> indexer.setIndexerSpeed(0))
-            );
-        }*/
-
         return Commands.sequence(
-            //Commands.runOnce(() -> indexer.setIndexerSpeed(-1)),
-            Commands.runOnce(() -> launcher.setSpeedLauncher(launcherSpeed)),
+            //Commands.runOnce(() -> indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED)),
+            Commands.runOnce(() -> launcher.setSpeedLauncherMain(launcherSpeed)),
+            Commands.waitUntil(() -> launcher.isAtTargetSpeed(launcherSpeed)).withTimeout(Constants.Launcher.SPINUP_TIMEOUT_SECONDS),
+            Commands.runOnce(() -> launcher.setSpeedLauncherFeed(launcherSpeed)),
             Commands.waitSeconds(seconds),
             Commands.runOnce(() -> launcher.setSpeedLauncher(0)),
             Commands.runOnce(() -> indexer.setIndexerSpeed(0))
         );
     }
-
     
     private Command ShootFuelKeepingOn(double seconds, double launcherSpeed) {
-        /*if (!launcher.isLauncherActive()) {
-            return Commands.sequence(
-                Commands.runOnce(() -> launcher.setSpeedLauncherMain(0.7)),
-                Commands.waitSeconds(2),
-                Commands.runOnce(() -> indexer.setIndexerSpeed(1)),
-                Commands.runOnce(() -> launcher.setSpeedLauncherFeed(0.7)),
-                Commands.waitSeconds(seconds),
-                Commands.runOnce(() -> launcher.setSpeedLauncher(0)),
-                Commands.runOnce(() -> indexer.setIndexerSpeed(0))
-            );
-        }*/
-
         return Commands.sequence(
-            //Commands.runOnce(() -> indexer.setIndexerSpeed(-1)),
-            Commands.runOnce(() -> launcher.setSpeedLauncher(launcherSpeed)),
+            //Commands.runOnce(() -> indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED)),
+            Commands.runOnce(() -> launcher.setSpeedLauncherMain(launcherSpeed)),
+            Commands.waitUntil(() -> launcher.isAtTargetSpeed(launcherSpeed)).withTimeout(Constants.Launcher.SPINUP_TIMEOUT_SECONDS),
+            Commands.runOnce(() -> launcher.setSpeedLauncherFeed(launcherSpeed)),
             Commands.waitSeconds(seconds)
         );
+    }
+
+    private void InitializeSmartDashboard() {
+        SmartDashboard.putData("Field", field);
+
+        // Auton Options Selection
+        m_chooser.setDefaultOption("MiddleAutoR", "MiddleAutoR");
+        m_chooser.addOption("RightAuto", "RightAuto");
+        m_chooser.addOption("LeftAuto", "LeftAuto");
+        m_chooser.addOption("MiddleAutoL", "MiddleAutoL");
+        m_chooser.addOption("ExampleAuto", "ExampleAuto");
+
+        SmartDashboard.putData("Auto Selector", m_chooser);
+
+        // Color Chooser
+        m_chooserColor.setDefaultOption("Red", "Red");
+        m_chooserColor.addOption("Blue", "Blue");
+
+        SmartDashboard.putData("Color Selector", m_chooserColor);
     }
 
     public void updateSmartDashboard() {
@@ -196,7 +194,7 @@ public class RobotContainer {
 
         // Match time and round time
         double matchTimeLeft =  DriverStation.getMatchTime() > 0 ? 
-            DriverStation.getMatchTime() :  160 - timer.get();
+            DriverStation.getMatchTime() :  Constants.Match.MATCH_DURATION_SECONDS - timer.get();
 
         if (matchTimeLeft < 0)
             matchTimeLeft = 0;
@@ -205,23 +203,6 @@ public class RobotContainer {
 
         SmartDashboard.putNumber("Match Time", matchTimeLeft);
         SmartDashboard.putNumber("Round Time", roundTimeLeft);
-
-        // Auton Options Selection
-        m_chooser.setDefaultOption("MiddleAutoR", "MiddleAutoR");
-        m_chooser.addOption("RightAuto", "RightAuto");
-        m_chooser.addOption("LeftAuto", "LeftAuto");
-        m_chooser.addOption("MiddleAutoR", "MiddleAutoR");
-        m_chooser.addOption("MiddleAutoL", "MiddleAutoL");
-        m_chooser.addOption("ExampleAuto", "ExampleAuto");
-
-        SmartDashboard.putData("Auto Selector", m_chooser);
-
-        // Color Chooser
-        m_chooserColor.setDefaultOption("Red", "Red");
-        m_chooserColor.addOption("Red", "Red");
-        m_chooserColor.addOption("Blue", "Blue");
-
-        SmartDashboard.putData("Color Selector", m_chooserColor);
 
         if (m_chooserColor.getSelected().equals("Red"))
         {
@@ -251,17 +232,17 @@ public class RobotContainer {
     }
 
     private void cycleSwerveSpeed() {
-        MaxSpeed += 0.5;
+        MaxSpeed += Constants.Drive.SPEED_INCREMENT;
 
-        if (MaxSpeed > 4.5)
-            MaxSpeed = 2.5;
+        if (MaxSpeed > Constants.Drive.MAX_SPEED)
+            MaxSpeed = Constants.Drive.MIN_SPEED;
     }
 
     private void cycleLauncherSpeed() {
-        LauncherSpeed += 0.2;
+        LauncherSpeed += Constants.Launcher.SPEED_INCREMENT;
 
-        if (LauncherSpeed > 1)
-            LauncherSpeed = 0.6;
+        if (LauncherSpeed > Constants.Launcher.MAX_SPEED)
+            LauncherSpeed = Constants.Launcher.MIN_SPEED;
     }
 
     private void configureBindings() {
@@ -285,65 +266,41 @@ public class RobotContainer {
             drivetrain.applyRequest(() -> idle).ignoringDisable(true)
         );
 
-
         // Intake Pivot Down
-        /*joystick.x().whileTrue(
-            Commands.run(() -> intake.setIntakeAngleSpeed(1), intake)
-        );*/
-
-        // Intake Pivot Up
         joystick.leftBumper().whileTrue(
             Commands.run(() -> intake.setIntakeAngleSpeed(-1), intake)
         );
 
         // Brake
         joystick.b().whileTrue(drivetrain.applyRequest(() -> brake));
-
-        // Intake Clamp (Hold)
-        /* 
-        joystick.x().whileFalse(
-            Commands.run(() -> intake.setIntakeAngleSpeed(1), intake)
-        );
-
-        joystick.x().whileFalse(
-            Commands.run(() -> intake.setIntakeAngleSpeed(1), intake)
-        );
-        */
-
+        
         // cycle launcher speed 
         joystick.a().onTrue(
             Commands.sequence(
                 Commands.runOnce(() -> cycleLauncherSpeed(), launcher)
             )
         );
-
+        
         // Intake Spin (toggle)
-        joystick.leftTrigger().toggleOnTrue(
-            new StartEndCommand(
-                () -> {
-                    intake.setIntakeSpeed(1);
-                    indexer.setIndexerSpeed(-1);
-                },
-                () -> { 
+        joystick.leftTrigger().onTrue(
+            Commands.runOnce(() -> {
+                if (intake.isIntakeActive()) {
                     intake.setIntakeSpeed(0);
                     indexer.setIndexerSpeed(0);
+                } else {
+                    intake.setIntakeSpeed(Constants.Intake.INTAKE_SPEED);
+                    indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED);
                 }
-            )
+            })
         );
 
-        //joystick.leftTrigger().whileFalse(
-        //    Commands.run(() -> intake.setIntakeSpeed(0))
-        //);
-
         // Shoot (hold)
-        
-        // Launcher Main
         joystick.rightTrigger().whileTrue(
             Commands.sequence(
                 Commands.runOnce(() -> launcher.setSpeedLauncherMain(LauncherSpeed)),
-                Commands.waitSeconds(2),
+                Commands.waitUntil(() -> launcher.isAtTargetSpeed(LauncherSpeed)).withTimeout(Constants.Launcher.SPINUP_TIMEOUT_SECONDS),
                 Commands.runOnce(() -> launcher.setSpeedLauncherFeed(LauncherSpeed)),
-                Commands.runOnce(() -> indexer.setIndexerSpeed(-1))
+                Commands.runOnce(() -> indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED))
             )
         );
         
@@ -353,58 +310,10 @@ public class RobotContainer {
                 Commands.runOnce(() -> indexer.setIndexerSpeed(0))
             )
         );
-
-        // Launcher Feeder
-        /*joystick.rightBumper().whileTrue(
-            Commands.sequence(
-                Commands.runOnce(() -> launcher.setSpeedLauncherFeed(LauncherSpeed)),
-                Commands.waitSeconds(2),
-                Commands.runOnce(() -> indexer.setIndexerSpeed(1))
-            )
-        );
-
-        joystick.rightBumper().onFalse(
-            Commands.sequence(
-                Commands.runOnce(() -> launcher.setSpeedLauncherFeed(0)),
-                Commands.runOnce(() -> indexer.setIndexerSpeed(0))
-            )
-        ); */
-
-
-        /* joystick.leftTrigger().onFalse(
-            Commands.sequence(
-                Commands.runOnce(() -> launcher.setSpeedLauncherFeed(0))
-                //Commands.runOnce(() -> indexer.setIndexerSpeed(0))
-            )
-        ); */
-
-        /* 
-        joystick.rightTrigger().and(joystick.rightBumper()).whileTrue(
-            Commands.run(() ->  launcher.setSpeedLauncher(
-                launcher.launchVelocityToMotorSpeed(launcher.calculateLaunchVelocity(drivetrain, hubPosition))),
-                launcher)
-        );
-        */
-
         
+        // Cycle Swerve Speed
         joystick.y().onTrue(
             Commands.runOnce(() -> cycleSwerveSpeed())
-        );
-
-        /* 
-        joystick.a().onTrue(
-            Commands.runOnce(() -> indexer.cycleIndexerState(), indexer)
-        );
-        */
-
-        joystick.rightBumper().whileTrue(
-            drivetrain.applyRequest(() -> {
-                double vl = launcher.calculateLaunchVelocity(drivetrain, hubPosition);
-
-                return drive.withVelocityX(-joystick.getLeftY() * MaxSpeed)
-                .withVelocityY(-joystick.getLeftX() * MaxSpeed)
-                .withRotationalRate(drivetrain.calculateAutoAimRot(hubPosition, vl));
-            })
         );
 
         // Run SysId routines when holding back/start and X/Y.
@@ -418,6 +327,72 @@ public class RobotContainer {
         //joystick.rightBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
         drivetrain.registerTelemetry(logger::telemeterize);
+
+        /*  Intake Pivot Down
+        joystick.x().whileTrue(
+            Commands.run(() -> intake.setIntakeAngleSpeed(1), intake)
+        );
+
+        // Intake Clamp (Hold)
+        
+        joystick.x().whileFalse(
+            Commands.run(() -> intake.setIntakeAngleSpeed(1), intake)
+        );
+
+        joystick.x().whileFalse(
+            Commands.run(() -> intake.setIntakeAngleSpeed(1), intake)
+        );
+
+        //joystick.leftTrigger().whileFalse(
+        //    Commands.run(() -> intake.setIntakeSpeed(0))
+        //);
+
+
+        // Launcher Feeder
+        joystick.rightBumper().whileTrue(
+            Commands.sequence(
+                Commands.runOnce(() -> launcher.setSpeedLauncherFeed(LauncherSpeed)),
+                Commands.waitSeconds(2),
+                Commands.runOnce(() -> indexer.setIndexerSpeed(1))
+            )
+        );
+
+        joystick.rightBumper().onFalse(
+            Commands.sequence(
+                Commands.runOnce(() -> launcher.setSpeedLauncherFeed(0)),
+                Commands.runOnce(() -> indexer.setIndexerSpeed(0))
+            )
+        ); 
+
+        
+        joystick.rightBumper().whileTrue(
+            drivetrain.applyRequest(() -> {
+                double vl = launcher.calculateLaunchVelocity(drivetrain, hubPosition);
+
+                return drive.withVelocityX(-joystick.getLeftY() * MaxSpeed)
+                .withVelocityY(-joystick.getLeftX() * MaxSpeed)
+                .withRotationalRate(drivetrain.calculateAutoAimRot(hubPosition, vl));
+            })
+        );
+
+
+        joystick.leftTrigger().onFalse(
+            Commands.sequence(
+                Commands.runOnce(() -> launcher.setSpeedLauncherFeed(0))
+                //Commands.runOnce(() -> indexer.setIndexerSpeed(0))
+            )
+        ); 
+ 
+        joystick.rightTrigger().and(joystick.rightBumper()).whileTrue(
+            Commands.run(() ->  launcher.setSpeedLauncher(
+                launcher.launchVelocityToMotorSpeed(launcher.calculateLaunchVelocity(drivetrain, hubPosition))),
+                launcher)
+        );
+
+        joystick.a().onTrue(
+            Commands.runOnce(() -> indexer.cycleIndexerState(), indexer)
+        );
+        */
     }
 
     public Command getAutonomousCommand() {

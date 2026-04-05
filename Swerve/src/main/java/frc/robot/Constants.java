@@ -1,0 +1,54 @@
+package frc.robot;
+
+public class Constants {
+    public final class Drive {
+        public static final double MAX_ANGULAR_RATE_RPS = 0.75;
+        public static final double DEADBAND_PERCENT = 0.1;
+        public static final double MIN_SPEED = 2.5;
+        public static final double MAX_SPEED = 4.5;
+        public static final double SPEED_INCREMENT = 0.5;
+    }
+
+    public final class Launcher {
+        // Speed
+        public static final double DEFAULT_SPEED = 0.6;
+        public static final double MIN_SPEED = 0.6;
+        public static final double MAX_SPEED = 1.0;
+        public static final double SPEED_INCREMENT = 0.2;
+        public static final double LONG_SHOOT_AUTO_SPEED = 0.8;
+        public static final double SHORT_SHOOT_AUTO_SPEED = 0.8;
+
+        public static final double SPINUP_TIMEOUT_SECONDS = 3.0;
+
+        // PID
+        public static final double kP = 0.1;
+        public static final double kI = 0.0;
+        public static final double kD = 0.0;
+        public static final double kV = 0.12;
+        public static final double kS = 0.2;        
+    }
+
+    public final class Intake {
+        // Current Limits
+        public static final double STATOR_CURRENT_LIMIT = 30;
+
+        // Speed
+        public static final double INTAKE_SPEED = 1;
+
+        // PID
+        public static final double kP = 1.0;
+        public static final double kI = 0.0;
+        public static final double kD = 0.0;
+        public static final double kV = 0.5;
+        public static final double kS = 0.2;   
+    }
+
+    public final class Indexer {
+        public static final double INDEXER_SPEED = -1;
+    }
+
+    public final class Match {
+        public static final int MATCH_DURATION_SECONDS = 160;
+        public static final int[] ROUND_END_TIMES = {140, 105, 80, 55, 30, 0};
+    }
+}

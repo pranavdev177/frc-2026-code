@@ -15,6 +15,8 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
+import frc.robot.Constants;
+
 public class LauncherSubsystem extends SubsystemBase {
   private TalonFX launcherMain = new TalonFX(53);
   private TalonFX launcherFeed = new TalonFX(54);
@@ -28,12 +30,12 @@ public class LauncherSubsystem extends SubsystemBase {
   public LauncherSubsystem() {
     // PID + feedforward values
     Slot0Configs slot0 = new Slot0Configs();
-    slot0.kP = 0.1;
-    slot0.kI = 0.0;
-    slot0.kD = 0.0;
+    slot0.kP = Constants.Launcher.kP;
+    slot0.kI = Constants.Launcher.kI;
+    slot0.kD = Constants.Launcher.kD;
 
-    slot0.kV = 0.12; // feedforward
-    slot0.kS = 0.2;
+    slot0.kV = Constants.Launcher.kV; // feedforward
+    slot0.kS = Constants.Launcher.kS;
 
     launcherMain.getConfigurator().apply(slot0);
   }
@@ -72,6 +74,16 @@ public class LauncherSubsystem extends SubsystemBase {
 
   public boolean isLauncherFeederActive() {
     return Math.abs(launcherFeed.get()) > 0.05;
+  }
+
+  public boolean isAtTargetSpeed(double targetSpeed) {
+    // Get moter speed in rotations per second
+    double actualVelocity = launcherMain.getVelocity().getValueAsDouble();
+    // Gets what full speed is like at target %. 
+    double targetVelocity = targetSpeed * 106.0;
+    double tolerance = targetVelocity * 0.05;
+    
+    return Math.abs(actualVelocity - targetVelocity) < tolerance;
   }
   
 
@@ -116,6 +128,8 @@ public class LauncherSubsystem extends SubsystemBase {
     );
     return velocity;
   }
+
+  //#region Unused Code
 
   /* 
   public double calculateLaunchVelocity(CommandSwerveDrivetrain drivetrain, Translation2d hubPosition) {
@@ -177,4 +191,5 @@ public class LauncherSubsystem extends SubsystemBase {
   public void simulationPeriodic() {
     // This method will be called once per scheduler run during simulation
   }
+  //#endregion
 }

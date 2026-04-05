@@ -24,6 +24,8 @@ import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.ResetMode;
 import com.revrobotics.PersistMode;
 
+import frc.robot.Constants;
+
 public class IntakeSubsystem extends SubsystemBase {
 
   //public SparkMax intakeSpin = new SparkMax(51, MotorType.kBrushed);
@@ -39,7 +41,7 @@ public class IntakeSubsystem extends SubsystemBase {
   public IntakeSubsystem() {
     CurrentLimitsConfigs configs = new CurrentLimitsConfigs();
     configs.StatorCurrentLimitEnable = true;
-    configs.StatorCurrentLimit = 30;
+    configs.StatorCurrentLimit = Constants.Intake.STATOR_CURRENT_LIMIT;
     intakeSpin.getConfigurator().apply(configs);
     /*
     // Reset Encoder
@@ -65,12 +67,12 @@ public class IntakeSubsystem extends SubsystemBase {
      */
 
     Slot0Configs slot0 = new Slot0Configs();
-    slot0.kP = 1;
-    slot0.kI = 0.0;
-    slot0.kD = 0.0;
+    slot0.kP = Constants.Intake.kP;
+    slot0.kI = Constants.Intake.kI;
+    slot0.kD = Constants.Intake.kD;
 
-    slot0.kV = 0.5; // feedforward ----------------------------------------------------------------------------------------------------------------------------------------------------------1q
-    slot0.kS = 0.2;
+    slot0.kV = Constants.Intake.kV; // feedforward ----------------------------------------------------------------------------------------------------------------------------------------------------------1q
+    slot0.kS = Constants.Intake.kS;
     // intakeAngle.getConfigurator().apply(slot0);
     intakeSpin.getConfigurator().apply(slot0);
 
@@ -88,7 +90,7 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   public boolean isIntakeActive() {
-    return Math.abs(intakeSpin.get()) < 0.05;
+    return Math.abs(intakeSpin.get()) > 0.05;
   }
 
   public void setIntakeAngleSpeed(double speed) {
@@ -99,7 +101,8 @@ public class IntakeSubsystem extends SubsystemBase {
     //intakeSpin.set(0);
     //pidController.setSetpoint(angle, ControlType.kPosition);
   }
-  
+
+  //#region Unused Code
   /**
    * Example command factory method.
    *
@@ -132,4 +135,5 @@ public class IntakeSubsystem extends SubsystemBase {
   public void simulationPeriodic() {
     // This method will be called once per scheduler run during simulation
   }
+  //#endregion
 }

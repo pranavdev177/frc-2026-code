@@ -24,6 +24,16 @@ public class IndexerSubsystem extends SubsystemBase {
   /** Creates a new ExampleSubsystem. */
   public IndexerSubsystem() {}
 
+  public void setIndexerSpeed(double speed) {
+    indexer.set(speed);
+  }
+
+  public boolean isIndexerActive() {
+    return Math.abs(indexer.get()) > 0.05;
+  }
+
+  //#region Unused Code
+
   public void cycleIndexerState() {
     indexerState += 1;
     indexerState %= 3;
@@ -41,14 +51,6 @@ public class IndexerSubsystem extends SubsystemBase {
         indexer.set(0);
         break;
     }
-  }
-
-  public void setIndexerSpeed(double speed) {
-    indexer.set(speed);
-  }
-
-  public boolean isIndexerActive() {
-    return Math.abs(indexer.get()) > 0.05;
   }
   
   /**
@@ -84,4 +86,5 @@ public class IndexerSubsystem extends SubsystemBase {
   public void simulationPeriodic() {
     // This method will be called once per scheduler run during simulation
   }
+  //#endregion
 }

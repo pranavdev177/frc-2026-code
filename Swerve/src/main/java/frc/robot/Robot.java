@@ -14,6 +14,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -143,6 +144,13 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
+        Rotation2d startingAngle = DriverStation.getAlliance()
+            .filter(a -> a == DriverStation.Alliance.Red)
+            .map(a -> Rotation2d.fromDegrees(180))
+            .orElse(Rotation2d.kZero);
+
+        m_robotContainer.drivetrain.seedFieldCentric(startingAngle);
+
         m_autonomousCommand = m_robotContainer.getAutonomousCommand();
         if (m_autonomousCommand != null) {
             CommandScheduler.getInstance().schedule(m_autonomousCommand);
@@ -165,6 +173,13 @@ public class Robot extends TimedRobot {
         if (m_autonomousCommand != null) {
             CommandScheduler.getInstance().cancel(m_autonomousCommand);
         }
+
+        Rotation2d startingAngle = DriverStation.getAlliance()
+            .filter(a -> a == DriverStation.Alliance.Red)
+            .map(a -> Rotation2d.fromDegrees(180))
+            .orElse(Rotation2d.kZero);
+
+        m_robotContainer.drivetrain.seedFieldCentric(startingAngle);
     }
 
     @Override
