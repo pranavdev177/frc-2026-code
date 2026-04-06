@@ -35,12 +35,20 @@ public class Constants {
         // Speed
         public static final double INTAKE_SPEED = 1;
 
-        // PID
-        public static final double kP = 1.0;
-        public static final double kI = 0.0;
-        public static final double kD = 0.0;
-        public static final double kV = 0.5;
-        public static final double kS = 0.2;   
+        // Spin PID
+        public static final double Spin_kP = 1.0;
+        public static final double Spin_kI = 0.0;
+        public static final double Spin_kD = 0.0;
+        public static final double Spin_kV = 0.5;
+        public static final double Spin_kS = 0.2;  
+        
+        //Angle PID
+        public static final double Angle_kP = 2.4;
+        public static final double Angle_kI = 0.0;
+        public static final double Angle_kD = 0.1;
+        public static final double Angle_kV = 0.5;
+        public static final double Angle_kS = 0.25;  
+        public static final double Angle_kG = 0.3;
     }
 
     public final class Indexer {
