@@ -20,8 +20,13 @@ import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+
+import java.util.ArrayList;
+
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.targeting.PhotonPipelineResult;
+
 import edu.wpi.first.math.geometry.Pose2d;
 
 public class Robot extends TimedRobot {
@@ -35,6 +40,7 @@ public class Robot extends TimedRobot {
         new Translation3d(13.75, 1.0625, 2.25),
         new Rotation3d(0,  0.821464, 0)
     );
+ 
     //public static final Transform3d kRobotToRightCam = new Transform3d(
     //    new Translation3d(0.324769, -0.335885, 0.182352), new Rotation3d(0, 0.821464, -0.819854)
     //);
@@ -68,21 +74,38 @@ public class Robot extends TimedRobot {
         );*/
     }
 
-    @Override
+    public static void logMsg(String msg) {
+        if (Constants.Testing.ENABLE_LOGS) {
+            System.out.println(msg);
+        }
+    }
+   @Override
     public void robotPeriodic() {
         m_timeAndJoystickReplay.update();
         m_robotContainer.updateSmartDashboard();
 
         var results = cam.getAllUnreadResults();
-        for (var result : results)
+        SmartDashboard.putBoolean("Camera Connected", !results.isEmpty());
+
+        ArrayList<PhotonPipelineResult> testResults = new ArrayList<PhotonPipelineResult>();
+        if (Constants.Testing.PHOTON_TESTING) {
+            var photoPipelineResult = new PhotonPipelineResult();
+            testResults.add(photoPipelineResult);
+        } else {
+            testResults.addAll(results);
+        }
+
+        for (var result : testResults)
         {
             if ((result != null) && (result.hasTargets()))
             {
                 var visionEst = camPhotonPoseEstimator.estimateCoprocMultiTagPose(result);
+                logMsg("Vision Estimated Pose - " + visionEst.isEmpty() );
                 if (visionEst.isEmpty())
                 {
                     visionEst = camPhotonPoseEstimator.estimateLowestAmbiguityPose(result);
                 }
+                logMsg("Vision Estimated Is Present - " + visionEst.isPresent() );
                 if (visionEst.isPresent())
                 {
                     var est = visionEst.get();

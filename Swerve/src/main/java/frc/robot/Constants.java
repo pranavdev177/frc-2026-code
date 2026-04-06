@@ -16,7 +16,7 @@ public class Constants {
         public static final double MAX_SPEED = 1.0;
         public static final double SPEED_INCREMENT = 0.2;
         public static final double LONG_SHOOT_AUTO_SPEED = 0.8;
-        public static final double SHORT_SHOOT_AUTO_SPEED = 0.8;
+        public static final double SHORT_SHOOT_AUTO_SPEED = 0.6;
 
         public static final double SPINUP_TIMEOUT_SECONDS = 3.0;
 
@@ -58,5 +58,10 @@ public class Constants {
     public final class Match {
         public static final int MATCH_DURATION_SECONDS = 160;
         public static final int[] ROUND_END_TIMES = {140, 105, 80, 55, 30, 0};
+    }
+
+    public final class Testing {
+        public static final boolean PHOTON_TESTING = false;
+        public static final boolean ENABLE_LOGS = true;
     }
 }

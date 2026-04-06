@@ -30,6 +30,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
@@ -318,6 +319,17 @@ public class RobotContainer {
         joystick.y().onTrue(
             Commands.runOnce(() -> cycleSwerveSpeed())
         );
+
+        joystick.rightStick().whileTrue(new RunCommand(() -> {
+            drivetrain.calculateAutoAimRot(hubPosition, 0.7); // updates targetAngle
+            drivetrain.setControl(
+                autoAimDrive.withVelocityX(-joystick.getLeftY() * MaxSpeed)
+                            .withVelocityY(-joystick.getLeftX() * MaxSpeed)
+                            .withTargetDirection(drivetrain.getTargetAngle())
+            );
+        }, drivetrain));
+
+
 
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
