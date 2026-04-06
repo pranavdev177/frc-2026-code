@@ -66,16 +66,25 @@ public class IntakeSubsystem extends SubsystemBase {
     intakeAngleEncoder.setPosition(0);
      */
 
-    Slot0Configs slot0 = new Slot0Configs();
-    slot0.kP = Constants.Intake.kP;
-    slot0.kI = Constants.Intake.kI;
-    slot0.kD = Constants.Intake.kD;
+    Slot0Configs spinSlot0 = new Slot0Configs();
+    spinSlot0.kP = Constants.Intake.Spin_kP;
+    spinSlot0.kI = Constants.Intake.Spin_kI;
+    spinSlot0.kD = Constants.Intake.Spin_kD;
 
-    slot0.kV = Constants.Intake.kV; // feedforward ----------------------------------------------------------------------------------------------------------------------------------------------------------1q
-    slot0.kS = Constants.Intake.kS;
+    spinSlot0.kV = Constants.Intake.Spin_kV; // feedforward ----------------------------------------------------------------------------------------------------------------------------------------------------------1q
+    spinSlot0.kS = Constants.Intake.Spin_kS;
     // intakeAngle.getConfigurator().apply(slot0);
-    intakeSpin.getConfigurator().apply(slot0);
+    intakeSpin.getConfigurator().apply(spinSlot0);
 
+    Slot0Configs angleSlot0 = new Slot0Configs();
+    angleSlot0.kP = Constants.Intake.Angle_kP;
+    angleSlot0.kI = Constants.Intake.Angle_kI;
+    angleSlot0.kD = Constants.Intake.Angle_kD;
+
+    angleSlot0.kV = Constants.Intake.Angle_kV;
+    angleSlot0.kS = Constants.Intake.Angle_kS;
+
+    intakeAngle.getConfigurator().apply(angleSlot0);
   }
 
   public void setIntakeSpeed(double speed) {
