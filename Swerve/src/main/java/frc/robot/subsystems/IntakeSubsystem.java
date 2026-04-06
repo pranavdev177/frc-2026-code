@@ -12,6 +12,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.RelativeEncoder;
@@ -33,6 +35,7 @@ public class IntakeSubsystem extends SubsystemBase {
   private TalonFX intakeSpin = new TalonFX(51);
   private TalonFX intakeAngle = new TalonFX(52);
   private VelocityVoltage velocityRequest = new VelocityVoltage(0);
+  private PositionVoltage positionRequest = new PositionVoltage(0).withSlot(0);
 
   //private SparkClosedLoopController pidController;
   //public RelativeEncoder intakeAngleEncoder;
@@ -83,6 +86,8 @@ public class IntakeSubsystem extends SubsystemBase {
 
     angleSlot0.kV = Constants.Intake.Angle_kV;
     angleSlot0.kS = Constants.Intake.Angle_kS;
+    angleSlot0.kG = Constants.Intake.Angle_kG;
+    angleSlot0.GravityType = GravityTypeValue.Arm_Cosine;
 
     intakeAngle.getConfigurator().apply(angleSlot0);
   }
@@ -103,12 +108,18 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   public void setIntakeAngleSpeed(double speed) {
-    //intakeAngle.set(speed);
+    intakeAngle.set(speed);
   }
 
   public void setIntakeAngle(double angle) {
+    intakeAngle.setPosition(angle);
     //intakeSpin.set(0);
     //pidController.setSetpoint(angle, ControlType.kPosition);
+  }
+
+  public void lockAngle(double angle)
+  {
+    intakeAngle.setControl(positionRequest.withPosition(angle));
   }
 
   //#region Unused Code
