@@ -285,13 +285,14 @@ public class RobotContainer {
         // Intake Spin (toggle)
         joystick.leftTrigger().onTrue(
             Commands.runOnce(() -> {
+                intake.setIntakeAngle(0);
                 if (intake.isIntakeActive()) {
                     intake.setIntakeSpeed(0);
                     indexer.setIndexerSpeed(0);
                 } else {
                     intake.setIntakeSpeed(Constants.Intake.INTAKE_SPEED);
                     indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED);
-                    intake.setIntakeAngleSpeed(0);
+                    intake.lockAngle(0);
                 }
             })
         );
