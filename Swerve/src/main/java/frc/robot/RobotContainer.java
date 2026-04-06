@@ -231,6 +231,7 @@ public class RobotContainer {
         return matchTimeLeft - nextThreshold;
     }
 
+
     private void cycleSwerveSpeed() {
         MaxSpeed += Constants.Drive.SPEED_INCREMENT;
 
@@ -290,6 +291,7 @@ public class RobotContainer {
                 } else {
                     intake.setIntakeSpeed(Constants.Intake.INTAKE_SPEED);
                     indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED);
+                    intake.setIntakeAngleSpeed(0);
                 }
             })
         );
@@ -327,6 +329,7 @@ public class RobotContainer {
         //joystick.rightBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
         drivetrain.registerTelemetry(logger::telemeterize);
+
 
         /*  Intake Pivot Down
         joystick.x().whileTrue(
