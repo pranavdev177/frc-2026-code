@@ -455,10 +455,14 @@ public class RobotContainer {
 
             joystick.x().whileTrue(
                 Commands.run(() -> {
-                    intake.setIntakeAngleSpeed(-1);
+                    if (Math.abs(intake.getIntakeAngle()) < 5)
+                        intake.setIntakeAngleSpeed(-1);
+                    else
+                        intake.setIntakeAngleSpeed(0);
+                        intake.lockAngle(5);
                 }, intake)
             ).onFalse(
-                Commands.runOnce(() -> intake.setIntakeAngleSpeed(0), intake)
+                Commands.runOnce(() -> intake.lockAngle(-1), intake)
             );
         }
 

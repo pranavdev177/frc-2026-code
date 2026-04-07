@@ -136,7 +136,7 @@ public class IntakeSubsystem extends SubsystemBase {
     }
     else
     {
-      //intakeAngle.setControl(new NeutralOut());
+      intakeAngle.setControl(new NeutralOut());
     }
   }
   //#region Unused Code
