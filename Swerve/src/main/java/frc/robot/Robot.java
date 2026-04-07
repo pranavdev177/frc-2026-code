@@ -70,38 +70,30 @@ public class Robot extends TimedRobot {
         m_timeAndJoystickReplay.update();
         m_robotContainer.updateSmartDashboard();
 
-
-        if (!cam.isConnected()) {
-            // don't crash, just skip this loop
-            return;
-        }
-
-
         var results = cam.getAllUnreadResults();
         SmartDashboard.putBoolean("Camera Connected", !results.isEmpty());
 
-        ArrayList<PhotonPipelineResult> testResults = new ArrayList<PhotonPipelineResult>();
-        if (Constants.Testing.TESTING) {
-            var photoPipelineResult = new PhotonPipelineResult();
-            testResults.add(photoPipelineResult);
-        } else {
-            testResults.addAll(results);
+        if (!cam.isConnected()) {
+            logMsg("ERROR, CAMERA IS NOT CONNECTED!!!!!");
         }
 
-        for (var result : testResults)
+        for (var result : results)
         {
             if ((result != null) && (result.hasTargets()))
             {
                 var visionEst = camPhotonPoseEstimator.estimateCoprocMultiTagPose(result);
-                logMsg("Vision Estimated Pose - " + visionEst.isEmpty());
+                //logMsg("Vision Estimated Pose - " + visionEst.isEmpty());
                 if (visionEst.isEmpty())
                 {
                     visionEst = camPhotonPoseEstimator.estimateLowestAmbiguityPose(result);
                 }
-                logMsg("Vision Estimated Is Present - " + visionEst.isPresent());
+                //logMsg("Vision Estimated Is Present - " + visionEst.isPresent());
                 if (visionEst.isPresent())
                 {
                     var est = visionEst.get();
+                    
+                    //logMsg("Estimate present " + est);
+                    //logMsg("Yawww " + result.getBestTarget().getYaw());
                     m_robotContainer.drivetrain.addVisionMeasurement(
                         est.estimatedPose.toPose2d(),
                         est.timestampSeconds

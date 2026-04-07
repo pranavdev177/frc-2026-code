@@ -57,6 +57,11 @@ public class LauncherSubsystem extends SubsystemBase {
     return 0.12 + 0.075 * vl;
   }
 
+  public double distToPower(double dist)
+  {
+    return Math.min(0.1179*dist + 0.4250, 1);
+  }
+
   public void setRPM(double rpm) {
       double rps = rpm / 60.0; // TalonFX uses rotations per second
 

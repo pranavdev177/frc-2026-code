@@ -295,7 +295,7 @@ public class RobotContainer {
                 })
             );
 
-            // Shoot (hold)
+            // Shoot (hold)    
             joystick.rightTrigger().whileTrue(
                 Commands.sequence(
                     Commands.runOnce(() -> launcher.setSpeedLauncherMain(LauncherSpeed)),
@@ -303,9 +303,7 @@ public class RobotContainer {
                     Commands.runOnce(() -> launcher.setSpeedLauncherFeed(LauncherSpeed)),
                     Commands.runOnce(() -> indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED))
                 )
-            );
-            
-            joystick.rightTrigger().onFalse(
+            ).onFalse(
                 Commands.sequence(
                     Commands.runOnce(() -> launcher.setSpeedLauncher(0)),
                     Commands.runOnce(() -> indexer.setIndexerSpeed(0))
@@ -344,8 +342,11 @@ public class RobotContainer {
             }, drivetrain));
 
             //Run Launcher
+
             joystick.rightTrigger().whileTrue(
                 Commands.sequence(
+                    Commands.runOnce(() -> drivetrain.applyRequest(() -> brake)),
+                    Commands.runOnce(() -> LauncherSpeed = launcher.distToPower(drivetrain.getHubDist(hubPosition)), launcher),
                     Commands.runOnce(() -> launcher.setSpeedLauncherMain(LauncherSpeed)),
                     Commands.waitUntil(() -> launcher.isAtTargetSpeed(LauncherSpeed)).withTimeout(Constants.Launcher.SPINUP_TIMEOUT_SECONDS),
                     Commands.runOnce(() -> launcher.setSpeedLauncherFeed(LauncherSpeed)),
@@ -354,7 +355,8 @@ public class RobotContainer {
             ).onFalse(
                 Commands.sequence(
                     Commands.runOnce(() -> launcher.setSpeedLauncher(0)),
-                    Commands.runOnce(() -> indexer.setIndexerSpeed(0))
+                    Commands.runOnce(() -> indexer.setIndexerSpeed(0)),
+                    Commands.runOnce(() -> Robot.logMsg(" I am scared....Stopping Launcher"))
                 )
             );
 
@@ -370,10 +372,10 @@ public class RobotContainer {
                     if (intake.isIntakeActive()) {
                         intake.setIntakeSpeed(0);
                         indexer.setIndexerSpeed(0);
-                        //intake.lockAngle(-1);
+                        intake.lockAngle(-1);
                     } else {
                         intake.setIntakeSpeed(Constants.Intake.INTAKE_SPEED);
-                        indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED);
+                        indexer.setIndexerSpeed(-Constants.Indexer.INDEXER_SPEED);
                         intake.lockAngle(0);
                     }
                 })
@@ -381,7 +383,7 @@ public class RobotContainer {
 
             joystick.y().onTrue(    
                 drivetrain.applyRequest(() -> {
-                        return drive.withVelocityX(0.5)
+                        return drive.withVelocityX(-0.51)
                         .withVelocityY(0)
                         .withRotationalRate(0);
             }).withTimeout(1));

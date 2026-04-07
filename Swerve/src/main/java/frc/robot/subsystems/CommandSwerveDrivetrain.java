@@ -30,7 +30,7 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-
+import frc.robot.Robot;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
 
 /**
@@ -67,6 +67,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         Translation2d robotToTarget = hubPosition.minus(getState().Pose.getTranslation());
         double relativeHubDistance = robotToTarget.getY() * robotToTarget.getY() 
                                     + robotToTarget.getX() * robotToTarget.getX();
+        Robot.logMsg("Rel hub dist: " + Math.sqrt(relativeHubDistance));
         return Math.sqrt(relativeHubDistance);
     }
 

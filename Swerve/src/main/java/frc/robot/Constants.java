@@ -52,7 +52,7 @@ public class Constants {
     }
 
     public final class Indexer {
-        public static final double INDEXER_SPEED = -0.5;
+        public static final double INDEXER_SPEED = 0.5;
     }
 
     public final class Match {
