@@ -18,7 +18,7 @@ public class Constants {
         public static final double LONG_SHOOT_AUTO_SPEED = 0.8;
         public static final double SHORT_SHOOT_AUTO_SPEED = 0.6;
 
-        public static final double SPINUP_TIMEOUT_SECONDS = 3.0;
+        public static final double SPINUP_TIMEOUT_SECONDS = 10.0;
 
         // PID
         public static final double kP = 0.1;
@@ -33,7 +33,7 @@ public class Constants {
         public static final double STATOR_CURRENT_LIMIT = 30;
 
         // Speed
-        public static final double INTAKE_SPEED = 1;
+        public static final double INTAKE_SPEED = 0.7;
 
         // Spin PID
         public static final double Spin_kP = 1.0;
@@ -43,7 +43,7 @@ public class Constants {
         public static final double Spin_kS = 0.2;  
         
         //Angle PID
-        public static final double Angle_kP = 2.4;
+        public static final double Angle_kP = 50;
         public static final double Angle_kI = 0.0;
         public static final double Angle_kD = 0.1;
         public static final double Angle_kV = 0.5;
@@ -52,7 +52,7 @@ public class Constants {
     }
 
     public final class Indexer {
-        public static final double INDEXER_SPEED = -1;
+        public static final double INDEXER_SPEED = -0.5;
     }
 
     public final class Match {
@@ -61,7 +61,7 @@ public class Constants {
     }
 
     public final class Testing {
-        public static final boolean PHOTON_TESTING = false;
+        public static final boolean TESTING = true;
         public static final boolean ENABLE_LOGS = true;
     }
 }

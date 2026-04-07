@@ -84,11 +84,18 @@ public class Robot extends TimedRobot {
         m_timeAndJoystickReplay.update();
         m_robotContainer.updateSmartDashboard();
 
+
+        if (!cam.isConnected()) {
+            // don't crash, just skip this loop
+            return;
+        }
+
+
         var results = cam.getAllUnreadResults();
         SmartDashboard.putBoolean("Camera Connected", !results.isEmpty());
 
         ArrayList<PhotonPipelineResult> testResults = new ArrayList<PhotonPipelineResult>();
-        if (Constants.Testing.PHOTON_TESTING) {
+        if (Constants.Testing.TESTING) {
             var photoPipelineResult = new PhotonPipelineResult();
             testResults.add(photoPipelineResult);
         } else {

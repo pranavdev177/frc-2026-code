@@ -251,7 +251,7 @@ public class RobotContainer {
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
 
-        // Movement
+        // MOVEMENT
         drivetrain.setDefaultCommand(
             // Drivetrain will execute this command periodically
             drivetrain.applyRequest(() ->
@@ -268,380 +268,206 @@ public class RobotContainer {
             drivetrain.applyRequest(() -> idle).ignoringDisable(true)
         );
 
-        // Intake Pivot Down
-        joystick.leftBumper().whileTrue(
-            Commands.run(() -> intake.setIntakeAngleSpeed(-1), intake)
-        );
 
-        // Brake
-        joystick.b().whileTrue(drivetrain.applyRequest(() -> brake));
-        
-        // cycle launcher speed 
-        joystick.a().onTrue(
-            Commands.sequence(
-                Commands.runOnce(() -> cycleLauncherSpeed(), launcher)
-            )
-        );
-        
-        // Intake Spin (toggle)
-        joystick.leftTrigger().onTrue(
-            Commands.runOnce(() -> {
-                intake.setIntakeAngle(0);
-                if (intake.isIntakeActive()) {
-                    intake.setIntakeSpeed(0);
-                    indexer.setIndexerSpeed(0);
-                } else {
-                    intake.setIntakeSpeed(Constants.Intake.INTAKE_SPEED);
-                    indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED);
-                    intake.lockAngle(0);
-                }
-            })
-        );
+        if (!Constants.Testing.TESTING)
+        {
 
-        // Shoot (hold)
-        joystick.rightTrigger().whileTrue(
-            Commands.sequence(
-                Commands.runOnce(() -> launcher.setSpeedLauncherMain(LauncherSpeed)),
-                Commands.waitUntil(() -> launcher.isAtTargetSpeed(LauncherSpeed)).withTimeout(Constants.Launcher.SPINUP_TIMEOUT_SECONDS),
-                Commands.runOnce(() -> launcher.setSpeedLauncherFeed(LauncherSpeed)),
-                Commands.runOnce(() -> indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED))
-            )
-        );
-        
-        joystick.rightTrigger().onFalse(
-            Commands.sequence(
-                Commands.runOnce(() -> launcher.setSpeedLauncher(0)),
-                Commands.runOnce(() -> indexer.setIndexerSpeed(0))
-            )
-        );
-        
-        // Cycle Swerve Speed
-        joystick.y().onTrue(
-            Commands.runOnce(() -> cycleSwerveSpeed())
-        );
-
-        joystick.rightStick().whileTrue(new RunCommand(() -> {
-            drivetrain.calculateAutoAimRot(hubPosition, 0.7); // updates targetAngle
-            drivetrain.setControl(
-                autoAimDrive.withVelocityX(-joystick.getLeftY() * MaxSpeed)
-                            .withVelocityY(-joystick.getLeftX() * MaxSpeed)
-                            .withTargetDirection(drivetrain.getTargetAngle())
+            // Intake Pivot Down
+            joystick.leftBumper().whileTrue(
+                Commands.run(() -> intake.setIntakeAngleSpeed(-1), intake)
             );
-        }, drivetrain));
+
+            // Brake
+            joystick.b().whileTrue(drivetrain.applyRequest(() -> brake));
+            
+            // cycle launcher speed 
+            joystick.a().onTrue(
+                Commands.sequence(
+                    Commands.runOnce(() -> cycleLauncherSpeed(), launcher)
+                )
+            );
+            
+            // Intake Spin (toggle)
+            joystick.leftTrigger().onTrue(
+                Commands.runOnce(() -> {
+                    //intake.setIntakeAngle(0);
+                    if (intake.isIntakeActive()) {
+                        intake.setIntakeSpeed(0);
+                        indexer.setIndexerSpeed(0);
+                    } else {
+                        intake.setIntakeSpeed(Constants.Intake.INTAKE_SPEED);
+                        indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED);
+                        intake.lockAngle(0);
+                    }
+                })
+            );
+
+            // Shoot (hold)
+            joystick.rightTrigger().whileTrue(
+                Commands.sequence(
+                    Commands.runOnce(() -> launcher.setSpeedLauncherMain(LauncherSpeed)),
+                    Commands.waitUntil(() -> launcher.isAtTargetSpeed(LauncherSpeed)).withTimeout(Constants.Launcher.SPINUP_TIMEOUT_SECONDS),
+                    Commands.runOnce(() -> launcher.setSpeedLauncherFeed(LauncherSpeed)),
+                    Commands.runOnce(() -> indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED))
+                )
+            );
+            
+            joystick.rightTrigger().onFalse(
+                Commands.sequence(
+                    Commands.runOnce(() -> launcher.setSpeedLauncher(0)),
+                    Commands.runOnce(() -> indexer.setIndexerSpeed(0))
+                )
+            );
+            
+            // Cycle Swerve Speed
+            joystick.y().onTrue(
+                Commands.runOnce(() -> cycleSwerveSpeed())
+            );
 
 
 
-        // Run SysId routines when holding back/start and X/Y.
-        // Note that each routine should be run exactly once in a single log.
-        joystick.back().and(joystick.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-        joystick.back().and(joystick.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-        joystick.start().and(joystick.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-        joystick.start().and(joystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+            // Run SysId routines when holding back/start and X/Y.
+            // Note that each routine should be run exactly once in a single log.
+            joystick.back().and(joystick.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
+            joystick.back().and(joystick.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
+            joystick.start().and(joystick.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
+            joystick.start().and(joystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
-        // Reset the field-centric heading on right bumper press.
-        //joystick.rightBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
+            // Reset the field-centric heading on right bumper press.
+            //joystick.rightBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
+
+            drivetrain.registerTelemetry(logger::telemeterize);
+
+
+            /*  Intake Pivot Down
+            joystick.x().whileTrue(
+                Commands.run(() -> intake.setIntakeAngleSpeed(1), intake)
+            );
+
+            // Intake Clamp (Hold)
+            
+            joystick.x().whileFalse(
+                Commands.run(() -> intake.setIntakeAngleSpeed(1), intake)
+            );
+
+            joystick.x().whileFalse(
+                Commands.run(() -> intake.setIntakeAngleSpeed(1), intake)
+            );
+
+            //joystick.leftTrigger().whileFalse(
+            //    Commands.run(() -> intake.setIntakeSpeed(0))
+            //);
+
+
+            // Launcher Feeder
+            joystick.rightBumper().whileTrue(
+                Commands.sequence(
+                    Commands.runOnce(() -> launcher.setSpeedLauncherFeed(LauncherSpeed)),
+                    Commands.waitSeconds(2),
+                    Commands.runOnce(() -> indexer.setIndexerSpeed(1))
+                )
+            );
+
+            joystick.rightBumper().onFalse(
+                Commands.sequence(
+                    Commands.runOnce(() -> launcher.setSpeedLauncherFeed(0)),
+                    Commands.runOnce(() -> indexer.setIndexerSpeed(0))
+                )
+            ); 
+
+            
+            joystick.rightBumper().whileTrue(
+                drivetrain.applyRequest(() -> {
+                    double vl = launcher.calculateLaunchVelocity(drivetrain, hubPosition);
+
+                    return drive.withVelocityX(-joystick.getLeftY() * MaxSpeed)
+                    .withVelocityY(-joystick.getLeftX() * MaxSpeed)
+                    .withRotationalRate(drivetrain.calculateAutoAimRot(hubPosition, vl));
+                })
+            );
+
+
+            joystick.leftTrigger().onFalse(
+                Commands.sequence(
+                    Commands.runOnce(() -> launcher.setSpeedLauncherFeed(0))
+                    //Commands.runOnce(() -> indexer.setIndexerSpeed(0))
+                )
+            ); 
+    
+            joystick.rightTrigger().and(joystick.rightBumper()).whileTrue(
+                Commands.run(() ->  launcher.setSpeedLauncher(
+                    launcher.launchVelocityToMotorSpeed(launcher.calculateLaunchVelocity(drivetrain, hubPosition))),
+                    launcher)
+            );
+
+            joystick.a().onTrue(
+                Commands.runOnce(() -> indexer.cycleIndexerState(), indexer)
+            );
+            */
+        }
+        else if(Constants.Testing.TESTING)
+        {
+            //AutoAim
+            joystick.rightStick().whileTrue(new RunCommand(() -> {
+                drivetrain.calculateAutoAimRot(hubPosition, 0.7); // updates targetAngle
+                drivetrain.setControl(
+                    autoAimDrive.withVelocityX(-joystick.getLeftY() * MaxSpeed)
+                                .withVelocityY(-joystick.getLeftX() * MaxSpeed)
+                                .withTargetDirection(drivetrain.getTargetAngle())
+                );
+            }, drivetrain));
+
+            //Run Launcher
+            joystick.rightTrigger().whileTrue(
+                Commands.sequence(
+                    Commands.runOnce(() -> launcher.setSpeedLauncherMain(LauncherSpeed)),
+                    Commands.waitUntil(() -> launcher.isAtTargetSpeed(LauncherSpeed)).withTimeout(Constants.Launcher.SPINUP_TIMEOUT_SECONDS),
+                    Commands.runOnce(() -> launcher.setSpeedLauncherFeed(LauncherSpeed)),
+                    Commands.runOnce(() -> indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED))
+                )
+            // ).onFalse(
+            //     Commands.sequence(
+            //         Commands.runOnce(() -> launcher.setSpeedLauncher(0)),
+            //         Commands.runOnce(() -> indexer.setIndexerSpeed(0))
+            //         )
+            );
+
+            // Intake Pivot Down
+            joystick.leftBumper().whileTrue(
+                Commands.run(() -> intake.setIntakeAngleSpeed(-1), intake)
+            );
+
+            // Intake Spin (toggle)
+            joystick.leftTrigger().onTrue(
+                Commands.runOnce(() -> {
+                    //intake.setIntakeAngle(0);
+                    if (intake.isIntakeActive()) {
+                        intake.setIntakeSpeed(0);
+                        indexer.setIndexerSpeed(0);
+                        //intake.lockAngle(-1);
+                    } else {
+                        intake.setIntakeSpeed(Constants.Intake.INTAKE_SPEED);
+                        indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED);
+                        intake.lockAngle(0);
+                    }
+                })
+            );
+
+            joystick.x().whileTrue(
+                Commands.run(() -> {
+                    intake.setIntakeAngleSpeed(-1);
+                }, intake)
+            ).onFalse(
+                Commands.runOnce(() -> intake.setIntakeAngleSpeed(0), intake)
+            );
+        }
 
         drivetrain.registerTelemetry(logger::telemeterize);
-
-
-        /*  Intake Pivot Down
-        joystick.x().whileTrue(
-            Commands.run(() -> intake.setIntakeAngleSpeed(1), intake)
-        );
-
-        // Intake Clamp (Hold)
-        
-        joystick.x().whileFalse(
-            Commands.run(() -> intake.setIntakeAngleSpeed(1), intake)
-        );
-
-        joystick.x().whileFalse(
-            Commands.run(() -> intake.setIntakeAngleSpeed(1), intake)
-        );
-
-        //joystick.leftTrigger().whileFalse(
-        //    Commands.run(() -> intake.setIntakeSpeed(0))
-        //);
-
-
-        // Launcher Feeder
-        joystick.rightBumper().whileTrue(
-            Commands.sequence(
-                Commands.runOnce(() -> launcher.setSpeedLauncherFeed(LauncherSpeed)),
-                Commands.waitSeconds(2),
-                Commands.runOnce(() -> indexer.setIndexerSpeed(1))
-            )
-        );
-
-        joystick.rightBumper().onFalse(
-            Commands.sequence(
-                Commands.runOnce(() -> launcher.setSpeedLauncherFeed(0)),
-                Commands.runOnce(() -> indexer.setIndexerSpeed(0))
-            )
-        ); 
-
-        
-        joystick.rightBumper().whileTrue(
-            drivetrain.applyRequest(() -> {
-                double vl = launcher.calculateLaunchVelocity(drivetrain, hubPosition);
-
-                return drive.withVelocityX(-joystick.getLeftY() * MaxSpeed)
-                .withVelocityY(-joystick.getLeftX() * MaxSpeed)
-                .withRotationalRate(drivetrain.calculateAutoAimRot(hubPosition, vl));
-            })
-        );
-
-
-        joystick.leftTrigger().onFalse(
-            Commands.sequence(
-                Commands.runOnce(() -> launcher.setSpeedLauncherFeed(0))
-                //Commands.runOnce(() -> indexer.setIndexerSpeed(0))
-            )
-        ); 
- 
-        joystick.rightTrigger().and(joystick.rightBumper()).whileTrue(
-            Commands.run(() ->  launcher.setSpeedLauncher(
-                launcher.launchVelocityToMotorSpeed(launcher.calculateLaunchVelocity(drivetrain, hubPosition))),
-                launcher)
-        );
-
-        joystick.a().onTrue(
-            Commands.runOnce(() -> indexer.cycleIndexerState(), indexer)
-        );
-        */
     }
 
     public Command getAutonomousCommand() {
         // Simple drive forward auton
         return new PathPlannerAuto(m_chooser.getSelected());
-        
-        /*String selectedAuto = "Blue Right";
-        final var idle = new SwerveRequest.Idle();
-        switch (selectedAuto) {
-            case "Blue Left":
-                Pose2d bl = new Pose2d(blueLeft, Rotation2d.fromDegrees(0));
-                hubPosition = blueHubPosition;
-                return Commands.sequence(
-                    // Intialize Positions
-                    drivetrain.runOnce(() -> drivetrain.seedFieldCentric(Rotation2d.kZero)),
-                    drivetrain.runOnce(() -> drivetrain.resetPose(bl)),
-
-                    // Auto Aim
-                    drivetrain.applyRequest(() -> {
-                        return drive.withVelocityX(0)
-                        .withVelocityY(0)
-                        .withRotationalRate(drivetrain.calculateAutoAimRot(
-                            hubPosition, launcher.calculateLaunchVelocity(drivetrain, hubPosition)
-                            ));
-                    }).withTimeout(3),
-
-                    // Shoot pre-loaded balls for 12 seconds
-                    launcher.runOnce(() -> launcher.setSpeedLauncherMain(0.75)),
-
-                    drivetrain.applyRequest(() -> {
-                        return drive.withVelocityX(0)
-                        .withVelocityY(0)
-                        .withRotationalRate(0);
-                    }).withTimeout(2),
-
-                    launcher.runOnce(() -> launcher.setSpeedLauncherFeed(0.75)),
-                    
-                    drivetrain.applyRequest(() -> {
-                        return drive.withVelocityX(0)
-                        .withVelocityY(0)
-                        .withRotationalRate(0);
-                    }).withTimeout(12),
-
-                    // Off and idle for the rest of auton
-                    launcher.runOnce(() -> launcher.setSpeedLauncher(0)),
-                    drivetrain.applyRequest(() -> idle)
-                );
-            case "Blue Middle":
-                Pose2d bm = new Pose2d(blueMiddle, Rotation2d.fromDegrees(0));
-                hubPosition = blueHubPosition;
-                return Commands.sequence(
-                    drivetrain.runOnce(() -> drivetrain.seedFieldCentric(Rotation2d.kZero)),
-                    drivetrain.runOnce(() -> drivetrain.resetPose(bm)),
-
-                    // Spin up the launcher for 3 seconds
-                    launcher.runOnce(() -> launcher.setSpeedLauncherMain(0.72)),
-
-                    drivetrain.applyRequest(() -> {
-                        return drive.withVelocityX(0)
-                        .withVelocityY(0)
-                        .withRotationalRate(0);
-                    }).withTimeout(3),
-
-                    // Shoot Balls for 15 seconds
-                    launcher.runOnce(() -> launcher.setSpeedLauncherFeed(0.72)),
-
-                    drivetrain.applyRequest(() -> {
-                        return drive.withVelocityX(0)
-                        .withVelocityY(0)
-                        .withRotationalRate(0);
-                    }).withTimeout(15),
-
-                    // Off and idle for the rest of auton
-                    launcher.runOnce(() -> launcher.setSpeedLauncher(0)),
-                    drivetrain.applyRequest(() -> idle)
-                );
-            case "Blue Right":
-                Pose2d br = new Pose2d(blueRight, Rotation2d.fromDegrees(0));
-                hubPosition = blueHubPosition;
-                return Commands.sequence(
-                    // Initialize position
-                    drivetrain.runOnce(() -> drivetrain.seedFieldCentric(Rotation2d.kZero)),
-                    drivetrain.runOnce(() -> drivetrain.resetPose(br)),
-
-                    // Go back to human output in 2 seconds
-                    drivetrain.applyRequest(() -> {
-                        return drive.withVelocityX(1.5)
-                        .withVelocityY(0)
-                        .withRotationalRate(0);
-                    }).withTimeout(2),
-                    
-                    // Spin up the launcher while the robot auto aims for 3 seconds
-                    launcher.runOnce(() -> launcher.setSpeedLauncherMain(0.92)),
-
-                    drivetrain.applyRequest(() -> {
-                        return drive.withVelocityX(0)
-                        .withVelocityY(0)
-                        .withRotationalRate(drivetrain.calculateAutoAimRot(
-                            hubPosition, launcher.calculateLaunchVelocity(drivetrain, hubPosition)
-                            ));
-                    }).withTimeout(3),
-
-                    launcher.runOnce(() -> launcher.setSpeedLauncherFeed(0.92)),
-
-                    // Humans dump balls in to the hopper while the bot is auto-aimed for 12 seconds
-                    drivetrain.applyRequest(() -> {
-                        return drive.withVelocityX(0)
-                        .withVelocityY(0)
-                        .withRotationalRate(0);
-                    }).withTimeout(12),
-
-                    // Off and idle for the rest of auton
-                    launcher.runOnce(() -> launcher.setSpeedLauncher(0)),
-                    drivetrain.applyRequest(() -> idle)
-                );
-            case "Red Left":
-                Pose2d rl = new Pose2d(redLeft, Rotation2d.fromDegrees(180));
-                hubPosition = redHubPosition;
-                return Commands.sequence(
-                    drivetrain.runOnce(() -> drivetrain.seedFieldCentric(Rotation2d.kZero)),
-                    drivetrain.runOnce(() -> drivetrain.resetPose(rl)),
-                    drivetrain.applyRequest(() ->
-                        drive.withVelocityX(0.5)
-                            .withVelocityY(0)
-                            .withRotationalRate(0)
-                    )
-                    .withTimeout(5.0),
-                    drivetrain.applyRequest(() -> idle)
-                );
-            case "Red Middle":
-                Pose2d rm = new Pose2d(redMiddle, Rotation2d.fromDegrees(180));
-                hubPosition = redHubPosition;
-                return Commands.sequence(
-                    drivetrain.runOnce(() -> drivetrain.seedFieldCentric(Rotation2d.kZero)),
-                    drivetrain.runOnce(() -> drivetrain.resetPose(rm)),
-                    drivetrain.applyRequest(() ->
-                        drive.withVelocityX(0.5)
-                            .withVelocityY(0)
-                            .withRotationalRate(0)
-                    )
-                    .withTimeout(5.0),
-                    drivetrain.applyRequest(() -> idle)
-                );
-            case "Red Right":
-                Pose2d rr = new Pose2d(redRight, Rotation2d.fromDegrees(180));
-                hubPosition = redHubPosition;
-                return Commands.sequence(
-                    drivetrain.runOnce(() -> drivetrain.seedFieldCentric(Rotation2d.kZero)),
-                    drivetrain.runOnce(() -> drivetrain.resetPose(rr)),
-
-                    // Jerk to release intake
-                    //intake.runOnce(() -> intake.setIntakeAngleSpeed(1)),
-                    drivetrain.applyRequest(() ->
-                        drive.withVelocityX(-1.5)
-                            .withVelocityY(0)
-                            .withRotationalRate(0)
-                    )
-                    .withTimeout(1.0),
-                    drivetrain.applyRequest(() ->
-                        drive.withVelocityX(1.5)
-                            .withVelocityY(0)
-                            .withRotationalRate(0)
-                    )
-                    .withTimeout(1.0),
-                    //intake.runOnce(() -> intake.setIntakeAngleSpeed(0)),
-                    
-                    // Shoot preloaded balls
-                    //indexer.runOnce(() -> indexer.setIndexerSpeed(1)),
-
-                    drivetrain.applyRequest(() -> {
-                        return drive.withVelocityX(0d)
-                        .withVelocityY(0)
-                        .withRotationalRate(drivetrain.calculateAutoAimRot(
-                            hubPosition, launcher.calculateLaunchVelocity(drivetrain, hubPosition)
-                            ));
-                    }).withTimeout(3),
-
-                    launcher.runOnce(() -> launcher.setSpeedLauncher(
-                            launcher.launchVelocityToMotorSpeed(
-                                launcher.calculateLaunchVelocity(drivetrain, blueHubPosition)
-                            )
-                        )
-                    ),
-                    
-                    drivetrain.applyRequest(() -> {
-                        return drive.withVelocityX(0)
-                        .withVelocityY(0)
-                        .withRotationalRate(0);
-                    }).withTimeout(6),
-
-                    launcher.runOnce(() -> launcher.setSpeedLauncher(0)),
-
-                    // Rotate to face forward
-                    drivetrain.applyRequest(() -> {
-                        return drive.withVelocityX(0)
-                        .withVelocityY(0)
-                        .withRotationalRate(-1.047);
-                    }).withTimeout(1),
-
-                    // Clear the trench
-                    drivetrain.applyRequest(() -> {
-                        return drive.withVelocityX(1.75)
-                        .withVelocityY(0)
-                        .withRotationalRate(0);
-                    }).withTimeout(2),
-
-                    // Rotate toward balls
-                    drivetrain.applyRequest(() -> {
-                        return drive.withVelocityX(0)
-                        .withVelocityY(0)
-                        .withRotationalRate(-1.571);
-                    }).withTimeout(1),
-
-                    // Turn on intake, clamp it, and move into balls
-                    //intake.runOnce(() -> intake.setIntakeAngleSpeed(0.5)),
-                    //intake.runOnce(() -> intake.setIntakeSpeed(1)),
-                    drivetrain.applyRequest(() -> {
-                        return drive.withVelocityX(0)
-                        .withVelocityY(1.6855)
-                        .withRotationalRate(0);
-                    }).withTimeout(2),
-
-                    // Off and idle for the rest of auton
-                    //intake.runOnce(() -> intake.setIntakeAngleSpeed(0)),
-                    //intake.runOnce(() -> intake.setIntakeSpeed(0)),
-                    drivetrain.applyRequest(() -> idle)
-                );
-            case "None":
-                drivetrain.runOnce(() -> drivetrain.seedFieldCentric(Rotation2d.kZero));
-                return drivetrain.applyRequest(() -> idle);
-            default:
-                return null;
-        } */
     } 
     
 }

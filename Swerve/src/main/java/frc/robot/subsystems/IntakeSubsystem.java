@@ -6,8 +6,11 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+import static edu.wpi.first.units.Units.Rotations;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
@@ -15,7 +18,7 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.controls.NeutralOut;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.ControlType;
@@ -90,6 +93,9 @@ public class IntakeSubsystem extends SubsystemBase {
     angleSlot0.GravityType = GravityTypeValue.Arm_Cosine;
 
     intakeAngle.getConfigurator().apply(angleSlot0);
+
+    intakeAngle.setPosition(0);
+    
   }
 
   public void setIntakeSpeed(double speed) {
@@ -117,11 +123,22 @@ public class IntakeSubsystem extends SubsystemBase {
     //pidController.setSetpoint(angle, ControlType.kPosition);
   }
 
-  public void lockAngle(double angle)
+  public double getIntakeAngle()
   {
-    intakeAngle.setControl(positionRequest.withPosition(angle));
+    return intakeAngle.getPosition().getValue().in(Rotations) * 360;
   }
 
+  public void lockAngle(double angle)
+  {
+    if (angle >= 0)
+    {
+      intakeAngle.setControl(positionRequest.withPosition(angle));
+    }
+    else
+    {
+      //intakeAngle.setControl(new NeutralOut());
+    }
+  }
   //#region Unused Code
   /**
    * Example command factory method.
