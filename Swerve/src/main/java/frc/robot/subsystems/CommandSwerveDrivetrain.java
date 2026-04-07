@@ -62,6 +62,14 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private double offsetAngle;
     public final double launcherAngle = 1.317724;
 
+    public double getHubDist(Translation2d hubPosition)
+    {
+        Translation2d robotToTarget = hubPosition.minus(getState().Pose.getTranslation());
+        double relativeHubDistance = robotToTarget.getY() * robotToTarget.getY() 
+                                    + robotToTarget.getX() * robotToTarget.getX();
+        return Math.sqrt(relativeHubDistance);
+    }
+
     public double calculateAutoAimRot(Translation2d hubPosition, double launchVelocity) {
         Translation2d robotToTarget = hubPosition.minus(getState().Pose.getTranslation());
         double relativeHubDistance = robotToTarget.getY() * robotToTarget.getY() 
