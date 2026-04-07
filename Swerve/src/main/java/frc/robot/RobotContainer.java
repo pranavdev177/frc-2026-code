@@ -280,13 +280,6 @@ public class RobotContainer {
             // Brake
             joystick.b().whileTrue(drivetrain.applyRequest(() -> brake));
             
-            // cycle launcher speed 
-            joystick.a().onTrue(
-                Commands.sequence(
-                    Commands.runOnce(() -> cycleLauncherSpeed(), launcher)
-                )
-            );
-            
             // Intake Spin (toggle)
             joystick.leftTrigger().onTrue(
                 Commands.runOnce(() -> {
@@ -337,6 +330,13 @@ public class RobotContainer {
         }
         else if(Constants.Testing.TESTING)
         {
+            // cycle launcher speed 
+            joystick.a().onTrue(
+                Commands.sequence(
+                    Commands.runOnce(() -> cycleLauncherSpeed(), launcher)
+                )
+            );
+
             //AutoAim
             joystick.rightStick().whileTrue(new RunCommand(() -> {
                 drivetrain.calculateAutoAimRot(hubPosition, 0.7); // updates targetAngle
@@ -359,7 +359,7 @@ public class RobotContainer {
                 Commands.sequence(
                     Commands.runOnce(() -> launcher.setSpeedLauncher(0)),
                     Commands.runOnce(() -> indexer.setIndexerSpeed(0))
-                    )
+                )
             );
 
             // Intake Pivot Down
@@ -421,5 +421,4 @@ public class RobotContainer {
         // Simple drive forward auton
         return new PathPlannerAuto(m_chooser.getSelected());
     } 
-    
 }
