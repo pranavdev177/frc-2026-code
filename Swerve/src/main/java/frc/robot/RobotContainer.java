@@ -328,14 +328,10 @@ public class RobotContainer {
 
             drivetrain.registerTelemetry(logger::telemeterize);
         }
-        else if(Constants.Testing.TESTING)
+        else
         {
             // cycle launcher speed 
-            joystick.a().onTrue(
-                Commands.sequence(
-                    Commands.runOnce(() -> cycleLauncherSpeed(), launcher)
-                )
-            );
+            joystick.a().onTrue(Commands.runOnce(() -> cycleLauncherSpeed(), launcher));
 
             //AutoAim
             joystick.rightStick().whileTrue(new RunCommand(() -> {
@@ -383,6 +379,13 @@ public class RobotContainer {
                 })
             );
 
+            joystick.y().onTrue(    
+                drivetrain.applyRequest(() -> {
+                        return drive.withVelocityX(0.5)
+                        .withVelocityY(0)
+                        .withRotationalRate(0);
+            }).withTimeout(1));
+
             joystick.x().whileTrue(
                 Commands.run(() -> {
                     if (Math.abs(intake.getIntakeAngle()) < 5)
@@ -412,9 +415,8 @@ public class RobotContainer {
                     launcher)
             );
             */
+            drivetrain.registerTelemetry(logger::telemeterize);
         }
-
-        drivetrain.registerTelemetry(logger::telemeterize);
     }
 
     public Command getAutonomousCommand() {
