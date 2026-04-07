@@ -31,27 +31,6 @@ public class IndexerSubsystem extends SubsystemBase {
   public boolean isIndexerActive() {
     return Math.abs(indexer.get()) > 0.05;
   }
-
-  //#region Unused Code
-
-  public void cycleIndexerState() {
-    indexerState += 1;
-    indexerState %= 3;
-    switch (indexerState) {
-    case 0:
-        indexer.set(0);
-        break;
-    case 1:
-        indexer.set(1);
-        break;
-    case 2:
-        indexer.set(-1);
-        break;
-    default:
-        indexer.set(0);
-        break;
-    }
-  }
   
   /**
    * Example command factory method.

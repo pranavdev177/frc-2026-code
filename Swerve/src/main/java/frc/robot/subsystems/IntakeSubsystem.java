@@ -49,28 +49,6 @@ public class IntakeSubsystem extends SubsystemBase {
     configs.StatorCurrentLimitEnable = true;
     configs.StatorCurrentLimit = Constants.Intake.STATOR_CURRENT_LIMIT;
     intakeSpin.getConfigurator().apply(configs);
-    /*
-    // Reset Encoder
-    SparkMaxConfig config = new SparkMaxConfig();
-
-    config.encoder.positionConversionFactor(2.4);
-
-    // Changed 0.5 to 1
-    config.closedLoop.pid(5, 0, 4);
-
-    config.idleMode(IdleMode.kBrake);
-
-    intakeAngle.configure(
-        config,
-        ResetMode.kNoResetSafeParameters,
-        PersistMode.kNoPersistParameters
-    );
-
-    intakeAngleEncoder = intakeAngle.getEncoder();
-    pidController = intakeAngle.getClosedLoopController();
-
-    intakeAngleEncoder.setPosition(0);
-     */
 
     Slot0Configs spinSlot0 = new Slot0Configs();
     spinSlot0.kP = Constants.Intake.Spin_kP;
@@ -100,13 +78,6 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public void setIntakeSpeed(double speed) {
     intakeSpin.set(-speed);
-    /* 
-    if (speed > 0) {
-      intakeAngle.set(0.5);
-    } else {
-      intakeAngle.set(0);
-    }
-    */
   }
 
   public boolean isIntakeActive() {
@@ -119,8 +90,6 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public void setIntakeAngle(double angle) {
     intakeAngle.setPosition(angle);
-    //intakeSpin.set(0);
-    //pidController.setSetpoint(angle, ControlType.kPosition);
   }
 
   public double getIntakeAngle()

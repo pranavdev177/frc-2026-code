@@ -40,17 +40,8 @@ public class Robot extends TimedRobot {
         new Translation3d(13.75, 1.0625, 2.25),
         new Rotation3d(0,  0.821464, 0)
     );
- 
-    //public static final Transform3d kRobotToRightCam = new Transform3d(
-    //    new Translation3d(0.324769, -0.335885, 0.182352), new Rotation3d(0, 0.821464, -0.819854)
-    //);
-    //public static final Transform3d kRobotToLeftCam = new Transform3d(
-    //    new Translation3d(0.324769, 0.335885, 0.182352), new Rotation3d(0, 0.821464, 0.819854)
-    //);
 
     private PhotonPoseEstimator camPhotonPoseEstimator = new PhotonPoseEstimator(kTagLayout, kRobotToCam);
-    //private PhotonPoseEstimator rightPhotonPoseEstimator = new PhotonPoseEstimator(kTagLayout, kRobotToRightCam);
-    //private PhotonPoseEstimator leftPhotonPoseEstimator = new PhotonPoseEstimator(kTagLayout, kRobotToLeftCam);
 
     private final SendableChooser<String> autoChooser = new SendableChooser<>();
 
@@ -67,11 +58,6 @@ public class Robot extends TimedRobot {
         m_robotContainer = new RobotContainer();
         m_robotContainer.drivetrain.seedFieldCentric();
         pdh.setSwitchableChannel(true);
-
-        /*SmartDashboard.putStringArray(
-            "Auto List",
-            new String[] {"Blue Left", "Blue Middle", "Blue Right", "Right Left", "Right Middle", "Right Right", "None"}
-        );*/
     }
 
     public static void logMsg(String msg) {
@@ -107,12 +93,12 @@ public class Robot extends TimedRobot {
             if ((result != null) && (result.hasTargets()))
             {
                 var visionEst = camPhotonPoseEstimator.estimateCoprocMultiTagPose(result);
-                logMsg("Vision Estimated Pose - " + visionEst.isEmpty() );
+                logMsg("Vision Estimated Pose - " + visionEst.isEmpty());
                 if (visionEst.isEmpty())
                 {
                     visionEst = camPhotonPoseEstimator.estimateLowestAmbiguityPose(result);
                 }
-                logMsg("Vision Estimated Is Present - " + visionEst.isPresent() );
+                logMsg("Vision Estimated Is Present - " + visionEst.isPresent());
                 if (visionEst.isPresent())
                 {
                     var est = visionEst.get();
@@ -123,43 +109,6 @@ public class Robot extends TimedRobot {
                 }
             }
         }
-
-        /* 
-        var rResults = rightCamera.getAllUnreadResults();
-        for (var result : rResults) {
-            if ((result != null) && (result.hasTargets())) {
-                var rightVisionEst = rightPhotonPoseEstimator.estimateCoprocMultiTagPose(result);
-                if (rightVisionEst.isEmpty()) {
-                    rightVisionEst = rightPhotonPoseEstimator.estimateLowestAmbiguityPose(result);
-                }
-                if (rightVisionEst.isPresent()) {
-                    var est = rightVisionEst.get();
-                    m_robotContainer.drivetrain.addVisionMeasurement(
-                        est.estimatedPose.toPose2d(),
-                        est.timestampSeconds
-                    );
-                }
-            }
-        }
-
-        var lResults = leftCamera.getAllUnreadResults();
-        for (var result : lResults) {
-            if ((result != null) && (result.hasTargets())) {
-                var leftVisionEst = leftPhotonPoseEstimator.estimateCoprocMultiTagPose(result);
-                if (leftVisionEst.isEmpty()) {
-                    leftVisionEst = leftPhotonPoseEstimator.estimateLowestAmbiguityPose(result);
-                }
-                if (leftVisionEst.isPresent()) {
-                    var est = leftVisionEst.get();
-                    m_robotContainer.drivetrain.addVisionMeasurement(
-                        est.estimatedPose.toPose2d(),
-                        est.timestampSeconds
-                    );
-                }
-            }
-        }
-        */
-
         CommandScheduler.getInstance().run(); 
     }
 
@@ -195,11 +144,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
-        /*
-        m_robotContainer.drivetrain.seedFieldCentric();
-        Pose2d initial = new Pose2d(m_robotContainer.redRight, Rotation2d.fromDegrees(180));
-        m_robotContainer.drivetrain.resetPose(initial);
-         */
+
         if (m_autonomousCommand != null) {
             CommandScheduler.getInstance().cancel(m_autonomousCommand);
         }

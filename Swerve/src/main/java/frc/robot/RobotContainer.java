@@ -333,77 +333,7 @@ public class RobotContainer {
             joystick.start().and(joystick.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
             joystick.start().and(joystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
-            // Reset the field-centric heading on right bumper press.
-            //joystick.rightBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
-
             drivetrain.registerTelemetry(logger::telemeterize);
-
-
-            /*  Intake Pivot Down
-            joystick.x().whileTrue(
-                Commands.run(() -> intake.setIntakeAngleSpeed(1), intake)
-            );
-
-            // Intake Clamp (Hold)
-            
-            joystick.x().whileFalse(
-                Commands.run(() -> intake.setIntakeAngleSpeed(1), intake)
-            );
-
-            joystick.x().whileFalse(
-                Commands.run(() -> intake.setIntakeAngleSpeed(1), intake)
-            );
-
-            //joystick.leftTrigger().whileFalse(
-            //    Commands.run(() -> intake.setIntakeSpeed(0))
-            //);
-
-
-            // Launcher Feeder
-            joystick.rightBumper().whileTrue(
-                Commands.sequence(
-                    Commands.runOnce(() -> launcher.setSpeedLauncherFeed(LauncherSpeed)),
-                    Commands.waitSeconds(2),
-                    Commands.runOnce(() -> indexer.setIndexerSpeed(1))
-                )
-            );
-
-            joystick.rightBumper().onFalse(
-                Commands.sequence(
-                    Commands.runOnce(() -> launcher.setSpeedLauncherFeed(0)),
-                    Commands.runOnce(() -> indexer.setIndexerSpeed(0))
-                )
-            ); 
-
-            
-            joystick.rightBumper().whileTrue(
-                drivetrain.applyRequest(() -> {
-                    double vl = launcher.calculateLaunchVelocity(drivetrain, hubPosition);
-
-                    return drive.withVelocityX(-joystick.getLeftY() * MaxSpeed)
-                    .withVelocityY(-joystick.getLeftX() * MaxSpeed)
-                    .withRotationalRate(drivetrain.calculateAutoAimRot(hubPosition, vl));
-                })
-            );
-
-
-            joystick.leftTrigger().onFalse(
-                Commands.sequence(
-                    Commands.runOnce(() -> launcher.setSpeedLauncherFeed(0))
-                    //Commands.runOnce(() -> indexer.setIndexerSpeed(0))
-                )
-            ); 
-    
-            joystick.rightTrigger().and(joystick.rightBumper()).whileTrue(
-                Commands.run(() ->  launcher.setSpeedLauncher(
-                    launcher.launchVelocityToMotorSpeed(launcher.calculateLaunchVelocity(drivetrain, hubPosition))),
-                    launcher)
-            );
-
-            joystick.a().onTrue(
-                Commands.runOnce(() -> indexer.cycleIndexerState(), indexer)
-            );
-            */
         }
         else if(Constants.Testing.TESTING)
         {
@@ -425,11 +355,11 @@ public class RobotContainer {
                     Commands.runOnce(() -> launcher.setSpeedLauncherFeed(LauncherSpeed)),
                     Commands.runOnce(() -> indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED))
                 )
-            // ).onFalse(
-            //     Commands.sequence(
-            //         Commands.runOnce(() -> launcher.setSpeedLauncher(0)),
-            //         Commands.runOnce(() -> indexer.setIndexerSpeed(0))
-            //         )
+            ).onFalse(
+                Commands.sequence(
+                    Commands.runOnce(() -> launcher.setSpeedLauncher(0)),
+                    Commands.runOnce(() -> indexer.setIndexerSpeed(0))
+                    )
             );
 
             // Intake Pivot Down
@@ -464,6 +394,24 @@ public class RobotContainer {
             ).onFalse(
                 Commands.runOnce(() -> intake.lockAngle(-1), intake)
             );
+
+            /*
+            joystick.rightBumper().whileTrue(
+                drivetrain.applyRequest(() -> {
+                    double vl = launcher.calculateLaunchVelocity(drivetrain, hubPosition);
+
+                    return drive.withVelocityX(-joystick.getLeftY() * MaxSpeed)
+                    .withVelocityY(-joystick.getLeftX() * MaxSpeed)
+                    .withRotationalRate(drivetrain.calculateAutoAimRot(hubPosition, vl));
+                })
+            );
+    
+            joystick.rightTrigger().and(joystick.rightBumper()).whileTrue(
+                Commands.run(() -> launcher.setSpeedLauncher(
+                    launcher.launchVelocityToMotorSpeed(launcher.calculateLaunchVelocity(drivetrain, hubPosition))),
+                    launcher)
+            );
+            */
         }
 
         drivetrain.registerTelemetry(logger::telemeterize);
