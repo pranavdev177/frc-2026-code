@@ -57,7 +57,7 @@ public class RobotContainer {
             .withDriveRequestType(DriveRequestType.Velocity); // Use open-loop control for drive motors
     private final SwerveRequest.FieldCentricFacingAngle autoAimDrive = new SwerveRequest.FieldCentricFacingAngle()
             .withDeadband(MaxSpeed * Constants.Drive.DEADBAND_PERCENT).withRotationalDeadband(MaxAngularRate * Constants.Drive.DEADBAND_PERCENT) // Add a 10% deadband
-            .withDriveRequestType(DriveRequestType.Velocity).withHeadingPID(5, 0.1, 0.7);
+            .withDriveRequestType(DriveRequestType.Velocity).withHeadingPID(3, 0.0, 0.1);
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
@@ -332,12 +332,13 @@ public class RobotContainer {
             joystick.a().onTrue(Commands.runOnce(() -> cycleLauncherSpeed(), launcher));
 
             //AutoAim
-            joystick.rightStick().whileTrue(new RunCommand(() -> {
+            joystick.rightBumper().whileTrue(new RunCommand(() -> {
                 drivetrain.calculateAutoAimRot(hubPosition, 0.7); // updates targetAngle
                 drivetrain.setControl(
                     autoAimDrive.withVelocityX(-joystick.getLeftY() * MaxSpeed)
                                 .withVelocityY(-joystick.getLeftX() * MaxSpeed)
                                 .withTargetDirection(drivetrain.getTargetAngle())
+                    
                 );
             }, drivetrain));
 
@@ -375,7 +376,7 @@ public class RobotContainer {
                         intake.lockAngle(-1);
                     } else {
                         intake.setIntakeSpeed(Constants.Intake.INTAKE_SPEED);
-                        indexer.setIndexerSpeed(-Constants.Indexer.INDEXER_SPEED);
+                        indexer.setIndexerSpeed(0);
                         intake.lockAngle(0);
                     }
                 })

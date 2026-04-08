@@ -37,7 +37,8 @@ public class Robot extends TimedRobot {
     public static final AprilTagFieldLayout kTagLayout = AprilTagFieldLayout
                                     .loadField(AprilTagFields.kDefaultField);
     public static final Transform3d kRobotToCam = new Transform3d(
-        new Translation3d(13.75, 1.0625, 2.25),
+        //new Translation3d(13.75, 1.0625, 2.25),
+        new Translation3d(0.349, 0.026, 0.057),
         new Rotation3d(0,  0.821464, 0)
     );
 
@@ -74,7 +75,7 @@ public class Robot extends TimedRobot {
         SmartDashboard.putBoolean("Camera Connected", !results.isEmpty());
 
         if (!cam.isConnected()) {
-            logMsg("ERROR, CAMERA IS NOT CONNECTED!!!!!");
+            logMsg("WARNING, CAMERA IS NOT CONNECTED!!!!!");
         }
 
         for (var result : results)
@@ -117,8 +118,8 @@ public class Robot extends TimedRobot {
     public void autonomousInit() {
         Rotation2d startingAngle = DriverStation.getAlliance()
             .filter(a -> a == DriverStation.Alliance.Red)
-            .map(a -> Rotation2d.fromDegrees(180))
-            .orElse(Rotation2d.kZero);
+            .map(a -> Rotation2d.kZero)
+            .orElse(Rotation2d.k180deg);
 
         m_robotContainer.drivetrain.seedFieldCentric(startingAngle);
 
@@ -143,8 +144,8 @@ public class Robot extends TimedRobot {
 
         Rotation2d startingAngle = DriverStation.getAlliance()
             .filter(a -> a == DriverStation.Alliance.Red)
-            .map(a -> Rotation2d.fromDegrees(180))
-            .orElse(Rotation2d.kZero);
+            .map(a -> Rotation2d.kZero)
+            .orElse(Rotation2d.k180deg);
 
         m_robotContainer.drivetrain.seedFieldCentric(startingAngle);
     }
