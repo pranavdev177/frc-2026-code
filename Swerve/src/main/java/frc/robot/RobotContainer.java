@@ -322,7 +322,7 @@ public class RobotContainer {
                     } else {
                         intake.setIntakeSpeed(Constants.Intake.INTAKE_SPEED);
                         indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED);
-                        intake.lockAngle(0);
+                        //intake.lockAngle(0);
                     }
                 })
             );
@@ -449,11 +449,11 @@ public class RobotContainer {
                         intake.setIntakeAngleSpeed(-1);
                     else
                         intake.setIntakeAngleSpeed(0);
-                        intake.lockAngle(5);
+                        //intake.lockAngle(5);
                 }, intake)
-            ).onFalse(
+            );/* .onFalse(
                 Commands.runOnce(() -> intake.lockAngle(-1), intake)
-            );
+            );*/
 
             /*
             joystick.rightBumper().whileTrue(
