@@ -55,6 +55,8 @@ public class RobotContainer {
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
             .withDeadband(MaxSpeed * Constants.Drive.DEADBAND_PERCENT).withRotationalDeadband(MaxAngularRate * Constants.Drive.DEADBAND_PERCENT) // Add a 10% deadband
             .withDriveRequestType(DriveRequestType.Velocity); // Use open-loop control for drive motors
+
+            //Fix PID for drivetrain on right bumper press
     private final SwerveRequest.FieldCentricFacingAngle autoAimDrive = new SwerveRequest.FieldCentricFacingAngle()
             .withDeadband(MaxSpeed * Constants.Drive.DEADBAND_PERCENT).withRotationalDeadband(MaxAngularRate * Constants.Drive.DEADBAND_PERCENT) // Add a 10% deadband
             .withDriveRequestType(DriveRequestType.Velocity).withHeadingPID(3, 0.0, 0.1);
@@ -326,7 +328,7 @@ public class RobotContainer {
 
             drivetrain.registerTelemetry(logger::telemeterize);
         }
-        else
+        else if (Constants.Testing.TESTING)
         {
             // cycle launcher speed 
             joystick.a().onTrue(Commands.runOnce(() -> cycleLauncherSpeed(), launcher));
