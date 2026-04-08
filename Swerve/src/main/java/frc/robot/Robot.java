@@ -14,6 +14,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
@@ -59,6 +60,8 @@ public class Robot extends TimedRobot {
         m_robotContainer = new RobotContainer();
         m_robotContainer.drivetrain.seedFieldCentric();
         pdh.setSwitchableChannel(true);
+
+        PortForwarder.add(1182, "10.111.74.11", 1182);
     }
 
     public static void logMsg(String msg) {
@@ -98,7 +101,7 @@ public class Robot extends TimedRobot {
                         logMsg("Camera is blind");
                         return; // two possible poses too similar, can't trust it
                     }
-                    
+
                     //logMsg("Estimate present " + est);
                     //logMsg("Yawww " + result.getBestTarget().getYaw());
                     m_robotContainer.drivetrain.addVisionMeasurement(

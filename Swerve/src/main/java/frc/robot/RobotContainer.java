@@ -15,6 +15,7 @@ import com.pathplanner.lib.events.EventTrigger;
 import com.pathplanner.lib.path.EventMarker;
 import com.pathplanner.lib.path.PathConstraints;
 
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
@@ -418,9 +419,8 @@ public class RobotContainer {
             );
 
             // Intake Pivot Down
-            joystick.leftBumper().whileTrue(
-                Commands.run(() -> intake.setIntakeAngleSpeed(-1), intake)
-            );
+            joystick.leftBumper().whileTrue(Commands.run(() -> intake.setIntakeAngleSpeed(0.1), intake))
+            .onFalse(Commands.runOnce(() -> intake.setIntakeAngleSpeed(0)));
 
             // Intake Spin (toggle)
             joystick.leftTrigger().onTrue(
