@@ -115,10 +115,10 @@ public class RobotContainer {
     }
 
     private void setupPathplannerCommands() {
-        NamedCommands.registerCommand("ShootFuel", ShootFuel(5, Constants.Launcher.SHORT_SHOOT_AUTO_SPEED));
-        NamedCommands.registerCommand("ShootFuelFar", ShootFuel(5, Constants.Launcher.LONG_SHOOT_AUTO_SPEED));
-        NamedCommands.registerCommand("ShootFuelKeepingOn", ShootFuelKeepingOn(3, Constants.Launcher.SHORT_SHOOT_AUTO_SPEED));
-        NamedCommands.registerCommand("ShootFuelLong", ShootFuel(8, Constants.Launcher.LONG_SHOOT_AUTO_SPEED));
+        NamedCommands.registerCommand("ShootFuel", ShootFuel(5, launcher.distToPower(drivetrain.getHubDist(hubPosition))));
+        NamedCommands.registerCommand("ShootFuelFar", ShootFuel(5, launcher.distToPower(drivetrain.getHubDist(hubPosition))));
+        NamedCommands.registerCommand("ShootFuelKeepingOn", ShootFuelKeepingOn(3, launcher.distToPower(drivetrain.getHubDist(hubPosition))));
+        NamedCommands.registerCommand("ShootFuelLong", ShootFuel(8, launcher.distToPower(drivetrain.getHubDist(hubPosition))));
         NamedCommands.registerCommand("TurnOnIntake",  Commands.sequence(                  
             Commands.runOnce(() -> intake.setIntakeSpeed(Constants.Intake.INTAKE_SPEED))
             //Commands.runOnce(() -> indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED))
@@ -134,7 +134,7 @@ public class RobotContainer {
         ));
         
         new EventTrigger("TurnOnLauncherShooter").onTrue(Commands.sequence(
-            Commands.runOnce(() -> launcher.setSpeedLauncherMain(0.7))
+            Commands.runOnce(() -> launcher.setSpeedLauncherMain(launcher.distToPower(drivetrain.getHubDist(hubPosition))))
         ));
     }
 
@@ -254,7 +254,7 @@ public class RobotContainer {
         // and Y is defined as to the left according to WPILib convention.
 
         /*
-        
+
         Master Controls:
          * a -> NULL
          * b -> Brake
