@@ -367,7 +367,7 @@ public class RobotContainer {
              * a -> NULL
              * b -> Brake
              * x(hold) -> Keep intake steady at 5 degs?
-             * y(press) -> Move back 0.5 m
+             * y(hold) -> Run indexer towards intake to unjam balls
              * left bumper(hold) -> Bring intake down
              * right bumper(hold) -> Lock onto target
              * left trigger(toggle) -> Start/stop intake and clamp at 0 degs
@@ -438,12 +438,7 @@ public class RobotContainer {
                 })
             );
 
-            joystick.y().onTrue(    
-                drivetrain.applyRequest(() -> {
-                        return drive.withVelocityX(-0.51)
-                        .withVelocityY(0)
-                        .withRotationalRate(0);
-            }).withTimeout(1));
+            joystick.y().whileTrue(Commands.runOnce(() -> indexer.setIndexerSpeed(-Constants.Indexer.INDEXER_SPEED))).onFalse(Commands.runOnce(() -> indexer.setIndexerSpeed(0)));
 
             joystick.x().whileTrue(
                 Commands.run(() -> {
