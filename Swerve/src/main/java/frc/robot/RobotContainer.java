@@ -253,6 +253,22 @@ public class RobotContainer {
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
 
+        /*
+        
+        Master Controls:
+         * a -> NULL
+         * b -> Brake
+         * x -> NULL
+         * y -> NULL
+         * left bumper -> 
+         * left trigger -> Intake spin and PID
+         * left stick -> Intake up?
+         * right bumper -> Lock onto target
+         * right trigger -> Launcher based on dist and indexer towards launcher
+         * right stick -> Intake down
+         
+         */
+
         // MOVEMENT
         drivetrain.setDefaultCommand(
             // Drivetrain will execute this command periodically
@@ -273,6 +289,19 @@ public class RobotContainer {
 
         if (!Constants.Testing.TESTING)
         {
+            /*
+
+            Controls:
+             * a -> NULL
+             * b -> Brake
+             * x -> NULL
+             * y -> cycle Swerve speeds?
+             * left bumper -> Bring intake down
+             * right bumper -> NULL
+             * left trigger -> Runs intake at set speed and runs indexers and locks(PID)
+             * right trigger -> Runs launcher at set speed and runs indexers
+
+             */
 
             // Intake Pivot Down
             joystick.leftBumper().whileTrue(
@@ -330,8 +359,20 @@ public class RobotContainer {
         }
         else if (Constants.Testing.TESTING)
         {
-            // cycle launcher speed 
-            joystick.a().onTrue(Commands.runOnce(() -> cycleLauncherSpeed(), launcher));
+            /*
+
+            Controls;
+
+             * a -> NULL
+             * b -> Brake
+             * x(hold) -> Keep intake steady at 5 degs?
+             * y(press) -> Move back 0.5 m
+             * left bumper(hold) -> Bring intake down
+             * right bumper(hold) -> Lock onto target
+             * left trigger(toggle) -> Start/stop intake and clamp at 0 degs
+             * right trigger -> Runs launcher based on dist from hub and locks wheels and sets indexers
+             
+             */
 
             //AutoAim
             joystick.rightBumper().whileTrue(new RunCommand(() -> {
