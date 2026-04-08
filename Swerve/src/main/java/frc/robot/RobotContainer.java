@@ -6,6 +6,8 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
 
+import javax.lang.model.util.ElementScanner14;
+
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -390,7 +392,20 @@ public class RobotContainer {
             joystick.rightTrigger().whileTrue(
                 Commands.sequence(
                     Commands.runOnce(() -> drivetrain.applyRequest(() -> brake)),
-                    Commands.runOnce(() -> LauncherSpeed = launcher.distToPower(drivetrain.getHubDist(hubPosition)), launcher),
+                    Commands.runOnce(() -> 
+                    {
+                        if (drivetrain.getPose().getX() > 4.61 && drivetrain.getPose().getX() < 11.9)
+                        {
+                            LauncherSpeed = launcher.distToPower(drivetrain.getHubDist(hubPosition) + 1);
+                            Robot.logMsg("Ferryyy");
+                        }
+                        else
+                        {
+                            LauncherSpeed = launcher.distToPower(drivetrain.getHubDist(hubPosition));
+                            Robot.logMsg("KOBEEE");
+                        }
+                    }, launcher),
+
                     Commands.runOnce(() -> launcher.setSpeedLauncherMain(LauncherSpeed)),
                     Commands.waitUntil(() -> launcher.isAtTargetSpeed(LauncherSpeed)).withTimeout(Constants.Launcher.SPINUP_TIMEOUT_SECONDS),
                     Commands.runOnce(() -> launcher.setSpeedLauncherFeed(LauncherSpeed)),
