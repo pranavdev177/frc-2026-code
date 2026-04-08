@@ -432,11 +432,11 @@ public class RobotContainer {
                     if (intake.isIntakeActive()) {
                         intake.setIntakeSpeed(0);
                         indexer.setIndexerSpeed(0);
-                        intake.lockAngle(-1);
+                        //intake.lockAngle(-1);
                     } else {
                         intake.setIntakeSpeed(Constants.Intake.INTAKE_SPEED);
                         indexer.setIndexerSpeed(0);
-                        intake.lockAngle(0);
+                        //intake.lockAngle(0);
                     }
                 })
             );
