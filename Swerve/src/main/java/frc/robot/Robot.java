@@ -80,6 +80,8 @@ public class Robot extends TimedRobot {
 
         for (var result : results)
         {
+
+
             if ((result != null) && (result.hasTargets()))
             {
                 var visionEst = camPhotonPoseEstimator.estimateCoprocMultiTagPose(result);
@@ -92,6 +94,10 @@ public class Robot extends TimedRobot {
                 if (visionEst.isPresent())
                 {
                     var est = visionEst.get();
+                    if (result.getBestTarget().getPoseAmbiguity() > 0.2) {
+                        logMsg("Camera is blind");
+                        return; // two possible poses too similar, can't trust it
+                    }
                     
                     //logMsg("Estimate present " + est);
                     //logMsg("Yawww " + result.getBestTarget().getYaw());
