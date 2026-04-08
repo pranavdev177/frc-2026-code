@@ -422,6 +422,9 @@ public class RobotContainer {
             joystick.leftBumper().whileTrue(Commands.run(() -> intake.setIntakeAngleSpeed(0.1), intake))
             .onFalse(Commands.runOnce(() -> intake.setIntakeAngleSpeed(0)));
 
+            joystick.a().whileTrue(Commands.runOnce(() -> intake.setIntakeAngleSpeed(-0.1), intake))
+            .onFalse(Commands.runOnce(() -> intake.setIntakeAngleSpeed(0)));
+
             // Intake Spin (toggle)
             joystick.leftTrigger().onTrue(
                 Commands.runOnce(() -> {
