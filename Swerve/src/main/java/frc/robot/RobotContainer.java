@@ -392,6 +392,33 @@ public class RobotContainer {
                 );
             }, drivetrain));
 
+            /*
+            joystick.rightBumper().whileTrue(new RunCommand(() -> {
+                drivetrain.calculateAutoAimRot(hubPosition, 0.7);
+                Translation2d robotToTarget = hubPosition.minus(getState().Pose.getTranslation());
+                double dist = drivetrain.getHubDist();
+
+                // Unit vectors
+                Translation2d radialUnit = robotToTarget.div(dist);                          // toward hub
+                Translation2d tangentialUnit = new Translation2d(-radialUnit.getY(), radialUnit.getX()); // 90° CCW
+
+                // Joystick inputs
+                double radialInput =  joystick.getLeftY(); // push up = move toward hub
+                double thetaInput  = -joystick.getLeftX(); // left/right = orbit
+
+                // Combine into field-relative velocity
+                Translation2d velocity = radialUnit.times(-radialInput * MaxSpeed)
+                                    .plus(tangentialUnit.times(thetaInput * MaxSpeed));
+
+                drivetrain.setControl(
+                    autoAimDrive
+                        .withVelocityX(velocity.getX())
+                        .withVelocityY(velocity.getY())
+                        .withTargetDirection(drivetrain.getTargetAngle())
+                );
+            }, drivetrain));
+             */
+
             //Run Launcher
 
             joystick.rightTrigger().whileTrue(
