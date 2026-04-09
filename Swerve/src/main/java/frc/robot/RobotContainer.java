@@ -6,6 +6,8 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
 
+import javax.lang.model.util.ElementScanner14;
+
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -28,6 +30,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -106,6 +109,11 @@ public class RobotContainer {
 
     public Translation2d hubPosition = redHubPosition;
 
+    private final NetworkTableEntry photonEntry;
+    public Boolean photonActive = true;
+
+    private final NetworkTableEntry launcherSpeedEnty;
+
     public RobotContainer() {
         InitializeSmartDashboard();
         configureBindings();
@@ -113,6 +121,12 @@ public class RobotContainer {
 
         timer.reset();
         timer.start();
+
+        photonEntry = SmartDashboard.getEntry("Photon Working");
+        photonEntry.setDefaultBoolean(true);
+
+        launcherSpeedEnty = SmartDashboard.getEntry("Launcher Speed");
+        launcherSpeedEnty.setDefaultValue(0.6);
     }
 
     private void setupPathplannerCommands() {
@@ -194,6 +208,14 @@ public class RobotContainer {
     }
 
     public void updateSmartDashboard() {
+        photonActive = photonEntry.getBoolean(true);
+
+        if (photonActive)
+            LauncherSpeed = launcherSpeedEnty.getDouble(0.6);
+        else
+            SmartDashboard.putNumber("Launcher Speed", LauncherSpeed);
+
+
         // Boolean values for all subsystems
         SmartDashboard.putBoolean("Shooter Active", launcher.isLauncherActive());
         SmartDashboard.putBoolean("Shooter Feeder Active", launcher.isLauncherFeederActive());
@@ -223,7 +245,6 @@ public class RobotContainer {
         // Other Features
         SmartDashboard.putNumber("Voltage", RobotController.getBatteryVoltage());
         SmartDashboard.putNumber("Max Speed", MaxSpeed);
-        SmartDashboard.putNumber("Launcher Speed", LauncherSpeed);
         field.setRobotPose(drivetrain.getState().Pose);
     }
 
@@ -335,14 +356,30 @@ public class RobotContainer {
 
             // Shoot (hold)    
             joystick.rightTrigger().whileTrue(
-                Commands.sequence(
-                    Commands.runOnce(() -> drivetrain.applyRequest(() -> brake)),
-                    Commands.runOnce(() -> LauncherSpeed = launcher.distToPower(drivetrain.getHubDist(hubPosition)), launcher),
-                    Commands.runOnce(() -> launcher.setSpeedLauncherMain(LauncherSpeed)),
-                    Commands.waitUntil(() -> launcher.isAtTargetSpeed(LauncherSpeed)).withTimeout(Constants.Launcher.SPINUP_TIMEOUT_SECONDS),
-                    Commands.runOnce(() -> launcher.setSpeedLauncherFeed(LauncherSpeed)),
-                    Commands.runOnce(() -> indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED))
-                )
+                Commands.runOnce(() -> 
+                {
+                    if (photonActive)
+                    {
+                        Commands.sequence(
+                            Commands.runOnce(() -> drivetrain.applyRequest(() -> brake)),
+                            Commands.runOnce(() -> LauncherSpeed = launcher.distToPower(drivetrain.getHubDist(hubPosition)), launcher),
+                            Commands.runOnce(() -> launcher.setSpeedLauncherMain(LauncherSpeed)),
+                            Commands.waitUntil(() -> launcher.isAtTargetSpeed(LauncherSpeed)).withTimeout(Constants.Launcher.SPINUP_TIMEOUT_SECONDS),
+                            Commands.runOnce(() -> launcher.setSpeedLauncherFeed(LauncherSpeed)),
+                            Commands.runOnce(() -> indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED))
+                        );
+                    }
+                    else 
+                    {
+                        Commands.sequence(
+                            Commands.runOnce(() -> drivetrain.applyRequest(() -> brake)),
+                            Commands.runOnce(() -> launcher.setSpeedLauncherMain(LauncherSpeed)),
+                            Commands.waitUntil(() -> launcher.isAtTargetSpeed(LauncherSpeed)).withTimeout(Constants.Launcher.SPINUP_TIMEOUT_SECONDS),
+                            Commands.runOnce(() -> launcher.setSpeedLauncherFeed(LauncherSpeed)),
+                            Commands.runOnce(() -> indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED))
+                        );
+                    }
+                })
             ).onFalse(
                 Commands.sequence(
                     Commands.runOnce(() -> launcher.setSpeedLauncher(0)),
