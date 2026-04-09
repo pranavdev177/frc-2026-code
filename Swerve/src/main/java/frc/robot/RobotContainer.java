@@ -131,11 +131,15 @@ public class RobotContainer {
         ));
 
         new EventTrigger("DropIntake").onTrue(Commands.sequence(
-            Commands.runOnce(() -> intake.setIntakeAngle(1), intake).withTimeout(2)
+            Commands.runOnce(() -> intake.setIntakeAngleSpeed(Constants.Intake.INTAKE_ANGLE_SPEED), intake).withTimeout(1)
         ));
         
         new EventTrigger("TurnOnLauncherShooter").onTrue(Commands.sequence(
-            Commands.runOnce(() -> launcher.setSpeedLauncherMain(launcher.distToPower(drivetrain.getHubDist(hubPosition))))
+            Commands.runOnce(() -> 
+            {
+                launcher.setSpeedLauncherMain(launcher.distToPower(drivetrain.getHubDist(hubPosition)));
+                indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED);
+            })
         ));
     }
 
@@ -150,7 +154,7 @@ public class RobotContainer {
 
     private Command ShootFuel(double seconds, double launcherSpeed) {
         return Commands.sequence(
-            //Commands.runOnce(() -> indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED)),
+            Commands.runOnce(() -> indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED)),
             Commands.runOnce(() -> launcher.setSpeedLauncherMain(launcherSpeed)),
             Commands.waitUntil(() -> launcher.isAtTargetSpeed(launcherSpeed)).withTimeout(Constants.Launcher.SPINUP_TIMEOUT_SECONDS),
             Commands.runOnce(() -> launcher.setSpeedLauncherFeed(launcherSpeed)),
@@ -162,7 +166,7 @@ public class RobotContainer {
     
     private Command ShootFuelKeepingOn(double seconds, double launcherSpeed) {
         return Commands.sequence(
-            //Commands.runOnce(() -> indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED)),
+            Commands.runOnce(() -> indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED)),
             Commands.runOnce(() -> launcher.setSpeedLauncherMain(launcherSpeed)),
             Commands.waitUntil(() -> launcher.isAtTargetSpeed(launcherSpeed)).withTimeout(Constants.Launcher.SPINUP_TIMEOUT_SECONDS),
             Commands.runOnce(() -> launcher.setSpeedLauncherFeed(launcherSpeed)),
@@ -294,8 +298,9 @@ public class RobotContainer {
 
             // Intake Pivot Down
             joystick.leftBumper().whileTrue(
-                Commands.run(() -> intake.setIntakeAngleSpeed(-1), intake)
-            );
+                Commands.runOnce(() -> intake.setIntakeAngleSpeed(Constants.Intake.INTAKE_ANGLE_SPEED), intake)
+            )
+            .onFalse(Commands.runOnce(() -> intake.setIntakeAngleSpeed(0)));
 
             // Brake
             joystick.b().whileTrue(drivetrain.applyRequest(() -> brake));
@@ -427,6 +432,7 @@ public class RobotContainer {
             }, intake))
             .onFalse(Commands.runOnce(() -> intake.setIntakeAngleSpeed(0)));
 
+            // Pivot up
             joystick.a().whileTrue(Commands.runOnce(() -> 
             {
                 intake.setIntakeAngleSpeed(-0.1);
@@ -454,21 +460,10 @@ public class RobotContainer {
 
             joystick.y().whileTrue(Commands.runOnce(() -> indexer.setIndexerSpeed(-Constants.Indexer.INDEXER_SPEED))).onFalse(Commands.runOnce(() -> indexer.setIndexerSpeed(0)));
 
-            //Trash compacting
-            // joystick.leftBumper().onTrue(Commands.sequence(
-            //     Commands.runOnce(() -> intake.setIntakeAngleSpeed(-Constants.Intake.INTAKE_ANGLE_SPEED)),
-            //     Commands.waitUntil(() -> intake.getIntakeAngle() == Constants.Intake.INTAKE_ANGLE_MAX).withTimeout(Constants.Intake.COMPACT_TIME),
-            //     Commands.runOnce(() -> intake.setIntakeAngleSpeed(Constants.Intake.INTAKE_ANGLE_SPEED)),
-            //     Commands.waitUntil(() -> intake.getIntakeAngle() == Constants.Intake.INTAKE_ANGLE_MIN).withTimeout(Constants.Intake.COMPACT_TIME),
-            //     Commands.runOnce(() -> intake.setIntakeAngleSpeed(0))
-
-            // )
-            // );
-
             //TRASH COMPACTING TEST HEAVILY BEFORE IMPLEMENTING
             joystick.x().onTrue(Commands.sequence(
                 Commands.runOnce(() -> intake.setIntakeAngleSpeed(-0.5)),
-                Commands.waitSeconds(3),
+                Commands.waitSeconds(1),
                 Commands.runOnce(() -> intake.setIntakeAngleSpeed(Constants.Intake.INTAKE_ANGLE_SPEED)),
                 Commands.waitSeconds(1),
                 Commands.runOnce(() -> intake.setIntakeAngleSpeed(0))
