@@ -11,8 +11,6 @@ public class Constants {
 
     public final class Launcher {
         // Vision
-        public static boolean visionPresent = false;
-        public static final boolean visionEnabled = false;
 
         // Speed
         public static final double DEFAULT_SPEED = 0.6;
