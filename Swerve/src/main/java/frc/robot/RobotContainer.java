@@ -112,7 +112,7 @@ public class RobotContainer {
     private final NetworkTableEntry photonEntry;
     public Boolean photonActive = true;
 
-    private final NetworkTableEntry launcherSpeedEnty;
+    //private final NetworkTableEntry launcherSpeedEnty;
     public RobotContainer() {
         InitializeSmartDashboard();
         configureBindings();
@@ -124,8 +124,8 @@ public class RobotContainer {
         photonEntry = SmartDashboard.getEntry("Photon Working");
         photonEntry.setDefaultBoolean(true);
 
-        launcherSpeedEnty = SmartDashboard.getEntry("Launcher Speed");
-        launcherSpeedEnty.setDefaultValue(0.6);
+        //launcherSpeedEnty = SmartDashboard.getEntry("Launcher Speed");
+        //launcherSpeedEnty.setDefaultValue(0.6);
     }
 
     private void setupPathplannerCommands() {
@@ -209,10 +209,10 @@ public class RobotContainer {
     public void updateSmartDashboard() {
         photonActive = photonEntry.getBoolean(true);
 
-        if (photonActive)
-            LauncherSpeed = launcherSpeedEnty.getDouble(0.6);
-        else
-            SmartDashboard.putNumber("Launcher Speed", LauncherSpeed);
+        //if (photonActive)
+            //LauncherSpeed = launcherSpeedEnty.getDouble(0.6);
+        //else
+        SmartDashboard.putNumber("Launcher Speed", LauncherSpeed);
 
 
         // Boolean values for all subsystems
@@ -322,6 +322,7 @@ public class RobotContainer {
             )
             .onFalse(Commands.runOnce(() -> intake.setIntakeAngleSpeed(0)));
 
+            
             // Brake
             joystick.b().whileTrue(drivetrain.applyRequest(() -> brake));
         
@@ -353,11 +354,13 @@ public class RobotContainer {
                 );
             }, drivetrain));
 
+            joystick.x().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
+
             // Shoot (hold)    
             joystick.rightTrigger().whileTrue(
                 Commands.runOnce(() -> 
                 {
-                    if (photonActive)
+                    if (true)
                     {
                         Commands.sequence(
                             Commands.runOnce(() -> drivetrain.applyRequest(() -> brake)),
@@ -416,6 +419,8 @@ public class RobotContainer {
              * right trigger -> Runs launcher based on dist from hub and locks wheels and sets indexers
              
              */
+
+
 
             //AutoAim
             joystick.rightBumper().whileTrue(new RunCommand(() -> {
@@ -512,11 +517,11 @@ public class RobotContainer {
                     if (intake.isIntakeActive()) {
                         intake.setIntakeSpeed(0);
                         intake.unlockAngle();
-                        //indexer.setIndexerSpeed(0);
+                        indexer.setIndexerSpeed(0);
                     } else {
                         intake.setIntakeSpeed(Constants.Intake.INTAKE_SPEED);
                         intake.lockAngle(intake.getIntakeAngle());
-                        //indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED);
+                        indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED);
                         //intake.lockAngle(0);
                     }
                 })
