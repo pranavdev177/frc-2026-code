@@ -30,6 +30,7 @@ import com.revrobotics.ResetMode;
 import com.revrobotics.PersistMode;
 
 import frc.robot.Constants;
+import frc.robot.Robot;
 
 public class IntakeSubsystem extends SubsystemBase {
 
@@ -38,7 +39,7 @@ public class IntakeSubsystem extends SubsystemBase {
   private TalonFX intakeSpin = new TalonFX(51);
   private TalonFX intakeAngle = new TalonFX(52);
   private VelocityVoltage velocityRequest = new VelocityVoltage(0);
-  private PositionVoltage positionRequest = new PositionVoltage(0).withSlot(0);
+  private PositionVoltage positionRequest;
 
   //private SparkClosedLoopController pidController;
   //public RelativeEncoder intakeAngleEncoder;
@@ -71,8 +72,7 @@ public class IntakeSubsystem extends SubsystemBase {
     angleSlot0.GravityType = GravityTypeValue.Arm_Cosine;
 
     intakeAngle.getConfigurator().apply(angleSlot0);
-
-    intakeAngle.setPosition(0);
+    positionRequest = new PositionVoltage(0).withSlot(0);
     
   }
 
@@ -94,20 +94,21 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public double getIntakeAngle()
   {
-    return intakeAngle.getPosition().getValue().in(Rotations) * 360;
+    Robot.logMsg("Angle works");
+    return intakeAngle.getPosition().getValue().in(Rotations);
   }
 
   public void lockAngle(double angle)
   {
-    if (angle >= 0)
-    {
-      intakeAngle.setControl(positionRequest.withPosition(angle));
-    }
-    else
-    {
-      intakeAngle.setControl(new NeutralOut());
-    }
+   intakeAngle.setControl(positionRequest.withPosition(angle));
+   Robot.logMsg("Lock angle work?");
   }
+
+  public void unlockAngle()
+  {
+    intakeAngle.setControl(new NeutralOut());
+  }
+
   //#region Unused Code
   /**
    * Example command factory method.

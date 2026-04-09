@@ -32,8 +32,18 @@ public class Constants {
         // Current Limits
         public static final double STATOR_CURRENT_LIMIT = 30;
 
+        //Up down cycle for compacting
+        public static final double COMPACT_TIME = 0.5;
+
         // Speed
         public static final double INTAKE_SPEED = 0.7;
+
+        //Intake angle speed
+        public static final double INTAKE_ANGLE_SPEED = 0.3;
+
+        //Max and min intake angle
+        public static final double INTAKE_ANGLE_MAX = 90;
+        public static final double INTAKE_ANGLE_MIN = 0;
 
         // Spin PID
         public static final double Spin_kP = 1.0;

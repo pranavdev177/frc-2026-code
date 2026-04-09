@@ -236,19 +236,7 @@ public class RobotContainer {
     }
 
 
-    private void cycleSwerveSpeed() {
-        MaxSpeed += Constants.Drive.SPEED_INCREMENT;
 
-        if (MaxSpeed > Constants.Drive.MAX_SPEED)
-            MaxSpeed = Constants.Drive.MIN_SPEED;
-    }
-
-    private void cycleLauncherSpeed() {
-        LauncherSpeed += Constants.Launcher.SPEED_INCREMENT;
-
-        if (LauncherSpeed > Constants.Launcher.MAX_SPEED)
-            LauncherSpeed = Constants.Launcher.MIN_SPEED;
-    }
 
     private void configureBindings() {
         // Note that X is defined as forward according to WPILib convention,
@@ -311,25 +299,40 @@ public class RobotContainer {
 
             // Brake
             joystick.b().whileTrue(drivetrain.applyRequest(() -> brake));
-            
+        
             // Intake Spin (toggle)
             joystick.leftTrigger().onTrue(
                 Commands.runOnce(() -> {
                     //intake.setIntakeAngle(0);
                     if (intake.isIntakeActive()) {
                         intake.setIntakeSpeed(0);
-                        indexer.setIndexerSpeed(0);
+                        intake.unlockAngle();
+                        //indexer.setIndexerSpeed(0);
                     } else {
                         intake.setIntakeSpeed(Constants.Intake.INTAKE_SPEED);
-                        indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED);
+                        intake.lockAngle(intake.getIntakeAngle());
+                        //indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED);
                         //intake.lockAngle(0);
                     }
                 })
             );
 
+            //AutoAim
+            joystick.rightBumper().whileTrue(new RunCommand(() -> {
+                drivetrain.calculateAutoAimRot(hubPosition, 0.7); // updates targetAngle
+                drivetrain.setControl(
+                    autoAimDrive.withVelocityX(-joystick.getLeftY() * MaxSpeed)
+                                .withVelocityY(-joystick.getLeftX() * MaxSpeed)
+                                .withTargetDirection(drivetrain.getTargetAngle())
+                    
+                );
+            }, drivetrain));
+
             // Shoot (hold)    
             joystick.rightTrigger().whileTrue(
                 Commands.sequence(
+                    Commands.runOnce(() -> drivetrain.applyRequest(() -> brake)),
+                    Commands.runOnce(() -> LauncherSpeed = launcher.distToPower(drivetrain.getHubDist(hubPosition)), launcher),
                     Commands.runOnce(() -> launcher.setSpeedLauncherMain(LauncherSpeed)),
                     Commands.waitUntil(() -> launcher.isAtTargetSpeed(LauncherSpeed)).withTimeout(Constants.Launcher.SPINUP_TIMEOUT_SECONDS),
                     Commands.runOnce(() -> launcher.setSpeedLauncherFeed(LauncherSpeed)),
@@ -341,11 +344,9 @@ public class RobotContainer {
                     Commands.runOnce(() -> indexer.setIndexerSpeed(0))
                 )
             );
-            
-            // Cycle Swerve Speed
-            joystick.y().onTrue(
-                Commands.runOnce(() -> cycleSwerveSpeed())
-            );
+
+            // Indexer unjam
+            joystick.y().whileTrue(Commands.runOnce(() -> indexer.setIndexerSpeed(-Constants.Indexer.INDEXER_SPEED))).onFalse(Commands.runOnce(() -> indexer.setIndexerSpeed(0)));
 
 
 
@@ -419,11 +420,21 @@ public class RobotContainer {
             );
 
             // Intake Pivot Down
-            joystick.leftBumper().whileTrue(Commands.run(() -> intake.setIntakeAngleSpeed(0.1), intake))
+            joystick.leftBumper().whileTrue(Commands.run(() -> 
+            {
+                intake.setIntakeAngleSpeed(0.1);
+                Robot.logMsg("Intake Angle: " + intake.getIntakeAngle());
+            }, intake))
             .onFalse(Commands.runOnce(() -> intake.setIntakeAngleSpeed(0)));
 
-            joystick.a().whileTrue(Commands.runOnce(() -> intake.setIntakeAngleSpeed(-0.1), intake))
+            joystick.a().whileTrue(Commands.runOnce(() -> 
+            {
+                intake.setIntakeAngleSpeed(-0.1);
+                Robot.logMsg("Intake Angle: " + intake.getIntakeAngle());
+            }, intake))
             .onFalse(Commands.runOnce(() -> intake.setIntakeAngleSpeed(0)));
+
+
 
             // Intake Spin (toggle)
             joystick.leftTrigger().onTrue(
@@ -431,11 +442,11 @@ public class RobotContainer {
                     //intake.setIntakeAngle(0);
                     if (intake.isIntakeActive()) {
                         intake.setIntakeSpeed(0);
-                        indexer.setIndexerSpeed(0);
+                        //indexer.setIndexerSpeed(0);
                         //intake.lockAngle(-1);
                     } else {
                         intake.setIntakeSpeed(Constants.Intake.INTAKE_SPEED);
-                        indexer.setIndexerSpeed(0);
+                        //indexer.setIndexerSpeed(0);
                         //intake.lockAngle(0);
                     }
                 })
@@ -443,18 +454,25 @@ public class RobotContainer {
 
             joystick.y().whileTrue(Commands.runOnce(() -> indexer.setIndexerSpeed(-Constants.Indexer.INDEXER_SPEED))).onFalse(Commands.runOnce(() -> indexer.setIndexerSpeed(0)));
 
-            joystick.x().whileTrue(
-                Commands.run(() -> {
-                    if (Math.abs(intake.getIntakeAngle()) < 5)
-                        intake.setIntakeAngleSpeed(-1);
-                    else
-                        intake.setIntakeAngleSpeed(0);
-                        //intake.lockAngle(5);
-                }, intake)
-            );/* .onFalse(
-                Commands.runOnce(() -> intake.lockAngle(-1), intake)
-            );*/
+            //Trash compacting
+            // joystick.leftBumper().onTrue(Commands.sequence(
+            //     Commands.runOnce(() -> intake.setIntakeAngleSpeed(-Constants.Intake.INTAKE_ANGLE_SPEED)),
+            //     Commands.waitUntil(() -> intake.getIntakeAngle() == Constants.Intake.INTAKE_ANGLE_MAX).withTimeout(Constants.Intake.COMPACT_TIME),
+            //     Commands.runOnce(() -> intake.setIntakeAngleSpeed(Constants.Intake.INTAKE_ANGLE_SPEED)),
+            //     Commands.waitUntil(() -> intake.getIntakeAngle() == Constants.Intake.INTAKE_ANGLE_MIN).withTimeout(Constants.Intake.COMPACT_TIME),
+            //     Commands.runOnce(() -> intake.setIntakeAngleSpeed(0))
 
+            // )
+            // );
+
+            //TRASH COMPACTING TEST HEAVILY BEFORE IMPLEMENTING
+            joystick.x().onTrue(Commands.sequence(
+                Commands.runOnce(() -> intake.setIntakeAngleSpeed(-0.5)),
+                Commands.waitSeconds(3),
+                Commands.runOnce(() -> intake.setIntakeAngleSpeed(Constants.Intake.INTAKE_ANGLE_SPEED)),
+                Commands.waitSeconds(1),
+                Commands.runOnce(() -> intake.setIntakeAngleSpeed(0))
+                ));
             /*
             joystick.rightBumper().whileTrue(
                 drivetrain.applyRequest(() -> {

@@ -59,7 +59,7 @@ public class LauncherSubsystem extends SubsystemBase {
 
   public double distToPower(double dist)
   {
-    return Math.min(0.1179*dist + 0.4250, 1);
+    return Math.min(0.1179 * dist + 0.4250, 1);
   }
 
   public void setRPM(double rpm) {
