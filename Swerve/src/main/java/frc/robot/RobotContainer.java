@@ -266,9 +266,6 @@ public class RobotContainer {
         return matchTimeLeft - nextThreshold;
     }
 
-
-
-
     private void configureBindings() {
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
@@ -361,34 +358,32 @@ public class RobotContainer {
                 );
             }, drivetrain));
 
-            joystick.x().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
+            //joystick.x().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
+
+            joystick.x().whileTrue(Commands.runOnce(() -> launcher.setSpeedLauncher(0.7))).onFalse(Commands.runOnce(() -> launcher.setSpeedLauncher(0)));
 
             // Shoot (hold)    
             joystick.rightTrigger().whileTrue(
-                Commands.runOnce(() -> 
-                {
-                    if (true)
-                    {
-                        Commands.sequence(
-                            Commands.runOnce(() -> drivetrain.applyRequest(() -> brake)),
-                            Commands.runOnce(() -> launcher.setSpeedLauncherMain(LauncherSpeed)),
-                            Commands.waitUntil(() -> launcher.isAtTargetSpeed(LauncherSpeed)).withTimeout(Constants.Launcher.SPINUP_TIMEOUT_SECONDS),
-                            Commands.runOnce(() -> launcher.setSpeedLauncherFeed(LauncherSpeed)),
-                            Commands.runOnce(() -> indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED))
-                        );
-                    }
-                    else 
-                    {
-                        Commands.sequence(
-                            Commands.runOnce(() -> drivetrain.applyRequest(() -> brake)),
-                            Commands.runOnce(() -> launcher.setSpeedLauncherMain(LauncherSpeed)),
-                            Commands.waitUntil(() -> launcher.isAtTargetSpeed(LauncherSpeed)).withTimeout(Constants.Launcher.SPINUP_TIMEOUT_SECONDS),
-                            Commands.runOnce(() -> launcher.setSpeedLauncherFeed(LauncherSpeed)),
-                            Commands.runOnce(() -> indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED))
-                        );
-                    }
-                })
-            ).onFalse(
+                Commands.sequence(
+                    //Commands.runOnce(() -> LauncherSpeed = 0.7),
+                    Commands.runOnce(() -> Robot.logMsg("Working?")),
+                    Commands.runOnce(() -> drivetrain.applyRequest(() -> brake)),
+                    Commands.runOnce(() -> launcher.setSpeedLauncherMain(LauncherSpeed)),
+                    Commands.waitUntil(() -> launcher.isAtTargetSpeed(LauncherSpeed)).withTimeout(Constants.Launcher.SPINUP_TIMEOUT_SECONDS),
+                    Commands.runOnce(() -> launcher.setSpeedLauncherFeed(LauncherSpeed)),
+                    Commands.runOnce(() -> indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED))
+                    
+                    // else 
+                    // {
+                    //     Commands.sequence(
+                    //         Commands.runOnce(() -> drivetrain.applyRequest(() -> brake)),
+                    //         Commands.runOnce(() -> launcher.setSpeedLauncherMain(LauncherSpeed)),
+                    //         Commands.waitUntil(() -> launcher.isAtTargetSpeed(LauncherSpeed)).withTimeout(Constants.Launcher.SPINUP_TIMEOUT_SECONDS),
+                    //         Commands.runOnce(() -> launcher.setSpeedLauncherFeed(LauncherSpeed)),
+                    //         Commands.runOnce(() -> indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED))
+                    //     );
+                    // }
+                )).onFalse(
                 Commands.sequence(
                     Commands.runOnce(() -> launcher.setSpeedLauncher(0)),
                     Commands.runOnce(() -> indexer.setIndexerSpeed(0))
@@ -398,7 +393,7 @@ public class RobotContainer {
             // Indexer unjam
             joystick.y().whileTrue(Commands.runOnce(() -> indexer.setIndexerSpeed(-Constants.Indexer.INDEXER_SPEED))).onFalse(Commands.runOnce(() -> indexer.setIndexerSpeed(0)));
 
-            joystick.a().onTrue(Commands.runOnce(() -> CycleLauncherSpeeds(), launcher));
+            joystick.a().whileTrue(Commands.runOnce(() -> CycleLauncherSpeeds(), launcher));
 
             // Run SysId routines when holding back/start and X/Y.
             // Note that each routine should be run exactly once in a single log.
@@ -484,7 +479,7 @@ public class RobotContainer {
                             Robot.logMsg("KOBEEE");
                         }
                     }, launcher),
-
+                
                     Commands.runOnce(() -> launcher.setSpeedLauncherMain(LauncherSpeed)),
                     Commands.waitUntil(() -> launcher.isAtTargetSpeed(LauncherSpeed)).withTimeout(Constants.Launcher.SPINUP_TIMEOUT_SECONDS),
                     Commands.runOnce(() -> launcher.setSpeedLauncherFeed(LauncherSpeed)),

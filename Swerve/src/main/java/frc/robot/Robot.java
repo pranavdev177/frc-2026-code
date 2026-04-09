@@ -78,7 +78,7 @@ public class Robot extends TimedRobot {
         SmartDashboard.putBoolean("Camera Connected", !results.isEmpty());
 
         if (!cam.isConnected()) {
-            logMsg("WARNING, CAMERA IS NOT CONNECTED!!!!!");
+            //logMsg("WARNING, CAMERA IS NOT CONNECTED!!!!!");
         }
 
         for (var result : results)
