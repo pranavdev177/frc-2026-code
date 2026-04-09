@@ -319,81 +319,20 @@ public class RobotContainer {
              * right trigger -> Runs launcher at set speed and runs indexers
 
              */
-
             // Intake Pivot Down
-            joystick.leftBumper().whileTrue(
-                Commands.runOnce(() -> intake.setIntakeAngleSpeed(Constants.Intake.INTAKE_ANGLE_SPEED), intake)
-            )
-            .onFalse(Commands.runOnce(() -> intake.setIntakeAngleSpeed(0)));
-
-            
+            intakePivotDown();
             // Brake
-            joystick.b().whileTrue(drivetrain.applyRequest(() -> brake));
-        
+            brake();
             // Intake Spin (toggle)
-            joystick.leftTrigger().onTrue(
-                Commands.runOnce(() -> {
-                    //intake.setIntakeAngle(0);
-                    if (intake.isIntakeActive()) {
-                        intake.setIntakeSpeed(0);
-                        intake.unlockAngle();
-                        indexer.setIndexerSpeed(0);
-                    } else {
-                        intake.setIntakeSpeed(Constants.Intake.INTAKE_SPEED);
-                        intake.lockAngle(intake.getIntakeAngle());
-                        indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED);
-                        //intake.lockAngle(0);
-                    }
-                })
-            );
-
+            runIntakeAndIndexer();
             //AutoAim
-            joystick.rightBumper().whileTrue(new RunCommand(() -> {
-                drivetrain.calculateAutoAimRot(hubPosition, 0.7); // updates targetAngle
-                drivetrain.setControl(
-                    autoAimDrive.withVelocityX(-joystick.getLeftY() * MaxSpeed)
-                                .withVelocityY(-joystick.getLeftX() * MaxSpeed)
-                                .withTargetDirection(drivetrain.getTargetAngle())
-                    
-                );
-            }, drivetrain));
-
-            //joystick.x().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
-
-            joystick.x().whileTrue(Commands.runOnce(() -> launcher.setSpeedLauncher(0.7))).onFalse(Commands.runOnce(() -> launcher.setSpeedLauncher(0)));
-
+            autoAimRobot();
+            resetFieldPos();
             // Shoot (hold)    
-            joystick.rightTrigger().whileTrue(
-                Commands.sequence(
-                    //Commands.runOnce(() -> LauncherSpeed = 0.7),
-                    Commands.runOnce(() -> Robot.logMsg("Working?")),
-                    Commands.runOnce(() -> drivetrain.applyRequest(() -> brake)),
-                    Commands.runOnce(() -> launcher.setSpeedLauncherMain(LauncherSpeed)),
-                    Commands.waitUntil(() -> launcher.isAtTargetSpeed(LauncherSpeed)).withTimeout(Constants.Launcher.SPINUP_TIMEOUT_SECONDS),
-                    Commands.runOnce(() -> launcher.setSpeedLauncherFeed(LauncherSpeed)),
-                    Commands.runOnce(() -> indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED))
-                    
-                    // else 
-                    // {
-                    //     Commands.sequence(
-                    //         Commands.runOnce(() -> drivetrain.applyRequest(() -> brake)),
-                    //         Commands.runOnce(() -> launcher.setSpeedLauncherMain(LauncherSpeed)),
-                    //         Commands.waitUntil(() -> launcher.isAtTargetSpeed(LauncherSpeed)).withTimeout(Constants.Launcher.SPINUP_TIMEOUT_SECONDS),
-                    //         Commands.runOnce(() -> launcher.setSpeedLauncherFeed(LauncherSpeed)),
-                    //         Commands.runOnce(() -> indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED))
-                    //     );
-                    // }
-                )).onFalse(
-                Commands.sequence(
-                    Commands.runOnce(() -> launcher.setSpeedLauncher(0)),
-                    Commands.runOnce(() -> indexer.setIndexerSpeed(0))
-                )
-            );
-
+            runShooterAndIndexer();
             // Indexer unjam
-            joystick.y().whileTrue(Commands.runOnce(() -> indexer.setIndexerSpeed(-Constants.Indexer.INDEXER_SPEED))).onFalse(Commands.runOnce(() -> indexer.setIndexerSpeed(0)));
-
-            joystick.a().whileTrue(Commands.runOnce(() -> CycleLauncherSpeeds(), launcher));
+            unjamIndexer();
+            cycleLauncherSpeed();
 
             // Run SysId routines when holding back/start and X/Y.
             // Note that each routine should be run exactly once in a single log.
@@ -407,9 +346,7 @@ public class RobotContainer {
         else if (Constants.Testing.TESTING)
         {
             /*
-
             Controls:
-
              * a -> NULL
              * b -> Brake
              * x(hold) -> Keep intake steady at 5 degs?
@@ -418,22 +355,16 @@ public class RobotContainer {
              * right bumper(hold) -> Lock onto target
              * left trigger(toggle) -> Start/stop intake and clamp at 0 degs
              * right trigger -> Runs launcher based on dist from hub and locks wheels and sets indexers
-             
              */
 
-
-
-            //AutoAim
-            joystick.rightBumper().whileTrue(new RunCommand(() -> {
-                drivetrain.calculateAutoAimRot(hubPosition, 0.7); // updates targetAngle
-                drivetrain.setControl(
-                    autoAimDrive.withVelocityX(-joystick.getLeftY() * MaxSpeed)
-                                .withVelocityY(-joystick.getLeftX() * MaxSpeed)
-                                .withTargetDirection(drivetrain.getTargetAngle())
-                    
-                );
-            }, drivetrain));
-
+            autoAimRobot();
+            runShooterAndIndexer();
+            intakePivotDown();
+            intakePivotUp();
+            runIntakeAndIndexer();
+            unjamIndexer();
+            trashCompacting();
+            //#region commented out functions
             /*
             joystick.rightBumper().whileTrue(new RunCommand(() -> {
                 drivetrain.calculateAutoAimRot(hubPosition, 0.7);
@@ -462,80 +393,47 @@ public class RobotContainer {
              */
 
             //Run Launcher
-
-            joystick.rightTrigger().whileTrue(
-                Commands.sequence(
-                    Commands.runOnce(() -> drivetrain.applyRequest(() -> brake)),
-                    Commands.runOnce(() -> 
-                    {
-                        if (drivetrain.getPose().getX() > 4.61 && drivetrain.getPose().getX() < 11.9)
-                        {
-                            LauncherSpeed = launcher.distToPower(drivetrain.getHubDist(hubPosition) + 1);
-                            Robot.logMsg("Ferryyy");
-                        }
-                        else
-                        {
-                            LauncherSpeed = launcher.distToPower(drivetrain.getHubDist(hubPosition));
-                            Robot.logMsg("KOBEEE");
-                        }
-                    }, launcher),
+            // joystick.rightTrigger().whileTrue(
+            //     Commands.sequence(
+            //         Commands.runOnce(() -> drivetrain.applyRequest(() -> brake)),
+            //         Commands.runOnce(() -> 
+            //         {
+            //             if (drivetrain.getPose().getX() > 4.61 && drivetrain.getPose().getX() < 11.9)
+            //             {
+            //                 LauncherSpeed = launcher.distToPower(drivetrain.getHubDist(hubPosition) + 1);
+            //                 Robot.logMsg("Ferryyy");
+            //             }
+            //             else
+            //             {
+            //                 LauncherSpeed = launcher.distToPower(drivetrain.getHubDist(hubPosition));
+            //                 Robot.logMsg("KOBEEE");
+            //             }
+            //         }, launcher),
                 
-                    Commands.runOnce(() -> launcher.setSpeedLauncherMain(LauncherSpeed)),
-                    Commands.waitUntil(() -> launcher.isAtTargetSpeed(LauncherSpeed)).withTimeout(Constants.Launcher.SPINUP_TIMEOUT_SECONDS),
-                    Commands.runOnce(() -> launcher.setSpeedLauncherFeed(LauncherSpeed)),
-                    Commands.runOnce(() -> indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED))
-                )
-            ).onFalse(
-                Commands.sequence(
-                    Commands.runOnce(() -> launcher.setSpeedLauncher(0)),
-                    Commands.runOnce(() -> indexer.setIndexerSpeed(0)),
-                    Commands.runOnce(() -> Robot.logMsg(" I am scared....Stopping Launcher"))
-                )
-            );
+            //         Commands.runOnce(() -> launcher.setSpeedLauncherMain(LauncherSpeed)),
+            //         Commands.waitUntil(() -> launcher.isAtTargetSpeed(LauncherSpeed)).withTimeout(Constants.Launcher.SPINUP_TIMEOUT_SECONDS),
+            //         Commands.runOnce(() -> launcher.setSpeedLauncherFeed(LauncherSpeed)),
+            //         Commands.runOnce(() -> indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED))
+            //     )
+            // ).onFalse(
+            //     Commands.sequence(
+            //         Commands.runOnce(() -> launcher.setSpeedLauncher(0)),
+            //         Commands.runOnce(() -> indexer.setIndexerSpeed(0)),
+            //         Commands.runOnce(() -> Robot.logMsg(" I am scared....Stopping Launcher"))
+            //     )
+            // );
 
             // Intake Pivot Down
-            joystick.leftBumper().whileTrue(Commands.run(() -> 
-            {
-                intake.setIntakeAngleSpeed(0.1);
-                Robot.logMsg("Intake Angle: " + intake.getIntakeAngle());
-            }, intake))
-            .onFalse(Commands.runOnce(() -> intake.setIntakeAngleSpeed(0)));
+            // joystick.leftBumper().whileTrue(Commands.run(() -> 
+            // {
+            //     intake.setIntakeAngleSpeed(0.1);
+            //     Robot.logMsg("Intake Angle: " + intake.getIntakeAngle());
+            // }, intake))
+            // .onFalse(Commands.runOnce(() -> intake.setIntakeAngleSpeed(0)));
 
             // Pivot up
-            joystick.a().whileTrue(Commands.runOnce(() -> 
-            {
-                intake.setIntakeAngleSpeed(-0.1);
-                Robot.logMsg("Intake Angle: " + intake.getIntakeAngle());
-            }, intake))
-            .onFalse(Commands.runOnce(() -> intake.setIntakeAngleSpeed(0)));
-
-
-
-            // Intake Spin (toggle)
-            joystick.leftTrigger().onTrue(
-                Commands.runOnce(() -> {
-                    //intake.setIntakeAngle(0);
-                    if (intake.isIntakeActive()) {
-                        intake.setIntakeSpeed(0);
-                        intake.unlockAngle();
-                        indexer.setIndexerSpeed(0);
-                    } else {
-                        intake.setIntakeSpeed(Constants.Intake.INTAKE_SPEED);
-                        intake.lockAngle(intake.getIntakeAngle());
-                        indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED);
-                        //intake.lockAngle(0);
-                    }
-                })
-            );
-
-            joystick.y().whileTrue(Commands.runOnce(() -> indexer.setIndexerSpeed(-Constants.Indexer.INDEXER_SPEED))).onFalse(Commands.runOnce(() -> indexer.setIndexerSpeed(0)));
 
             //TRASH COMPACTING TEST HEAVILY BEFORE IMPLEMENTING
-            joystick.x().onTrue(Commands.sequence(
-                Commands.runOnce(() -> intake.setIntakeAngleSpeed(-0.2)),
-                Commands.waitSeconds(0.4),
-                Commands.runOnce(() -> intake.setIntakeAngleSpeed(0))
-                ));
             /*
             joystick.rightBumper().whileTrue(
                 drivetrain.applyRequest(() -> {
@@ -553,8 +451,108 @@ public class RobotContainer {
                     launcher)
             );
             */
+            //#endregion
             drivetrain.registerTelemetry(logger::telemeterize);
         }
+    }
+
+    private void trashCompacting() {
+        joystick.x().onTrue(Commands.sequence(
+            Commands.runOnce(() -> intake.setIntakeAngleSpeed(-0.2)),
+            Commands.waitSeconds(0.4),
+            Commands.runOnce(() -> intake.setIntakeAngleSpeed(0))
+        ));
+    }
+
+    private void intakePivotUp() {
+        joystick.a().whileTrue(Commands.runOnce(() -> 
+        {
+            intake.setIntakeAngleSpeed(-0.1);
+        }, intake))
+        .onFalse(Commands.runOnce(() -> intake.setIntakeAngleSpeed(0)));
+    }
+
+    private void cycleLauncherSpeed() {
+        joystick.a().whileTrue(Commands.runOnce(() -> CycleLauncherSpeeds(), launcher));
+    }
+
+    private void unjamIndexer() {
+        joystick.y().whileTrue(Commands.runOnce(() -> indexer.setIndexerSpeed(-Constants.Indexer.INDEXER_SPEED)))
+                .onFalse(Commands.runOnce(() -> indexer.setIndexerSpeed(0)));
+    }
+
+    private void runShooterAndIndexer() {
+        joystick.rightTrigger().whileTrue(
+            Commands.sequence(
+                //Commands.runOnce(() -> LauncherSpeed = 0.7),
+                Commands.runOnce(() -> Robot.logMsg("Working?")),
+                Commands.runOnce(() -> drivetrain.applyRequest(() -> brake)),
+                Commands.runOnce(() -> launcher.setSpeedLauncherMain(LauncherSpeed)),
+                Commands.waitUntil(() -> launcher.isAtTargetSpeed(LauncherSpeed)).withTimeout(Constants.Launcher.SPINUP_TIMEOUT_SECONDS),
+                Commands.runOnce(() -> launcher.setSpeedLauncherFeed(LauncherSpeed)),
+                Commands.runOnce(() -> indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED))
+                
+                // else 
+                // {
+                //     Commands.sequence(
+                //         Commands.runOnce(() -> drivetrain.applyRequest(() -> brake)),
+                //         Commands.runOnce(() -> launcher.setSpeedLauncherMain(LauncherSpeed)),
+                //         Commands.waitUntil(() -> launcher.isAtTargetSpeed(LauncherSpeed)).withTimeout(Constants.Launcher.SPINUP_TIMEOUT_SECONDS),
+                //         Commands.runOnce(() -> launcher.setSpeedLauncherFeed(LauncherSpeed)),
+                //         Commands.runOnce(() -> indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED))
+                //     );
+                // }
+            )).onFalse(
+            Commands.sequence(
+                Commands.runOnce(() -> launcher.setSpeedLauncher(0)),
+                Commands.runOnce(() -> indexer.setIndexerSpeed(0))
+            )
+        );
+    }
+
+    private void resetFieldPos() {
+        joystick.x().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
+    }
+
+    private void autoAimRobot() {
+        joystick.rightBumper().whileTrue(new RunCommand(() -> {
+            drivetrain.calculateAutoAimRot(hubPosition, 0.7); // updates targetAngle
+            drivetrain.setControl(
+                autoAimDrive.withVelocityX(-joystick.getLeftY() * MaxSpeed)
+                            .withVelocityY(-joystick.getLeftX() * MaxSpeed)
+                            .withTargetDirection(drivetrain.getTargetAngle())
+                
+            );
+        }, drivetrain));
+    }
+
+    private void runIntakeAndIndexer() {
+        joystick.leftTrigger().onTrue(
+            Commands.runOnce(() -> {
+                //intake.setIntakeAngle(0);
+                if (intake.isIntakeActive()) {
+                    intake.setIntakeSpeed(0);
+                    intake.unlockAngle();
+                    indexer.setIndexerSpeed(0);
+                } else {
+                    intake.setIntakeSpeed(Constants.Intake.INTAKE_SPEED);
+                    intake.lockAngle(intake.getIntakeAngle());
+                    indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED);
+                    //intake.lockAngle(0);
+                }
+            })
+        );
+    }
+
+    private void brake() {
+        joystick.b().whileTrue(drivetrain.applyRequest(() -> brake));
+    }
+
+    private void intakePivotDown() {
+        joystick.leftBumper().whileTrue(
+            Commands.runOnce(() -> intake.setIntakeAngleSpeed(Constants.Intake.INTAKE_ANGLE_SPEED), intake)
+        )
+        .onFalse(Commands.runOnce(() -> intake.setIntakeAngleSpeed(0)));
     }
 
     public Command getAutonomousCommand() {
