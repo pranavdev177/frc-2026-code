@@ -116,10 +116,10 @@ public class RobotContainer {
     }
 
     private void setupPathplannerCommands() {
-        NamedCommands.registerCommand("ShootFuel", ShootFuel(5, launcher.distToPower(drivetrain.getHubDist(hubPosition))));
-        NamedCommands.registerCommand("ShootFuelFar", ShootFuel(5, launcher.distToPower(drivetrain.getHubDist(hubPosition))));
+        NamedCommands.registerCommand("ShootFuel", ShootFuel(5, 0.68));
+        NamedCommands.registerCommand("ShootFuelFar", ShootFuel(5, 0.87));
+        NamedCommands.registerCommand("ShootFuelLong", ShootFuel(8, 0.87));
         NamedCommands.registerCommand("ShootFuelKeepingOn", ShootFuelKeepingOn(3, launcher.distToPower(drivetrain.getHubDist(hubPosition))));
-        NamedCommands.registerCommand("ShootFuelLong", ShootFuel(8, launcher.distToPower(drivetrain.getHubDist(hubPosition))));
         NamedCommands.registerCommand("TurnOnIntake",  Commands.sequence(                  
             Commands.runOnce(() -> intake.setIntakeSpeed(Constants.Intake.INTAKE_SPEED))
             //Commands.runOnce(() -> indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED))
@@ -137,8 +137,8 @@ public class RobotContainer {
         new EventTrigger("TurnOnLauncherShooter").onTrue(Commands.sequence(
             Commands.runOnce(() -> 
             {
-                launcher.setSpeedLauncherMain(launcher.distToPower(drivetrain.getHubDist(hubPosition)));
-                indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED);
+                launcher.setSpeedLauncherMain(0.7);
+                //indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED);
             })
         ));
     }
