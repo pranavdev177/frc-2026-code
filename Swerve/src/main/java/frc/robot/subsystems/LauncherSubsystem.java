@@ -16,6 +16,7 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import frc.robot.Constants;
+import frc.robot.Robot;
 
 public class LauncherSubsystem extends SubsystemBase {
   private TalonFX launcherMain = new TalonFX(53);
@@ -47,6 +48,7 @@ public class LauncherSubsystem extends SubsystemBase {
 
   public void setSpeedLauncherMain(double speed) {
     launcherMain.set(speed);
+    Robot.logMsg("Launcher speed: " + speed);
   }
 
   public void setSpeedLauncherFeed(double speed) {

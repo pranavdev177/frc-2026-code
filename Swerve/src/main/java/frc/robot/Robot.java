@@ -78,15 +78,15 @@ public class Robot extends TimedRobot {
         SmartDashboard.putBoolean("Camera Connected", !results.isEmpty());
 
         if (!cam.isConnected()) {
-            //logMsg("WARNING, CAMERA IS NOT CONNECTED!!!!!");
+            logMsg("WARNING, CAMERA IS NOT CONNECTED!!!!!");
         }
 
         for (var result : results)
         {
 
-
             if ((result != null) && (result.hasTargets()))
             {
+                Constants.Launcher.visionPresent = true;
                 var visionEst = camPhotonPoseEstimator.estimateCoprocMultiTagPose(result);
                 //logMsg("Vision Estimated Pose - " + visionEst.isEmpty());
                 if (visionEst.isEmpty())
@@ -97,10 +97,6 @@ public class Robot extends TimedRobot {
                 if (visionEst.isPresent())
                 {
                     var est = visionEst.get();
-                    if (result.getBestTarget().getPoseAmbiguity() > 0.2) {
-                        logMsg("Camera is blind");
-                        return; // two possible poses too similar, can't trust it
-                    }
 
                     //logMsg("Estimate present " + est);
                     //logMsg("Yawww " + result.getBestTarget().getYaw());
@@ -109,6 +105,10 @@ public class Robot extends TimedRobot {
                         est.timestampSeconds
                     );
                 }
+            }
+            else
+            {
+                Constants.Launcher.visionPresent = false;
             }
         }
         CommandScheduler.getInstance().run(); 

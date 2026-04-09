@@ -187,6 +187,13 @@ public class RobotContainer {
         );
     }
 
+    private void CycleLauncherSpeeds() {
+        LauncherSpeed += 0.1;
+
+        if (LauncherSpeed > 1)
+            LauncherSpeed = 0.6;
+    }
+
     private void InitializeSmartDashboard() {
         SmartDashboard.putData("Field", field);
 
@@ -333,11 +340,11 @@ public class RobotContainer {
                     if (intake.isIntakeActive()) {
                         intake.setIntakeSpeed(0);
                         intake.unlockAngle();
-                        //indexer.setIndexerSpeed(0);
+                        indexer.setIndexerSpeed(0);
                     } else {
                         intake.setIntakeSpeed(Constants.Intake.INTAKE_SPEED);
                         intake.lockAngle(intake.getIntakeAngle());
-                        //indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED);
+                        indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED);
                         //intake.lockAngle(0);
                     }
                 })
@@ -364,7 +371,6 @@ public class RobotContainer {
                     {
                         Commands.sequence(
                             Commands.runOnce(() -> drivetrain.applyRequest(() -> brake)),
-                            Commands.runOnce(() -> LauncherSpeed = launcher.distToPower(drivetrain.getHubDist(hubPosition)), launcher),
                             Commands.runOnce(() -> launcher.setSpeedLauncherMain(LauncherSpeed)),
                             Commands.waitUntil(() -> launcher.isAtTargetSpeed(LauncherSpeed)).withTimeout(Constants.Launcher.SPINUP_TIMEOUT_SECONDS),
                             Commands.runOnce(() -> launcher.setSpeedLauncherFeed(LauncherSpeed)),
@@ -392,7 +398,7 @@ public class RobotContainer {
             // Indexer unjam
             joystick.y().whileTrue(Commands.runOnce(() -> indexer.setIndexerSpeed(-Constants.Indexer.INDEXER_SPEED))).onFalse(Commands.runOnce(() -> indexer.setIndexerSpeed(0)));
 
-
+            joystick.a().onTrue(Commands.runOnce(() -> CycleLauncherSpeeds(), launcher));
 
             // Run SysId routines when holding back/start and X/Y.
             // Note that each routine should be run exactly once in a single log.
