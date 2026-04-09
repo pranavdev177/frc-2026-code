@@ -113,7 +113,6 @@ public class RobotContainer {
     public Boolean photonActive = true;
 
     private final NetworkTableEntry launcherSpeedEnty;
-
     public RobotContainer() {
         InitializeSmartDashboard();
         configureBindings();
@@ -512,11 +511,12 @@ public class RobotContainer {
                     //intake.setIntakeAngle(0);
                     if (intake.isIntakeActive()) {
                         intake.setIntakeSpeed(0);
+                        intake.unlockAngle();
                         //indexer.setIndexerSpeed(0);
-                        //intake.lockAngle(-1);
                     } else {
                         intake.setIntakeSpeed(Constants.Intake.INTAKE_SPEED);
-                        //indexer.setIndexerSpeed(0);
+                        intake.lockAngle(intake.getIntakeAngle());
+                        //indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED);
                         //intake.lockAngle(0);
                     }
                 })
@@ -526,10 +526,8 @@ public class RobotContainer {
 
             //TRASH COMPACTING TEST HEAVILY BEFORE IMPLEMENTING
             joystick.x().onTrue(Commands.sequence(
-                Commands.runOnce(() -> intake.setIntakeAngleSpeed(-0.5)),
-                Commands.waitSeconds(1),
-                Commands.runOnce(() -> intake.setIntakeAngleSpeed(Constants.Intake.INTAKE_ANGLE_SPEED)),
-                Commands.waitSeconds(1),
+                Commands.runOnce(() -> intake.setIntakeAngleSpeed(-0.2)),
+                Commands.waitSeconds(0.4),
                 Commands.runOnce(() -> intake.setIntakeAngleSpeed(0))
                 ));
             /*

@@ -36,7 +36,7 @@ public class Constants {
         public static final double COMPACT_TIME = 0.5;
 
         // Speed
-        public static final double INTAKE_SPEED = 0.7;
+        public static final double INTAKE_SPEED = 0.8;
 
         //Intake angle speed
         public static final double INTAKE_ANGLE_SPEED = 0.3;
@@ -71,7 +71,7 @@ public class Constants {
     }
 
     public final class Testing {
-        public static final boolean TESTING = true;
+        public static final boolean TESTING = false;
         public static final boolean ENABLE_LOGS = true;
     }
 }
