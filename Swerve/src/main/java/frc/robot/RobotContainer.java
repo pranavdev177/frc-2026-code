@@ -333,6 +333,7 @@ public class RobotContainer {
             }
             else
             {
+                cycleLauncherSpeed();
                 joystick.rightTrigger().whileTrue(Commands.runOnce(() -> 
                 {
                     launcher.setSpeedLauncher(LauncherSpeed);
@@ -340,7 +341,6 @@ public class RobotContainer {
                 }))
                 .onFalse(Commands.runOnce(() -> 
                 {
-                    cycleLauncherSpeed();
                     launcher.setSpeedLauncher(0);
                     indexer.setIndexerSpeed(0);
                 }));
@@ -475,7 +475,7 @@ public class RobotContainer {
     }
 
     private void trashCompacting() {
-        joystick.x().onTrue(Commands.sequence(
+        joystick.a().onTrue(Commands.sequence(
             Commands.runOnce(() -> intake.setIntakeAngleSpeed(-0.2)),
             Commands.waitSeconds(0.4),
             Commands.runOnce(() -> intake.setIntakeAngleSpeed(0))
@@ -483,7 +483,7 @@ public class RobotContainer {
     }
 
     private void intakePivotUp() {
-        joystick.a().whileTrue(Commands.runOnce(() -> 
+        joystick.rightStick().whileTrue(Commands.runOnce(() -> 
         {
             intake.setIntakeAngleSpeed(-0.1);
         }, intake))
