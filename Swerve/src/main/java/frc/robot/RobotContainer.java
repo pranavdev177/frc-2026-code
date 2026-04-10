@@ -188,10 +188,10 @@ public class RobotContainer {
     }
 
     private void CycleLauncherSpeeds() {
-        LauncherSpeed += 0.1;
+        LauncherSpeed += 0.2;
 
         if (LauncherSpeed > 1)
-            LauncherSpeed = 0.6;
+            LauncherSpeed = 0.7;
     }
 
     private void InitializeSmartDashboard() {
@@ -326,13 +326,20 @@ public class RobotContainer {
             // Intake Spin (toggle)
             runIntakeAndIndexer();
             //AutoAim
-            autoAimRobot();
+            if(Constants.Testing.VISION_TESTING)
+            {
+                autoAimRobot();
+            }
+            else
+            {
+                cycleLauncherSpeed();
+            }
             resetFieldPos();
             // Shoot (hold)    
             runShooterAndIndexer();
             // Indexer unjam
             unjamIndexer();
-            cycleLauncherSpeed();
+            
 
             // Run SysId routines when holding back/start and X/Y.
             // Note that each routine should be run exactly once in a single log.
@@ -364,6 +371,7 @@ public class RobotContainer {
             runIntakeAndIndexer();
             unjamIndexer();
             trashCompacting();
+
             //#region commented out functions
             /*
             joystick.rightBumper().whileTrue(new RunCommand(() -> {
@@ -473,7 +481,7 @@ public class RobotContainer {
     }
 
     private void cycleLauncherSpeed() {
-        joystick.a().whileTrue(Commands.runOnce(() -> CycleLauncherSpeeds(), launcher));
+        joystick.rightBumper().whileTrue(Commands.runOnce(() -> CycleLauncherSpeeds(), launcher));
     }
 
     private void unjamIndexer() {

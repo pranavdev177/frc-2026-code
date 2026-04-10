@@ -73,40 +73,42 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
         m_timeAndJoystickReplay.update();
         m_robotContainer.updateSmartDashboard();
-
-        var results = cam.getAllUnreadResults();
-        SmartDashboard.putBoolean("Camera Connected", !results.isEmpty());
-
-        if (!cam.isConnected()) {
-            logMsg("WARNING, CAMERA IS NOT CONNECTED!!!!!");
-        }
-
-        for (var result : results)
+        if (Constants.Testing.VISION_TESTING)
         {
+            var results = cam.getAllUnreadResults();
+            SmartDashboard.putBoolean("Camera Connected", !results.isEmpty());
 
-            if ((result != null) && (result.hasTargets()))
+            if (!cam.isConnected()) {
+                logMsg("WARNING, CAMERA IS NOT CONNECTED!!!!!");
+            }
+
+            for (var result : results)
             {
-                var visionEst = camPhotonPoseEstimator.estimateCoprocMultiTagPose(result);
-                //logMsg("Vision Estimated Pose - " + visionEst.isEmpty());
-                if (visionEst.isEmpty())
-                {
-                    visionEst = camPhotonPoseEstimator.estimateLowestAmbiguityPose(result);
-                }
-                //logMsg("Vision Estimated Is Present - " + visionEst.isPresent());
-                if (visionEst.isPresent())
-                {
-                    var est = visionEst.get();
 
-                    //logMsg("Estimate present " + est);
-                    //logMsg("Yawww " + result.getBestTarget().getYaw());
-                    m_robotContainer.drivetrain.addVisionMeasurement(
-                        est.estimatedPose.toPose2d(),
-                        est.timestampSeconds
-                    );
+                if ((result != null) && (result.hasTargets()))
+                {
+                    var visionEst = camPhotonPoseEstimator.estimateCoprocMultiTagPose(result);
+                    //logMsg("Vision Estimated Pose - " + visionEst.isEmpty());
+                    if (visionEst.isEmpty())
+                    {
+                        visionEst = camPhotonPoseEstimator.estimateLowestAmbiguityPose(result);
+                    }
+                    //logMsg("Vision Estimated Is Present - " + visionEst.isPresent());
+                    if (visionEst.isPresent())
+                    {
+                        var est = visionEst.get();
+
+                        //logMsg("Estimate present " + est);
+                        //logMsg("Yawww " + result.getBestTarget().getYaw());
+                        m_robotContainer.drivetrain.addVisionMeasurement(
+                            est.estimatedPose.toPose2d(),
+                            est.timestampSeconds
+                        );
+                    }
                 }
             }
-        }
-        CommandScheduler.getInstance().run(); 
+            CommandScheduler.getInstance().run(); 
+       }
     }
 
     @Override
