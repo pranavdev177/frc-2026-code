@@ -340,6 +340,7 @@ public class RobotContainer {
                 }))
                 .onFalse(Commands.runOnce(() -> 
                 {
+                    cycleLauncherSpeed();
                     launcher.setSpeedLauncher(0);
                     indexer.setIndexerSpeed(0);
                 }));
