@@ -4,12 +4,12 @@
     {
       "anchor": {
         "x": 2.4,
-        "y": 1.0
+        "y": 1.842
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.5029378487399345,
-        "y": 0.558095602220725
+        "x": 1.8004161849710973,
+        "y": -0.20640462427745732
       },
       "isLocked": false,
       "linkedName": "RightShootingPos"
@@ -20,8 +20,8 @@
         "y": 1.384
       },
       "prevControl": {
-        "x": 7.667485172004747,
-        "y": 0.2316251482799534
+        "x": 8.343398843930634,
+        "y": 0.8211791907514452
       },
       "nextControl": null,
       "isLocked": false,
@@ -31,7 +31,7 @@
   "rotationTargets": [
     {
       "waypointRelativePos": 0.3,
-      "rotationDegrees": 0.0
+      "rotationDegrees": -1.9396537822410311
     },
     {
       "waypointRelativePos": 0.6,
@@ -40,14 +40,7 @@
   ],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [
-    {
-      "name": "DropIntake",
-      "waypointRelativePos": 0.6,
-      "endWaypointRelativePos": null,
-      "command": null
-    }
-  ],
+  "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 3.0,
     "maxAcceleration": 3.0,

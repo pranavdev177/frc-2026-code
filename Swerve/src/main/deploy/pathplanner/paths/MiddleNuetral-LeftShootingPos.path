@@ -20,12 +20,12 @@
         "y": 7.042
       },
       "prevControl": {
-        "x": 4.653628205128208,
+        "x": 4.653628205128207,
         "y": 7.756025641019827
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "LeftShootingPos"
+      "linkedName": "LeftTrenchShootingPos"
     }
   ],
   "rotationTargets": [
@@ -58,7 +58,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -53.7
+    "rotation": -44.6
   },
   "reversed": false,
   "folder": null,

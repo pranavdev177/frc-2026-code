@@ -9,7 +9,7 @@
       "prevControl": null,
       "nextControl": {
         "x": 7.734884615384616,
-        "y": 0.13955128205128098
+        "y": 0.13955128205128053
       },
       "isLocked": false,
       "linkedName": "NuetralMiddle2"
@@ -17,11 +17,11 @@
     {
       "anchor": {
         "x": 3.519,
-        "y": 0.651
+        "y": 2.55
       },
       "prevControl": {
         "x": 5.746679487179488,
-        "y": 0.6628205128205127
+        "y": 2.5618205128205123
       },
       "nextControl": null,
       "isLocked": false,

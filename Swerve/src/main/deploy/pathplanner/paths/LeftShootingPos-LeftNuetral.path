@@ -4,12 +4,12 @@
     {
       "anchor": {
         "x": 2.4,
-        "y": 7.042
+        "y": 6.2
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.0023974358974375,
-        "y": 7.68625641025641
+        "x": 0.8147745664739874,
+        "y": 7.825526011560694
       },
       "isLocked": false,
       "linkedName": "LeftShootingPos"
@@ -40,14 +40,7 @@
   ],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [
-    {
-      "name": "DropIntake",
-      "waypointRelativePos": 0.6,
-      "endWaypointRelativePos": null,
-      "command": null
-    }
-  ],
+  "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 3.0,
     "maxAcceleration": 3.0,
@@ -64,7 +57,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -53.7
+    "rotation": -44.6
   },
   "useDefaultConstraints": true
 }

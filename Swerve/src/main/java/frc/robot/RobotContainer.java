@@ -130,7 +130,7 @@ public class RobotContainer {
 
     private void setupPathplannerCommands() {
         NamedCommands.registerCommand("ShootFuel", ShootFuel(5, 0.68));
-        NamedCommands.registerCommand("ShootFuelFar", ShootFuel(5, 0.87));
+        NamedCommands.registerCommand("ShootFuelFar", ShootFuel(5, 0.8));
         NamedCommands.registerCommand("ShootFuelLong", ShootFuel(8, 0.87));
         NamedCommands.registerCommand("ShootFuelKeepingOn", ShootFuelKeepingOn(3, launcher.distToPower(drivetrain.getHubDist(hubPosition))));
         NamedCommands.registerCommand("TurnOnIntake",  Commands.sequence(                  
@@ -333,6 +333,7 @@ public class RobotContainer {
             // Indexer unjam
             unjamIndexer();
             cycleLauncherSpeed();
+            trashCompacting();
 
             // Run SysId routines when holding back/start and X/Y.
             // Note that each routine should be run exactly once in a single log.
@@ -551,8 +552,7 @@ public class RobotContainer {
     private void intakePivotDown() {
         joystick.leftBumper().whileTrue(
             Commands.runOnce(() -> intake.setIntakeAngleSpeed(Constants.Intake.INTAKE_ANGLE_SPEED), intake)
-        )
-        .onFalse(Commands.runOnce(() -> intake.setIntakeAngleSpeed(0)));
+        ).onFalse(Commands.runOnce(() -> intake.setIntakeAngleSpeed(0)));
     }
 
     public Command getAutonomousCommand() {

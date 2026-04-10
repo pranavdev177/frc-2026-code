@@ -20,18 +20,18 @@
         "y": 1.0
       },
       "prevControl": {
-        "x": 5.11755634638197,
-        "y": 0.2854211150652416
+        "x": 4.421803468208092,
+        "y": 0.32835838150288976
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "RightShootingPos"
+      "linkedName": "RightTrenchShootingPos"
     }
   ],
   "rotationTargets": [
     {
       "waypointRelativePos": 0.5,
-      "rotationDegrees": 0.0
+      "rotationDegrees": -0.043811239568944414
     },
     {
       "waypointRelativePos": 0.9,

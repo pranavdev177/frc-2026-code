@@ -4,12 +4,12 @@
     {
       "anchor": {
         "x": 3.519,
-        "y": 0.651
+        "y": 2.55
       },
       "prevControl": null,
       "nextControl": {
         "x": 3.008754448398578,
-        "y": 0.8018623962040329
+        "y": 2.7008623962040326
       },
       "isLocked": false,
       "linkedName": "BlueRight"
@@ -17,11 +17,11 @@
     {
       "anchor": {
         "x": 2.4,
-        "y": 1.0
+        "y": 1.842
       },
       "prevControl": {
         "x": 2.1482575365436283,
-        "y": 0.9870001748111591
+        "y": 1.829000174811159
       },
       "nextControl": null,
       "isLocked": false,
@@ -35,6 +35,12 @@
     {
       "name": "TurnOnLauncherShooter",
       "waypointRelativePos": 0.1,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "DropIntake",
+      "waypointRelativePos": 0.2,
       "endWaypointRelativePos": null,
       "command": null
     }

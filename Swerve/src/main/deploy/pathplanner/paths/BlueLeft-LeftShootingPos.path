@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.4361618497109823,
-        "y": 5.592104046242776
+        "x": 3.519,
+        "y": 5.575
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.9412711019775117,
-        "y": 5.747687386570112
+        "x": 3.089092485549133,
+        "y": 5.847624277456646
       },
       "isLocked": false,
       "linkedName": "BlueLeft"
@@ -17,11 +17,11 @@
     {
       "anchor": {
         "x": 2.4,
-        "y": 7.042
+        "y": 6.2
       },
       "prevControl": {
-        "x": 2.1631831606862546,
-        "y": 6.961888923253723
+        "x": 3.574381502890173,
+        "y": 5.497468208092486
       },
       "nextControl": null,
       "isLocked": false,
@@ -37,6 +37,12 @@
       "waypointRelativePos": 0.1,
       "endWaypointRelativePos": null,
       "command": null
+    },
+    {
+      "name": "DropIntake",
+      "waypointRelativePos": 0.2,
+      "endWaypointRelativePos": null,
+      "command": null
     }
   ],
   "globalConstraints": {
@@ -49,7 +55,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -53.7
+    "rotation": -44.6
   },
   "reversed": false,
   "folder": null,
