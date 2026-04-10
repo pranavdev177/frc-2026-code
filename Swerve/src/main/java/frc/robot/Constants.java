@@ -18,7 +18,7 @@ public class Constants {
         public static final double LONG_SHOOT_AUTO_SPEED = 0.8;
         public static final double SHORT_SHOOT_AUTO_SPEED = 0.6;
 
-        public static final double SPINUP_TIMEOUT_SECONDS = 2;
+        public static final double SPINUP_TIMEOUT_SECONDS = 5;
 
         // PID
         public static final double kP = 0.1;

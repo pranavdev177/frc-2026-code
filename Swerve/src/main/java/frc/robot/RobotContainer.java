@@ -19,6 +19,7 @@ import com.pathplanner.lib.path.PathConstraints;
 
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.RobotController;
@@ -111,6 +112,10 @@ public class RobotContainer {
 
     private final NetworkTableEntry photonEntry;
     public Boolean photonActive = true;
+
+    public final SlewRateLimiter m_xLimiter   = new SlewRateLimiter(4.0);
+    public final SlewRateLimiter m_yLimiter   = new SlewRateLimiter(4.0);
+    public final SlewRateLimiter m_rotLimiter = new SlewRateLimiter(6.0);
 
     //private final NetworkTableEntry launcherSpeedEnty;
 
@@ -284,12 +289,20 @@ public class RobotContainer {
          */
 
         // MOVEMENT
-        drivetrain.setDefaultCommand(
+        /*drivetrain.setDefaultCommand(
             // Drivetrain will execute this command periodically
             drivetrain.applyRequest(() ->
                 drive.withVelocityX(-joystick.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
                     .withVelocityY(-joystick.getLeftX() * MaxSpeed) // Drive left with negative X (left)
                     .withRotationalRate(-joystick.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
+            )
+        );*/
+
+        drivetrain.setDefaultCommand(
+            drivetrain.applyRequest(() ->
+                drive.withVelocityX(m_xLimiter.calculate(-joystick.getLeftY() * MaxSpeed))
+                    .withVelocityY(m_yLimiter.calculate(-joystick.getLeftX() * MaxSpeed))
+                    .withRotationalRate(m_rotLimiter.calculate(-joystick.getRightX() * MaxAngularRate))
             )
         );
 

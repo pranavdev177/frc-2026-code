@@ -14,6 +14,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
@@ -150,6 +151,11 @@ public class Robot extends TimedRobot {
         if (m_autonomousCommand != null) {
             CommandScheduler.getInstance().cancel(m_autonomousCommand);
         }
+
+        ChassisSpeeds current = m_robotContainer.drivetrain.getState().Speeds;
+        m_robotContainer.m_xLimiter.reset(current.vxMetersPerSecond);
+        m_robotContainer.m_yLimiter.reset(current.vyMetersPerSecond);
+        m_robotContainer.m_rotLimiter.reset(current.omegaRadiansPerSecond);
 
         /*Rotation2d startingAngle = DriverStation.getAlliance()
             .filter(a -> a == DriverStation.Alliance.Red)

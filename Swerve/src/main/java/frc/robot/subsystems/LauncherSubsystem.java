@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -25,6 +26,9 @@ public class LauncherSubsystem extends SubsystemBase {
   private double launchVelocity = 0;
   public final double launcherAngle = 1.317724;
   public final double relativeHubHeight = 2.148;
+
+  private final SlewRateLimiter m_mainLimiter = new SlewRateLimiter(2.0);
+  private final SlewRateLimiter m_feedLimiter = new SlewRateLimiter(2.0);
 
 
   /** Creates a new ExampleSubsystem. */
@@ -55,16 +59,17 @@ public class LauncherSubsystem extends SubsystemBase {
   }
 
   public void setSpeedLauncher(double speed) {
-    launcherMain.set(speed);
-    launcherFeed.set(-speed);
+    double filtered = m_mainLimiter.calculate(speed);
+    launcherMain.set(filtered);
+    launcherFeed.set(-filtered);
   }
 
   public void setSpeedLauncherMain(double speed) {
-    launcherMain.set(speed);
+    launcherMain.set(m_mainLimiter.calculate(speed));
   }
 
   public void setSpeedLauncherFeed(double speed) {
-    launcherFeed.set(-speed);
+    launcherFeed.set(-m_feedLimiter.calculate(speed));
   }
 
   public double launchVelocityToMotorSpeed(double vl) {
@@ -85,6 +90,8 @@ public class LauncherSubsystem extends SubsystemBase {
   public void stop() {
       launcherMain.set(0);
       launcherFeed.set(0);
+      m_mainLimiter.reset(0);  // ← add
+      m_feedLimiter.reset(0);
   }
 
   public boolean isLauncherActive() {
