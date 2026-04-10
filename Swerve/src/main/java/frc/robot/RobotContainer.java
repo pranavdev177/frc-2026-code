@@ -329,14 +329,22 @@ public class RobotContainer {
             if(Constants.Testing.VISION_TESTING)
             {
                 autoAimRobot();
+                runShooterAndIndexer();
             }
             else
             {
-                cycleLauncherSpeed();
+                joystick.rightTrigger().whileTrue(Commands.runOnce(() -> 
+                {
+                    launcher.setSpeedLauncher(LauncherSpeed);
+                    indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED);
+                }))
+                .onFalse(Commands.runOnce(() -> 
+                {
+                    launcher.setSpeedLauncher(0);
+                    indexer.setIndexerSpeed(0);
+                }));
             }
             resetFieldPos();
-            // Shoot (hold)    
-            runShooterAndIndexer();
             // Indexer unjam
             unjamIndexer();
             
@@ -494,6 +502,7 @@ public class RobotContainer {
             Commands.sequence(
                 //Commands.runOnce(() -> LauncherSpeed = 0.7),
                 Commands.runOnce(() -> Robot.logMsg("Working?")),
+                Commands.runOnce(() -> LauncherSpeed = launcher.distToPower(drivetrain.getHubDist(hubPosition))),
                 Commands.runOnce(() -> drivetrain.applyRequest(() -> brake)),
                 Commands.runOnce(() -> launcher.setSpeedLauncherMain(LauncherSpeed)),
                 Commands.waitUntil(() -> launcher.isAtTargetSpeed(LauncherSpeed)).withTimeout(Constants.Launcher.SPINUP_TIMEOUT_SECONDS),
