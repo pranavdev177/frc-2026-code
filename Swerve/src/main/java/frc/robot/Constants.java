@@ -18,7 +18,7 @@ public class Constants {
         public static final double LONG_SHOOT_AUTO_SPEED = 0.8;
         public static final double SHORT_SHOOT_AUTO_SPEED = 0.6;
 
-        public static final double SPINUP_TIMEOUT_SECONDS = 3.0;
+        public static final double SPINUP_TIMEOUT_SECONDS = 1.0;
 
         // PID
         public static final double kP = 0.1;
@@ -62,7 +62,7 @@ public class Constants {
     }
 
     public final class Indexer {
-        public static final double INDEXER_SPEED = 0.5;
+        public static final double INDEXER_SPEED = 0.85;
     }
 
     public final class Match {
@@ -71,7 +71,7 @@ public class Constants {
     }
 
     public final class Testing {
-        public static final boolean TESTING = true;
+        public static final boolean TESTING = false;
         public static final boolean ENABLE_LOGS = true;
     }
 }

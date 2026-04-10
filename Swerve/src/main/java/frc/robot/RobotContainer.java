@@ -135,8 +135,8 @@ public class RobotContainer {
         NamedCommands.registerCommand("ShootFuelLong", ShootFuel(8, 0.87));
         NamedCommands.registerCommand("ShootFuelKeepingOn", ShootFuelKeepingOn(3, launcher.distToPower(drivetrain.getHubDist(hubPosition))));
         NamedCommands.registerCommand("TurnOnIntake",  Commands.sequence(                  
-            Commands.runOnce(() -> intake.setIntakeSpeed(Constants.Intake.INTAKE_SPEED))
-            //Commands.runOnce(() -> indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED))
+            Commands.runOnce(() -> intake.setIntakeSpeed(Constants.Intake.INTAKE_SPEED)),
+            Commands.runOnce(() -> indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED))
         ));
 
         NamedCommands.registerCommand("TurnOffIntake",  Commands.sequence(                  
@@ -333,11 +333,11 @@ public class RobotContainer {
                     if (intake.isIntakeActive()) {
                         intake.setIntakeSpeed(0);
                         intake.unlockAngle();
-                        //indexer.setIndexerSpeed(0);
+                        indexer.setIndexerSpeed(0);
                     } else {
                         intake.setIntakeSpeed(Constants.Intake.INTAKE_SPEED);
                         intake.lockAngle(intake.getIntakeAngle());
-                        //indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED);
+                        indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED);
                         //intake.lockAngle(0);
                     }
                 })
@@ -355,37 +355,68 @@ public class RobotContainer {
             }, drivetrain));
 
             // Shoot (hold)    
+            // joystick.rightTrigger().whileTrue(
+            //     Commands.runOnce(() -> 
+            //     {
+            //         if (!photonActive)
+            //         {
+            //             Commands.sequence(
+            //                 Commands.runOnce(() -> drivetrain.applyRequest(() -> brake)),
+            //                 Commands.runOnce(() -> LauncherSpeed = launcher.distToPower(drivetrain.getHubDist(hubPosition)), launcher),
+            //                 Commands.runOnce(() -> launcher.setSpeedLauncherMain(LauncherSpeed)),
+            //                 Commands.waitUntil(() -> launcher.isAtTargetSpeed(LauncherSpeed)).withTimeout(Constants.Launcher.SPINUP_TIMEOUT_SECONDS),
+            //                 Commands.runOnce(() -> launcher.setSpeedLauncherFeed(LauncherSpeed)),
+            //                 Commands.runOnce(() -> indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED))
+            //             );
+            //         }
+            //         else 
+            //         {
+            //             Commands.sequence(
+            //                 Commands.runOnce(() -> drivetrain.applyRequest(() -> brake)),
+            //                 Commands.runOnce(() -> launcher.setSpeedLauncherMain(LauncherSpeed)),
+            //                 Commands.waitUntil(() -> launcher.isAtTargetSpeed(LauncherSpeed)).withTimeout(Constants.Launcher.SPINUP_TIMEOUT_SECONDS),
+            //                 Commands.runOnce(() -> launcher.setSpeedLauncherFeed(LauncherSpeed)),
+            //                 Commands.runOnce(() -> indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED))
+            //             );
+            //         }
+            //     })
+            // ).onFalse(
+            //     Commands.sequence(
+            //         Commands.runOnce(() -> launcher.setSpeedLauncher(0)),
+            //         Commands.runOnce(() -> indexer.setIndexerSpeed(0))
+            //     )
+            // );
+
             joystick.rightTrigger().whileTrue(
-                Commands.runOnce(() -> 
-                {
-                    if (photonActive)
-                    {
-                        Commands.sequence(
-                            Commands.runOnce(() -> drivetrain.applyRequest(() -> brake)),
-                            Commands.runOnce(() -> LauncherSpeed = launcher.distToPower(drivetrain.getHubDist(hubPosition)), launcher),
-                            Commands.runOnce(() -> launcher.setSpeedLauncherMain(LauncherSpeed)),
-                            Commands.waitUntil(() -> launcher.isAtTargetSpeed(LauncherSpeed)).withTimeout(Constants.Launcher.SPINUP_TIMEOUT_SECONDS),
-                            Commands.runOnce(() -> launcher.setSpeedLauncherFeed(LauncherSpeed)),
-                            Commands.runOnce(() -> indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED))
-                        );
-                    }
-                    else 
-                    {
-                        Commands.sequence(
-                            Commands.runOnce(() -> drivetrain.applyRequest(() -> brake)),
-                            Commands.runOnce(() -> launcher.setSpeedLauncherMain(LauncherSpeed)),
-                            Commands.waitUntil(() -> launcher.isAtTargetSpeed(LauncherSpeed)).withTimeout(Constants.Launcher.SPINUP_TIMEOUT_SECONDS),
-                            Commands.runOnce(() -> launcher.setSpeedLauncherFeed(LauncherSpeed)),
-                            Commands.runOnce(() -> indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED))
-                        );
-                    }
-                })
+                Commands.sequence(
+                    Commands.runOnce(() -> drivetrain.applyRequest(() -> brake)),
+                    Commands.runOnce(() -> 
+                    {  
+                        //LauncherSpeed = launcher.distToPower(drivetrain.getHubDist(hubPosition) + 1);
+                        LauncherSpeed = 1;
+
+                    }, launcher),
+
+                    Commands.runOnce(() -> launcher.setSpeedLauncherMain(LauncherSpeed)),
+                    Commands.waitUntil(() -> launcher.isAtTargetSpeed(LauncherSpeed)).withTimeout(Constants.Launcher.SPINUP_TIMEOUT_SECONDS),
+                    Commands.runOnce(() -> launcher.setSpeedLauncherFeed(LauncherSpeed)),
+                    Commands.runOnce(() -> indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED))
+                )
             ).onFalse(
                 Commands.sequence(
                     Commands.runOnce(() -> launcher.setSpeedLauncher(0)),
-                    Commands.runOnce(() -> indexer.setIndexerSpeed(0))
+                    Commands.runOnce(() -> indexer.setIndexerSpeed(0)),
+                    Commands.runOnce(() -> Robot.logMsg(" I am scared....Stopping Launcher"))
                 )
             );
+            joystick.a().onTrue(Commands.sequence(
+            Commands.runOnce(() -> intake.setIntakeAngleSpeed(-0.2)),
+            Commands.waitSeconds(0.4),
+            Commands.runOnce(() -> intake.setIntakeAngleSpeed(0))));
+            joystick.x().whileTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
+
+
+
 
             // Indexer unjam
             joystick.y().whileTrue(Commands.runOnce(() -> indexer.setIndexerSpeed(-Constants.Indexer.INDEXER_SPEED))).onFalse(Commands.runOnce(() -> indexer.setIndexerSpeed(0)));
@@ -435,17 +466,9 @@ public class RobotContainer {
                 Commands.sequence(
                     Commands.runOnce(() -> drivetrain.applyRequest(() -> brake)),
                     Commands.runOnce(() -> 
-                    {
-                        if (drivetrain.getPose().getX() > 4.61 && drivetrain.getPose().getX() < 11.9)
-                        {
-                            LauncherSpeed = launcher.distToPower(drivetrain.getHubDist(hubPosition) + 1);
-                            Robot.logMsg("Ferryyy");
-                        }
-                        else
-                        {
-                            LauncherSpeed = launcher.distToPower(drivetrain.getHubDist(hubPosition));
-                            Robot.logMsg("KOBEEE");
-                        }
+                    {  
+                        //LauncherSpeed = launcher.distToPower(drivetrain.getHubDist(hubPosition) + 1);
+                        LauncherSpeed = 0.7;
                     }, launcher),
 
                     Commands.runOnce(() -> launcher.setSpeedLauncherMain(LauncherSpeed)),
@@ -500,8 +523,6 @@ public class RobotContainer {
             //TRASH COMPACTING TEST HEAVILY BEFORE IMPLEMENTING
             joystick.x().onTrue(Commands.sequence(
                 Commands.runOnce(() -> intake.setIntakeAngleSpeed(-0.5)),
-                Commands.waitSeconds(1),
-                Commands.runOnce(() -> intake.setIntakeAngleSpeed(Constants.Intake.INTAKE_ANGLE_SPEED)),
                 Commands.waitSeconds(1),
                 Commands.runOnce(() -> intake.setIntakeAngleSpeed(0))
                 ));
