@@ -188,10 +188,10 @@ public class RobotContainer {
     }
 
     private void CycleLauncherSpeeds() {
-        LauncherSpeed += 0.1;
+        LauncherSpeed += 0.2;
 
         if (LauncherSpeed > 1)
-            LauncherSpeed = 0.6;
+            LauncherSpeed = 0.7;
     }
 
     private void InitializeSmartDashboard() {
@@ -326,10 +326,26 @@ public class RobotContainer {
             // Intake Spin (toggle)
             runIntakeAndIndexer();
             //AutoAim
-            autoAimRobot();
+            if(Constants.Testing.VISION_TESTING)
+            {
+                autoAimRobot();
+                runShooterAndIndexer();
+            }
+            else
+            {
+                joystick.rightTrigger().whileTrue(Commands.runOnce(() -> 
+                {
+                    launcher.setSpeedLauncher(LauncherSpeed);
+                    indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED);
+                }))
+                .onFalse(Commands.runOnce(() -> 
+                {
+                    cycleLauncherSpeed();
+                    launcher.setSpeedLauncher(0);
+                    indexer.setIndexerSpeed(0);
+                }));
+            }
             resetFieldPos();
-            // Shoot (hold)    
-            runShooterAndIndexer();
             // Indexer unjam
             unjamIndexer();
             cycleLauncherSpeed();
@@ -365,6 +381,7 @@ public class RobotContainer {
             runIntakeAndIndexer();
             unjamIndexer();
             trashCompacting();
+
             //#region commented out functions
             /*
             joystick.rightBumper().whileTrue(new RunCommand(() -> {
@@ -474,7 +491,7 @@ public class RobotContainer {
     }
 
     private void cycleLauncherSpeed() {
-        joystick.a().whileTrue(Commands.runOnce(() -> CycleLauncherSpeeds(), launcher));
+        joystick.rightBumper().whileTrue(Commands.runOnce(() -> CycleLauncherSpeeds(), launcher));
     }
 
     private void unjamIndexer() {
@@ -487,6 +504,7 @@ public class RobotContainer {
             Commands.sequence(
                 //Commands.runOnce(() -> LauncherSpeed = 0.7),
                 Commands.runOnce(() -> Robot.logMsg("Working?")),
+                Commands.runOnce(() -> LauncherSpeed = launcher.distToPower(drivetrain.getHubDist(hubPosition))),
                 Commands.runOnce(() -> drivetrain.applyRequest(() -> brake)),
                 Commands.runOnce(() -> launcher.setSpeedLauncherMain(LauncherSpeed)),
                 Commands.waitUntil(() -> launcher.isAtTargetSpeed(LauncherSpeed)).withTimeout(Constants.Launcher.SPINUP_TIMEOUT_SECONDS),
