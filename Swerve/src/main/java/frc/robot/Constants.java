@@ -72,7 +72,7 @@ public class Constants {
 
     public final class Testing {
         public static final boolean TESTING = false;
-        public static final boolean ENABLE_LOGS = true;
+        public static final boolean ENABLE_LOGS = false;
         public static final boolean VISION_TESTING = false;
     }
 }
