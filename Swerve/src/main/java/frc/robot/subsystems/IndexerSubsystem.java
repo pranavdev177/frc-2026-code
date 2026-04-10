@@ -22,7 +22,15 @@ public class IndexerSubsystem extends SubsystemBase {
   private int indexerState = 0;
 
   /** Creates a new ExampleSubsystem. */
-  public IndexerSubsystem() {}
+  public IndexerSubsystem() 
+  {
+    // SparkMaxConfig config = new SparkMaxConfig();
+        
+    //     config.smartCurrentLimit(30);      // Main current limit (amps)
+    //     config.secondaryCurrentLimit(40);  // Hard cap, trips if exceeded
+        
+    //     indexer.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+  }
 
   public void setIndexerSpeed(double speed) {
     indexer.set(speed);

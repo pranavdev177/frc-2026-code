@@ -5,6 +5,12 @@
     "data": {
       "commands": [
         {
+          "type": "named",
+          "data": {
+            "name": "DropIntake"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "BlueMiddle-BlueShootingPos"
@@ -20,42 +26,6 @@
           "type": "named",
           "data": {
             "name": "ShootFuel"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "BlueShootingPos-RightNuetral"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "TurnOnIntake"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "RightNuetral-MiddleNuetral"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "TurnOffIntake"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "MiddleNuetral-RightShootingPos"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "ShootFuelLong"
           }
         }
       ]

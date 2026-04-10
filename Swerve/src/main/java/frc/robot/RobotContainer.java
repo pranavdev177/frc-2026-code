@@ -112,7 +112,7 @@ public class RobotContainer {
     private final NetworkTableEntry photonEntry;
     public Boolean photonActive = true;
 
-    private final NetworkTableEntry launcherSpeedEnty;
+    //private final NetworkTableEntry launcherSpeedEnty;
 
     public RobotContainer() {
         InitializeSmartDashboard();
@@ -125,12 +125,12 @@ public class RobotContainer {
         photonEntry = SmartDashboard.getEntry("Photon Working");
         photonEntry.setDefaultBoolean(true);
 
-        launcherSpeedEnty = SmartDashboard.getEntry("Launcher Speed");
-        launcherSpeedEnty.setDefaultValue(0.6);
+        //launcherSpeedEnty = SmartDashboard.getEntry("Launcher Speed");
+        //launcherSpeedEnty.setDefaultValue(0.6);
     }
 
     private void setupPathplannerCommands() {
-        NamedCommands.registerCommand("ShootFuel", ShootFuel(5, 0.68));
+        NamedCommands.registerCommand("ShootFuel", ShootFuel(5, 0.72));
         NamedCommands.registerCommand("ShootFuelFar", ShootFuel(5, 0.87));
         NamedCommands.registerCommand("ShootFuelLong", ShootFuel(8, 0.87));
         NamedCommands.registerCommand("ShootFuelKeepingOn", ShootFuelKeepingOn(3, launcher.distToPower(drivetrain.getHubDist(hubPosition))));
@@ -144,7 +144,7 @@ public class RobotContainer {
             Commands.runOnce(() -> indexer.setIndexerSpeed(0))
         ));
 
-        new EventTrigger("DropIntake").onTrue(Commands.sequence(
+        NamedCommands.registerCommand("DropIntake", Commands.sequence(
             Commands.runOnce(() -> intake.setIntakeAngleSpeed(Constants.Intake.INTAKE_ANGLE_SPEED), intake).withTimeout(1)
         ));
         
@@ -196,6 +196,7 @@ public class RobotContainer {
         m_chooser.addOption("RightAuto", "RightAuto");
         m_chooser.addOption("LeftAuto", "LeftAuto");
         m_chooser.addOption("MiddleAutoL", "MiddleAutoL");
+        m_chooser.addOption("Disrupt", "Disrupt");
         m_chooser.addOption("ExampleAuto", "ExampleAuto");
 
         SmartDashboard.putData("Auto Selector", m_chooser);
@@ -210,11 +211,10 @@ public class RobotContainer {
     public void updateSmartDashboard() {
         photonActive = photonEntry.getBoolean(true);
 
-        if (photonActive)
-            LauncherSpeed = launcherSpeedEnty.getDouble(0.6);
-        else
-            SmartDashboard.putNumber("Launcher Speed", LauncherSpeed);
-
+        //if (photonActive)
+            //LauncherSpeed = launcherSpeedEnty.getDouble(1);
+        //else
+        SmartDashboard.putNumber("Launcher Speed", LauncherSpeed);
 
         // Boolean values for all subsystems
         SmartDashboard.putBoolean("Shooter Active", launcher.isLauncherActive());
@@ -393,7 +393,7 @@ public class RobotContainer {
                     Commands.runOnce(() -> 
                     {  
                         //LauncherSpeed = launcher.distToPower(drivetrain.getHubDist(hubPosition) + 1);
-                        LauncherSpeed = 1;
+                        LauncherSpeed = 0.8;
 
                     }, launcher),
 
@@ -411,7 +411,7 @@ public class RobotContainer {
             );
             joystick.a().onTrue(Commands.sequence(
             Commands.runOnce(() -> intake.setIntakeAngleSpeed(-0.2)),
-            Commands.waitSeconds(0.4),
+            Commands.waitSeconds(0.7),
             Commands.runOnce(() -> intake.setIntakeAngleSpeed(0))));
             joystick.x().whileTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
@@ -468,7 +468,7 @@ public class RobotContainer {
                     Commands.runOnce(() -> 
                     {  
                         //LauncherSpeed = launcher.distToPower(drivetrain.getHubDist(hubPosition) + 1);
-                        LauncherSpeed = 0.7;
+                        LauncherSpeed = 0.8;
                     }, launcher),
 
                     Commands.runOnce(() -> launcher.setSpeedLauncherMain(LauncherSpeed)),

@@ -11,14 +11,14 @@ public class Constants {
 
     public final class Launcher {
         // Speed
-        public static final double DEFAULT_SPEED = 0.6;
+        public static final double DEFAULT_SPEED = 0.8;
         public static final double MIN_SPEED = 0.6;
         public static final double MAX_SPEED = 1.0;
         public static final double SPEED_INCREMENT = 0.05;
         public static final double LONG_SHOOT_AUTO_SPEED = 0.8;
         public static final double SHORT_SHOOT_AUTO_SPEED = 0.6;
 
-        public static final double SPINUP_TIMEOUT_SECONDS = 1.0;
+        public static final double SPINUP_TIMEOUT_SECONDS = 2;
 
         // PID
         public static final double kP = 0.1;
@@ -62,7 +62,7 @@ public class Constants {
     }
 
     public final class Indexer {
-        public static final double INDEXER_SPEED = 0.85;
+        public static final double INDEXER_SPEED = 0.8;
     }
 
     public final class Match {

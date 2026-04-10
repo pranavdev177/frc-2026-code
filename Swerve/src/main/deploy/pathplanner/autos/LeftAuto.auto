@@ -21,42 +21,6 @@
           "data": {
             "name": "ShootFuelFar"
           }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "LeftShootingPos-LeftNuetral"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "TurnOnIntake"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "LeftNuetral-MiddleNuetral"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "TurnOffIntake"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "MiddleNuetral-LeftShootingPos"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "ShootFuelLong"
-          }
         }
       ]
     }
