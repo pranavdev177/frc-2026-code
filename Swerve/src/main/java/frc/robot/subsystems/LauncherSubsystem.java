@@ -34,16 +34,14 @@ public class LauncherSubsystem extends SubsystemBase {
   /** Creates a new ExampleSubsystem. */
   public LauncherSubsystem() {
     // PID + feedforward values
-    // CurrentLimitsConfigs configs = new CurrentLimitsConfigs();
-    // configs.StatorCurrentLimit = 80;        // Max current to motor (torque limiting)
-    // configs.StatorCurrentLimitEnable = true;
+    CurrentLimitsConfigs configs = new CurrentLimitsConfigs();
+    configs.StatorCurrentLimit = 80;        // Max current to motor (torque limiting)
+    configs.StatorCurrentLimitEnable = true;
 
-    // configs.SupplyCurrentLimit = 60;        // Max current from battery
-    // configs.SupplyCurrentLowerLimit = 40;   // Drop to this after...
-    // configs.SupplyCurrentLowerTime = 1.0;   // ...being over limit for this long
-    // configs.SupplyCurrentLimitEnable = true;
+    configs.SupplyCurrentLimit = 40;
+    configs.SupplyCurrentLimitEnable = true;
 
-    // launcherMain.getConfigurator().apply(configs);
+    launcherMain.getConfigurator().apply(configs);
 
     // launcherFeed.getConfigurator().apply(configs);
 

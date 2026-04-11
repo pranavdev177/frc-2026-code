@@ -115,7 +115,7 @@ public class RobotContainer {
 
     public final SlewRateLimiter m_xLimiter   = new SlewRateLimiter(4.0);
     public final SlewRateLimiter m_yLimiter   = new SlewRateLimiter(4.0);
-    public final SlewRateLimiter m_rotLimiter = new SlewRateLimiter(6.0);
+    public final SlewRateLimiter m_rotLimiter = new SlewRateLimiter(8.0);
 
     //private final NetworkTableEntry launcherSpeedEnty;
 
