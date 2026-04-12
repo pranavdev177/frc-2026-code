@@ -345,11 +345,9 @@ public class RobotContainer {
                     //intake.setIntakeAngle(0);
                     if (intake.isIntakeActive()) {
                         intake.setIntakeSpeed(0);
-                        intake.unlockAngle();
                         indexer.setIndexerSpeed(0);
                     } else {
                         intake.setIntakeSpeed(Constants.Intake.INTAKE_SPEED);
-                        intake.lockAngle(intake.getIntakeAngle());
                         indexer.setIndexerSpeed(Constants.Indexer.INDEXER_SPEED);
                         //intake.lockAngle(0);
                     }
@@ -400,6 +398,10 @@ public class RobotContainer {
             //     )
             // );
 
+            //Lock and unlock PID for intake
+            joystick.leftStick().onTrue(Commands.runOnce(() -> intake.lockAngle(intake.getIntakeAngle())));
+            joystick.rightStick().onTrue(Commands.runOnce(() -> intake.lockAngle(intake.getIntakeAngle())));
+
             joystick.rightTrigger().whileTrue(
                 Commands.sequence(
                     Commands.runOnce(() -> drivetrain.applyRequest(() -> brake)),
@@ -426,6 +428,7 @@ public class RobotContainer {
             Commands.runOnce(() -> intake.setIntakeAngleSpeed(-0.2)),
             Commands.waitSeconds(0.7),
             Commands.runOnce(() -> intake.setIntakeAngleSpeed(0))));
+
             joystick.x().whileTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
 

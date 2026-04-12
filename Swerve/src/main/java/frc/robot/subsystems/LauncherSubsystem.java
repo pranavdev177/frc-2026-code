@@ -35,10 +35,10 @@ public class LauncherSubsystem extends SubsystemBase {
   public LauncherSubsystem() {
     // PID + feedforward values
     CurrentLimitsConfigs configs = new CurrentLimitsConfigs();
-    configs.StatorCurrentLimit = 80;        // Max current to motor (torque limiting)
+    configs.StatorCurrentLimit = 120;        // Max current to motor (torque limiting) 80
     configs.StatorCurrentLimitEnable = true;
 
-    configs.SupplyCurrentLimit = 40;
+    configs.SupplyCurrentLimit = 70; // 40
     configs.SupplyCurrentLimitEnable = true;
 
     launcherMain.getConfigurator().apply(configs);
